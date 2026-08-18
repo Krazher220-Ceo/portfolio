@@ -3,6 +3,19 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<script>
+/* Страница может открыться и как /qa-dashboard (без завершающего слэша) —
+   тогда относительные пути assets/… разрешаются от корня домена и дают 404.
+   Ставим базу явно, до первой ссылки на файл ниже по документу. */
+(function () {
+  var p = location.pathname;
+  if (p.length > 1 && p.charAt(p.length - 1) !== '/' && !/\.[a-z0-9]+$/i.test(p)) {
+    var b = document.createElement('base');
+    b.href = p + '/';
+    document.head.appendChild(b);
+  }
+})();
+</script>
 <title>Jasyl — AI-мониторинг зелёных насаждений Костаная</title>
 <meta name="description" content="Житель фотографирует дерево, модель определяет состояние, объект встаёт на карту города, служба озеленения получает заявку с приоритетом. Проект команды Jasyl для Qostanai Smart City Hackathon, кейс №1." />
 <meta name="theme-color" content="#080b09" />
@@ -266,6 +279,25 @@ ul.honest{border-left:2px solid var(--accent-line);padding-left:22px;margin:0}
 .shot__cap{padding:13px 16px;font-size:13.5px;color:var(--text-2);border-top:1px solid var(--border)}
 .shot__cap b{display:block;color:var(--text);font-size:14px;font-weight:600;margin-bottom:1px}
 
+/* ---------- фотографии с хакатона ---------- */
+.photo{
+  margin:0;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+}
+.photo img{width:100%;height:auto;display:block}
+.photo figcaption{padding:15px 20px;font-size:13.5px;color:var(--text-2);border-top:1px solid var(--border)}
+.photo figcaption b{display:block;color:var(--text);font-size:14.5px;font-weight:600;margin-bottom:2px}
+
+/* Портретный кадр рядом с текстом: во всю ширину он занял бы целый экран. */
+.photo-row{
+  display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:26px;align-items:center;
+  margin-top:36px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:22px;
+}
+@media(max-width:700px){.photo-row{grid-template-columns:1fr;gap:18px}}
+.photo-row img{width:100%;height:auto;border-radius:14px;display:block}
+.photo-row p{color:var(--text-2);font-size:14.5px;margin:0}
+
 /* ---------- сертификат ---------- */
 .cert{
   display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px;align-items:center;
@@ -375,6 +407,7 @@ a,button{touch-action:manipulation}
       <a href="#arch">Архитектура</a>
       <a href="#model">Модель</a>
       <a href="#screens" id="nav-screens" hidden>Экраны</a>
+      <a href="#photos">Хакатон</a>
       <a href="#team">Команда</a>
       <a href="#cert" id="nav-cert" hidden>Сертификат</a>
     </div>
@@ -554,6 +587,20 @@ a,button{touch-action:manipulation}
         <div class="step__n"></div>
         <h3>Наряд</h3>
         <p>Специалист подтверждает или исправляет класс, руководитель видит план работ по срочности и выгружает сводку в Excel.</p>
+      </div>
+    </div>
+
+    <div class="photo-row">
+      <img src="assets/photo-app.jpg" loading="lazy"
+           alt="Экран осмотра дерева в приложении Jasyl на телефоне: фотография кроны, класс «Здоровое» и кнопка синхронизации" />
+      <div>
+        <h3>Тот самый экран, ради которого всё делалось</h3>
+        <p>
+          Осмотр дерева в поле: снимок, класс состояния, срок планового осмотра
+          и счётчик очереди на синхронизацию в шапке — приложение честно
+          показывает, что одна запись ещё не ушла на сервер. Кадр сделан на
+          площадке хакатона сразу после защиты.
+        </p>
       </div>
     </div>
   </div>
@@ -877,6 +924,16 @@ a,button{touch-action:manipulation}
       КГУ «Школа-лицей №1 отдела образования города Костаная».
     </p>
 
+    <figure class="photo" style="margin-bottom:24px">
+      <img src="assets/photo-pitch.jpg" loading="lazy"
+           alt="Защита проекта Jasyl на сцене: слайд «Проблема» о состоянии деревьев города" />
+      <figcaption>
+        <b>Защита проекта</b>
+        Первый слайд — про боль, а не про технологию: город не знает состояния
+        своих деревьев, а аварийное дерево находят уже после того, как оно упало.
+      </figcaption>
+    </figure>
+
     <div class="people">
       <div class="person">
         <div class="person__ava">КА</div>
@@ -911,6 +968,57 @@ a,button{touch-action:manipulation}
       <span class="tag">КГУ «Школа-лицей №1 отдела образования города Костаная»</span>
       <span class="tag">Qostanai Smart City Hackathon 2026</span>
       <span class="tag">Кейс №1 — мониторинг зелёных насаждений</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ХАКАТОН ============ -->
+<section class="section" id="photos">
+  <div class="wrap reveal">
+    <div class="eyebrow">Хакатон</div>
+    <h2>Как это было</h2>
+    <p class="lead">
+      Двое суток в зале, ночная отладка синхронизации, утренняя пересборка
+      презентации — и защита перед жюри, менторами и другими командами.
+    </p>
+
+    <figure class="photo">
+      <img src="assets/photo-teams.jpg" loading="lazy"
+           alt="Общая фотография участников, менторов и организаторов хакатона после защиты проектов" />
+      <figcaption>
+        <b>Все участники после защит</b>
+        Команды, менторы и организаторы Qostanai Smart City Hackathon в зале,
+        где два дня подряд шла работа над кейсами.
+      </figcaption>
+    </figure>
+
+    <div class="grid grid--2" style="margin-top:16px">
+      <figure class="photo">
+        <img src="assets/photo-jury.jpg" loading="lazy"
+             alt="После защиты: члены жюри смотрят работу приложения Jasyl вживую" />
+        <figcaption>
+          <b>Разбор после защиты</b>
+          Жюри смотрит приложение вживую: как ведёт себя интерфейс, что
+          происходит с записью без сети и откуда берётся класс состояния.
+        </figcaption>
+      </figure>
+
+      <div class="card">
+        <h3>Что мы вынесли из этих двух дней</h3>
+        <p style="margin-bottom:12px">
+          Самое полезное случилось не в коде. Вопросы жюри и менторов оказались
+          не про архитектуру, а про то, кто именно и в какой момент нажмёт
+          кнопку — и половина ответов у нас нашлась только на сцене.
+        </p>
+        <p style="margin-bottom:12px">
+          Ещё стало понятно, что честно сказанное «модель ошибается вот здесь и
+          вот почему» слушают внимательнее, чем красивую цифру точности.
+        </p>
+        <p>
+          И что работающее демо на телефоне в руках — сильнее любого слайда
+          с этим же экраном.
+        </p>
+      </div>
     </div>
   </div>
 </section>
@@ -957,6 +1065,7 @@ a,button{touch-action:manipulation}
       <a href="https://qostanai-smart-green-rho.vercel.app/" target="_blank" rel="noopener">Демо</a>
       <a href="#how">Как работает</a>
       <a href="#model">Модель</a>
+      <a href="#photos">Хакатон</a>
       <a href="#team">Команда</a>
       <a href="mailto:hi@alikhandev.com">hi@alikhandev.com</a>
       <a href="/qa-dashboard">Другой проект: QA Vision</a>
@@ -1303,30 +1412,40 @@ a,button{touch-action:manipulation}
   var section = document.getElementById('screens');
   var navShots = document.getElementById('nav-screens');
 
-  SHOTS.forEach(function (s) {
-    firstImage(candidates(s[0]), function (src) {
-      var fig = document.createElement('figure');
-      fig.className = 'shot';
-      fig.setAttribute('data-order', s[0]);
-      fig.innerHTML =
-        '<div class="shot__frame"><img src="' + src + '" alt="' + s[1] + '" loading="lazy" /></div>' +
-        '<figcaption class="shot__cap"><b>' + s[1] + '</b>' + s[2] + '</figcaption>';
+  function addShot(s, src) {
+    var fig = document.createElement('figure');
+    fig.className = 'shot';
+    fig.setAttribute('data-order', s[0]);
+    fig.innerHTML =
+      '<div class="shot__frame"><img src="' + src + '" alt="' + s[1] + '" loading="lazy" /></div>' +
+      '<figcaption class="shot__cap"><b>' + s[1] + '</b>' + s[2] + '</figcaption>';
 
-      // Вставляем в порядке объявления, а не в порядке загрузки.
-      var placed = false;
-      var existing = box.children;
-      for (var i = 0; i < existing.length; i++) {
-        if (existing[i].getAttribute('data-order') > s[0]) {
-          box.insertBefore(fig, existing[i]);
-          placed = true;
-          break;
-        }
+    // Вставляем в порядке объявления, а не в порядке загрузки.
+    var placed = false;
+    var existing = box.children;
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].getAttribute('data-order') > s[0]) {
+        box.insertBefore(fig, existing[i]);
+        placed = true;
+        break;
       }
-      if (!placed) box.appendChild(fig);
+    }
+    if (!placed) box.appendChild(fig);
 
-      section.hidden = false;
-      navShots.hidden = false;
-    });
+    section.hidden = false;
+    navShots.hidden = false;
+  }
+
+  /* Сначала ищем только первый снимок. Пока скриншотов нет, страница
+     стучится по трём адресам вместо восемнадцати — консоль остаётся
+     читаемой, а поведение то же: появился файл — появилась секция. */
+  firstImage(candidates(SHOTS[0][0]), function (src) {
+    addShot(SHOTS[0], src);
+    for (var i = 1; i < SHOTS.length; i++) {
+      (function (s) {
+        firstImage(candidates(s[0]), function (found) { addShot(s, found); });
+      })(SHOTS[i]);
+    }
   });
 
   // ── сертификат ─────────────────────────────────────────────────
