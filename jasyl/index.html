@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Jasyl — AI-мониторинг зелёных насаждений Костаная</title>
+<meta name="description" content="Житель фотографирует дерево, модель определяет состояние, объект встаёт на карту города, служба озеленения получает заявку с приоритетом. Проект команды Jasyl для Qostanai Smart City Hackathon, кейс №1." />
+<meta name="theme-color" content="#080b09" />
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Jasyl — AI-мониторинг зелёных насаждений Костаная" />
+<meta property="og:description" content="PWA, собственная модель классификации состояния деревьев, карта города и реестр для службы озеленения. Хакатон, два дня, три человека." />
+<meta property="og:image" content="assets/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<style>
+/* ============================================================
+   Jasyl — витрина проекта.
+   Один файл, ноль зависимостей, ноль внешних запросов:
+   страница открывается с любого хостинга и из локальной папки.
+   ============================================================ */
+
+:root{
+  --bg:#080b09;
+  --surface:rgba(17,23,20,.82);
+  --surface-2:rgba(23,31,26,.9);
+  --panel:rgba(11,15,13,.78);
+  --border:rgba(255,255,255,.09);
+  --border-strong:rgba(255,255,255,.17);
+
+  --text:#e9efeb;
+  --text-2:#98a59e;
+  --text-3:#6b7972;
+
+  --accent:#5fd08a;
+  --accent-soft:rgba(95,208,138,.10);
+  --accent-line:rgba(95,208,138,.30);
+
+  /* Цвет = состояние объекта. Зеркало палитры приложения. */
+  --ok:#4ade80;
+  --warn:#f0a83a;
+  --danger:#f4595f;
+
+  --radius:16px;
+  --radius-lg:22px;
+  --maxw:1140px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--font);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.9em}
+
+/* Кинетическая сетка живёт под всем содержимым и не перехватывает события. */
+#grid{position:fixed;inset:0;width:100%;height:100%;max-width:100%;z-index:0;pointer-events:none}
+#page{position:relative;z-index:1}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.section{padding:96px 0;position:relative}
+.section+.section{border-top:1px solid var(--border)}
+
+.eyebrow{
+  font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 14px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--accent-line)}
+
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em;font-weight:650}
+h2{font-size:clamp(28px,4vw,40px);margin-bottom:16px}
+h3{font-size:19px;letter-spacing:-.01em;margin-bottom:8px}
+.lead{font-size:clamp(16px,2vw,18px);color:var(--text-2);max-width:66ch;margin:0 0 40px}
+p{margin:0 0 14px}
+
+/* ---------- шапка ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  /* Непрозрачный фон по умолчанию. Размытие подложки у липкой шапки — самая
+     дорогая вещь на странице для мобильного Safari: оно пересчитывается на
+     каждом кадре прокрутки. Включаем его только там, где есть мышь. */
+  background:#080b09;
+  border-bottom:1px solid var(--border);
+}
+@media(hover:hover) and (pointer:fine){
+  .nav{
+    background:rgba(8,11,9,.78);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+}
+.nav__in{max-width:var(--maxw);margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
+.nav__brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em;color:var(--text)}
+.nav__brand:hover{text-decoration:none}
+.nav__brand img{width:28px;height:28px;border-radius:8px}
+.nav__links{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.nav__links a{color:var(--text-2);font-size:14px;padding:7px 10px;border-radius:9px;transition:.15s}
+.nav__links a:hover{color:var(--text);background:var(--surface-2);text-decoration:none}
+.nav__cta{margin-left:16px;padding:9px 16px;font-size:14px;flex:none}
+@media(max-width:960px){
+  .nav__links{display:none}
+  /* Меню скрыто — без этого «Демо» прилипала бы вплотную к логотипу. */
+  .nav__cta{margin-left:auto}
+}
+
+/* ---------- кнопки ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 20px;border-radius:12px;font-size:15px;font-weight:600;
+  border:1px solid var(--border-strong);color:var(--text);background:var(--surface-2);
+  transition:.16s;cursor:pointer;
+}
+.btn:hover{border-color:var(--text-3);transform:translateY(-1px);text-decoration:none}
+.btn--primary{background:var(--accent);color:#06120b;border-color:transparent}
+.btn--primary:hover{background:#78e0a0}
+.btn--ghost{background:rgba(17,23,20,.5)}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ---------- герой ---------- */
+.hero{position:relative;overflow:hidden;padding:84px 0 100px}
+.hero__grid{position:relative;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:center}
+@media(max-width:900px){.hero__grid{grid-template-columns:1fr;gap:48px}}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.chip{
+  font-size:12.5px;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text-2);
+}
+.chip--accent{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+
+.hero h1{font-size:clamp(40px,6.4vw,68px);letter-spacing:-.035em;margin-bottom:8px}
+.hero__sub{font-size:clamp(19px,2.6vw,23px);color:var(--text);font-weight:500;margin-bottom:20px}
+.hero__text{font-size:17px;color:var(--text-2);max-width:56ch;margin-bottom:32px}
+
+.hint{
+  display:none;align-items:center;gap:9px;margin-top:26px;
+  font-size:13px;color:var(--text-3);
+}
+.hint b{color:var(--text-2);font-weight:600}
+.hint__dot{
+  width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:40px}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--panel);padding:20px 18px}
+.stat__n{font-size:27px;font-weight:650;letter-spacing:-.03em;color:var(--text);line-height:1.1}
+.stat__l{font-size:13px;color:var(--text-3);margin-top:5px}
+
+/* ---------- макет телефона ---------- */
+.phone{
+  width:min(320px,100%);margin:0 auto;border-radius:38px;padding:9px;
+  background:linear-gradient(160deg,#252d29,#0e1310);
+  border:1px solid var(--border-strong);
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.03) inset;
+}
+.phone__screen{background:#f1f1f5;border-radius:30px;overflow:hidden;color:#1c1c1e;font-size:12px}
+.phone__shot{width:100%;height:auto;display:block}
+.ph-top{background:#fff;padding:14px 14px 10px;border-bottom:1px solid #e3e3e8;display:flex;align-items:center;justify-content:space-between}
+.ph-title{font-weight:650;font-size:14px;letter-spacing:-.01em}
+.ph-sync{font-size:10.5px;color:#2e7d32;background:rgba(46,125,50,.1);padding:3px 8px;border-radius:999px;font-weight:600}
+.ph-map{height:132px;position:relative;background:#dfe6df;overflow:hidden}
+.ph-map svg{position:absolute;inset:0;width:100%;height:100%}
+.ph-list{padding:10px;display:flex;flex-direction:column;gap:8px;background:#f1f1f5}
+.ph-card{background:#fff;border:1px solid #e3e3e8;border-radius:11px;padding:9px 11px;display:flex;gap:10px;align-items:center}
+.ph-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.ph-card__txt{flex:1;min-width:0}
+.ph-card b{display:block;font-size:12px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-card__txt span{font-size:10.5px;color:#6e6e73;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-pill{margin-left:auto;font-size:9.5px;font-weight:700;padding:3px 7px;border-radius:999px;white-space:nowrap}
+.ph-tabs{display:flex;background:#fff;border-top:1px solid #e3e3e8;padding:9px 0 14px}
+.ph-tab{flex:1;text-align:center;font-size:9px;color:#6e6e73}
+.ph-tab i{display:block;width:16px;height:16px;margin:0 auto 3px;border-radius:5px;background:#c9ccd1}
+.ph-tab--on{color:#1565c0}
+.ph-tab--on i{background:#1565c0}
+
+/* ---------- сетки карточек ---------- */
+.grid{display:grid;gap:16px}
+.grid--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.grid--3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.grid--2,.grid--3{grid-template-columns:1fr}}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;transition:.18s;
+}
+.card:hover{border-color:var(--border-strong);background:var(--surface-2)}
+.card p{color:var(--text-2);font-size:14.5px;margin:0}
+.card__ico{
+  width:38px;height:38px;border-radius:11px;background:var(--accent-soft);
+  border:1px solid var(--accent-line);display:grid;place-items:center;margin-bottom:14px;
+}
+.card__ico svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- поток «как это работает» ---------- */
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:step}
+@media(max-width:900px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.flow{grid-template-columns:1fr}}
+.step{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.step__n{
+  counter-increment:step;font-family:var(--mono);font-size:12px;color:var(--accent);
+  border:1px solid var(--accent-line);background:var(--accent-soft);
+  width:28px;height:28px;border-radius:9px;display:grid;place-items:center;margin-bottom:14px;font-weight:600;
+}
+.step__n::before{content:counter(step,decimal-leading-zero)}
+.step h3{font-size:16px}
+.step p{color:var(--text-2);font-size:14px;margin:0}
+
+/* ---------- схема ---------- */
+.diagram{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px;overflow-x:auto;
+}
+.diagram svg{min-width:760px;width:100%;height:auto;display:block}
+
+/* ---------- таблицы ---------- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14.5px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);font-weight:600;background:rgba(8,11,9,.5)}
+tr:last-child td{border-bottom:none}
+td b{font-weight:600}
+td.num{font-family:var(--mono);color:var(--text)}
+
+/* ---------- метрики модели ---------- */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:32px}
+@media(max-width:820px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+.metric__n{font-size:32px;font-weight:650;letter-spacing:-.03em;line-height:1}
+.metric__l{font-size:13px;color:var(--text-3);margin-top:8px}
+.bar{height:6px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+
+/* ---------- «честно» ---------- */
+ul.honest{border-left:2px solid var(--accent-line);padding-left:22px;margin:0}
+.honest li{margin-bottom:16px;color:var(--text-2);font-size:15px;list-style:none}
+.honest li:last-child{margin-bottom:0}
+.honest b{color:var(--text);display:block;margin-bottom:2px;font-weight:600}
+
+.note{
+  background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);
+  border-radius:12px;padding:16px 20px;color:var(--text-2);font-size:14.5px;
+}
+.note b{color:var(--text)}
+
+/* ---------- галерея ---------- */
+.shots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media(max-width:900px){.shots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.shots{grid-template-columns:1fr}}
+.shot{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:0}
+.shot__frame{aspect-ratio:9/16;background:rgba(8,11,9,.6);position:relative}
+.shot__frame img{width:100%;height:100%;object-fit:cover;object-position:top}
+.shot__cap{padding:13px 16px;font-size:13.5px;color:var(--text-2);border-top:1px solid var(--border)}
+.shot__cap b{display:block;color:var(--text);font-size:14px;font-weight:600;margin-bottom:1px}
+
+/* ---------- сертификат ---------- */
+.cert{
+  display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px;align-items:center;
+  background:linear-gradient(150deg,var(--surface),var(--panel));
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;
+}
+@media(max-width:860px){.cert{grid-template-columns:1fr;padding:24px}}
+.cert__stage{
+  border-radius:14px;background:#fff;overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+}
+.cert__stage img{width:100%;height:auto}
+.cert__stage object{width:100%;height:480px;border:0}
+.cert h3{font-size:24px;letter-spacing:-.02em;margin-bottom:10px}
+.cert p{color:var(--text-2);font-size:15px}
+
+/* ---------- команда ---------- */
+.people{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media(max-width:820px){.people{grid-template-columns:1fr}}
+.person{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;transition:.18s;
+  display:flex;flex-direction:column;
+}
+.person:hover{border-color:var(--accent-line)}
+.person__ava{
+  width:44px;height:44px;border-radius:13px;margin-bottom:16px;
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+  display:grid;place-items:center;color:var(--accent);font-weight:650;font-size:15px;letter-spacing:.02em;
+}
+.person__name{font-size:16.5px;font-weight:650;letter-spacing:-.01em;margin-bottom:3px}
+.person__role{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.person__txt{font-size:14px;color:var(--text-2);margin:0 0 18px}
+
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.tag{font-size:13px;padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+
+/* ---------- подвал ---------- */
+.footer{border-top:1px solid var(--border);padding:56px 0 72px;color:var(--text-3);font-size:14px;background:rgba(8,11,9,.6)}
+.footer__grid{display:flex;gap:32px;flex-wrap:wrap;justify-content:space-between;align-items:flex-start}
+.footer a{color:var(--text-2)}
+.footer a:hover{color:var(--accent)}
+.footer__links{display:flex;gap:22px;flex-wrap:wrap}
+
+/* ---------- появление при прокрутке ---------- */
+.reveal{opacity:0;transform:translateY(14px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .55s ease,transform .55s ease}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+  .hint__dot{animation:none}
+}
+
+[hidden]{display:none !important}
+
+/* ---------- телефоны ---------- */
+@media(max-width:640px){
+  /* Десктопные отступы растягивали страницу до ~16 000 px: на телефоне это
+     минута непрерывной прокрутки ради тех же самых блоков. */
+  .section{padding:56px 0}
+  .hero{padding:40px 0 56px}
+  .wrap{padding:0 18px}
+
+  h2{font-size:26px}
+  .lead{font-size:15.5px;margin-bottom:28px}
+  .hero__text{font-size:16px}
+  .card,.step,.metric,.person{padding:20px}
+
+  /* Кнопки в герое: в столбик они занимали целый экран. */
+  .btn-row{gap:10px}
+  .btn-row .btn{flex:1 1 100%;justify-content:center}
+
+  /* Палец должен попадать в ссылку без прицеливания. */
+  .footer__links{gap:14px 22px}
+  .footer__links a{padding:6px 0;display:inline-block}
+
+  /* Таблицы и схема прокручиваются вбок — подсказываем это инерцией
+     и не даём тянуть за собой всю страницу. */
+  .tbl-wrap,.diagram{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .diagram{padding:16px}
+  pre{font-size:12.5px;padding:14px 16px}
+}
+
+/* Убираем 300 мс задержку тапа и серую вспышку по нажатию. */
+a,button{touch-action:manipulation}
+</style>
+</head>
+<body>
+
+<canvas id="grid" aria-hidden="true"></canvas>
+
+<div id="page">
+
+<!-- ============ ШАПКА ============ -->
+<nav class="nav">
+  <div class="nav__in">
+    <a class="nav__brand" href="#top"><img src="assets/icon-512.png" alt="" /> Jasyl</a>
+    <div class="nav__links">
+      <a href="#problem">Задача</a>
+      <a href="#how">Как работает</a>
+      <a href="#features">Возможности</a>
+      <a href="#arch">Архитектура</a>
+      <a href="#model">Модель</a>
+      <a href="#screens" id="nav-screens" hidden>Экраны</a>
+      <a href="#team">Команда</a>
+      <a href="#cert" id="nav-cert" hidden>Сертификат</a>
+    </div>
+    <a class="btn btn--primary nav__cta" href="https://qostanai-smart-green-rho.vercel.app/" target="_blank" rel="noopener">Демо</a>
+  </div>
+</nav>
+
+<!-- ============ ГЕРОЙ ============ -->
+<header class="hero" id="top">
+  <div class="wrap hero__grid">
+    <div>
+      <div class="chips">
+        <span class="chip chip--accent">Qostanai Smart City Hackathon · Кейс №1</span>
+        <span class="chip">13–14 августа 2026</span>
+        <span class="chip">2 дня · 3 человека</span>
+      </div>
+
+      <h1>Jasyl</h1>
+      <div class="hero__sub">AI-мониторинг зелёных насаждений Костаная</div>
+      <p class="hero__text">
+        Житель фотографирует дерево, модель определяет состояние, объект встаёт
+        на карту города с инвентарным номером, служба озеленения получает заявку
+        с приоритетом и планом работ. Приложение работает без интернета: снимки
+        копятся на устройстве и уходят сами, когда связь вернётся.
+      </p>
+
+      <div class="btn-row">
+        <a class="btn btn--primary" href="https://qostanai-smart-green-rho.vercel.app/" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Открыть демо
+        </a>
+        <a class="btn btn--ghost" href="#how">Как это работает</a>
+      </div>
+
+      <p style="margin:14px 0 0;font-size:13px;color:var(--text-3)">
+        Демо работает без сервера: модель считается прямо в браузере, реестр —
+        на демо-наборе данных. Подробности — <a href="#model">в разделе о модели</a>.
+      </p>
+
+      <div class="hint" id="hint">
+        <span class="hint__dot"></span>
+        <span><b>Наведите курсор</b> — сетка тянется за ним. <b>Кликните</b> — расходится волна.</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat__n">6</div><div class="stat__l">классов состояния</div></div>
+        <div class="stat"><div class="stat__n">343</div><div class="stat__l">размеченных фото</div></div>
+        <div class="stat"><div class="stat__n">4</div><div class="stat__l">платформы сборки</div></div>
+        <div class="stat"><div class="stat__n">100%</div><div class="stat__l">сценария офлайн</div></div>
+      </div>
+    </div>
+
+    <!-- Снимок настоящего экрана приложения. Если файла нет, на его место
+         встаёт вёрстанный макет из <template> ниже — страница не ломается. -->
+    <div class="phone">
+      <div class="phone__screen" id="phone-screen">
+        <img
+          class="phone__shot"
+          src="assets/hero.jpg"
+          alt="Главный экран приложения Jasyl: карта Костаная с зонами риска и сводкой по состоянию насаждений"
+          onerror="(function(el){var p=el.closest('.phone');p.innerHTML=document.getElementById('phone-mockup').innerHTML;p.setAttribute('aria-hidden','true');})(this)"
+        />
+      </div>
+    </div>
+
+    <template id="phone-mockup">
+      <div class="phone__screen">
+        <div class="ph-top">
+          <span class="ph-title">Реестр насаждений</span>
+          <span class="ph-sync">● синхр.</span>
+        </div>
+        <div class="ph-map">
+          <svg viewBox="0 0 260 132" preserveAspectRatio="xMidYMid slice">
+            <rect width="260" height="132" fill="#dfe6df"/>
+            <path d="M0 44h260M0 92h260M62 0v132M158 0v132" stroke="#cdd6cd" stroke-width="7"/>
+            <path d="M0 20h260M0 118h260M110 0v132M212 0v132" stroke="#d6ded6" stroke-width="4"/>
+            <rect x="14" y="52" width="38" height="30" rx="3" fill="#d3ddd3"/>
+            <rect x="168" y="10" width="46" height="26" rx="3" fill="#d3ddd3"/>
+            <circle cx="86" cy="58" r="18" fill="rgba(46,125,50,.16)"/>
+            <circle cx="86" cy="58" r="7" fill="#2e7d32"/>
+            <circle cx="134" cy="36" r="7" fill="#c77700"/>
+            <circle cx="186" cy="74" r="9" fill="#c62828"/>
+            <circle cx="186" cy="74" r="17" fill="none" stroke="rgba(198,40,40,.35)" stroke-width="2"/>
+            <circle cx="46" cy="104" r="6" fill="#2e7d32"/>
+            <circle cx="224" cy="112" r="6" fill="#c77700"/>
+            <circle cx="112" cy="98" r="6" fill="#2e7d32"/>
+          </svg>
+        </div>
+        <div class="ph-list">
+          <div class="ph-card">
+            <span class="ph-dot" style="background:#c62828"></span>
+            <span class="ph-card__txt"><b>№ JSL-000019</b><span>Тополь · ул. Хакимжановой</span></span>
+            <span class="ph-pill" style="background:rgba(198,40,40,.1);color:#c62828">Аварийное</span>
+          </div>
+          <div class="ph-card">
+            <span class="ph-dot" style="background:#c77700"></span>
+            <span class="ph-card__txt"><b>№ JSL-000004</b><span>Ясень · ул. Баймагамбетова</span></span>
+            <span class="ph-pill" style="background:rgba(199,119,0,.1);color:#c77700">Внимание</span>
+          </div>
+          <div class="ph-card">
+            <span class="ph-dot" style="background:#2e7d32"></span>
+            <span class="ph-card__txt"><b>№ JSL-000005</b><span>Сосна · парк Победы</span></span>
+            <span class="ph-pill" style="background:rgba(46,125,50,.1);color:#2e7d32">Норма</span>
+          </div>
+        </div>
+        <div class="ph-tabs">
+          <div class="ph-tab"><i></i>Главная</div>
+          <div class="ph-tab ph-tab--on"><i></i>Карта</div>
+          <div class="ph-tab"><i></i>Съёмка</div>
+          <div class="ph-tab"><i></i>Заявки</div>
+          <div class="ph-tab"><i></i>Ещё</div>
+        </div>
+      </div>
+    </template>
+  </div>
+</header>
+
+<!-- ============ ЗАДАЧА ============ -->
+<section class="section" id="problem">
+  <div class="wrap reveal">
+    <div class="eyebrow">Задача</div>
+    <h2>Город не знает, какие деревья опасны</h2>
+    <p class="lead">
+      Учёт зелёных насаждений ведётся на бумаге и в разрозненных таблицах.
+      Обход выполняет человек с блокнотом, аварийное дерево попадает в план работ
+      уже после того, как ветка упала. Кейс №1 хакатона просил систему, которая
+      переводит этот учёт в цифру и даёт службе озеленения приоритеты.
+    </p>
+
+    <div class="grid grid--3">
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <h3>Реакция, а не профилактика</h3>
+        <p>Заявка появляется после происшествия. Дерево, которое сохло два сезона, никто не считал проблемой, пока оно не упало на тротуар.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg></div>
+        <h3>Данные не сведены</h3>
+        <p>Обходы, обращения жителей и планы работ живут в разных местах. Свести их в одну карту и один приоритетный список нечем.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+        <h3>Житель не встроен в процесс</h3>
+        <p>Человек видит опасную ветку каждый день, но канал обращения — звонок, который никуда не привязан географически.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ КАК РАБОТАЕТ ============ -->
+<section class="section" id="how">
+  <div class="wrap reveal">
+    <div class="eyebrow">Сценарий</div>
+    <h2>Четыре шага от фотографии до наряда</h2>
+    <p class="lead">
+      Полный путь данных занимает меньше минуты и не требует от жителя ни регистрации,
+      ни установки приложения из магазина — сервис открывается по ссылке.
+    </p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Съёмка</h3>
+        <p>Камера и геолокация в момент кадра. Вид дерева житель выбирает сам — породу модель не определяет намеренно.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Классификация</h3>
+        <p>Фото уходит в инференс-сервис. MobileNetV3 возвращает класс состояния, тяжесть 1–5 и рекомендацию из справочника.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Реестр и карта</h3>
+        <p>Объект получает инвентарный номер <code>№ JSL-000001</code>, встаёт на карту города и в цифровой паспорт с историей осмотров.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Наряд</h3>
+        <p>Специалист подтверждает или исправляет класс, руководитель видит план работ по срочности и выгружает сводку в Excel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ВОЗМОЖНОСТИ ============ -->
+<section class="section" id="features">
+  <div class="wrap reveal">
+    <div class="eyebrow">Что внутри</div>
+    <h2>Возможности продукта</h2>
+    <p class="lead">
+      Не демо одной функции: закрыт весь цикл — от полевой съёмки до документа,
+      который служба озеленения может положить на стол в акимате.
+    </p>
+
+    <div class="grid grid--3">
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+        <h3>Съёмка в реальном времени</h3>
+        <p>Камера и координаты в момент кадра. Загрузка готового файла из галереи жителю недоступна сознательно: у такого файла нельзя подтвердить место и время.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></div>
+        <h3>Пакетная обработка</h3>
+        <p>Сотруднику доступна загрузка до 10 фото за раз: обработка по одному с прогрессом, прерывание не теряет уже обработанное.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="m1 6 7-3 8 3 7-3v15l-7 3-8-3-7 3z"/><path d="M8 3v15M16 6v15"/></svg></div>
+        <h3>Карта с зонами риска</h3>
+        <p>На масштабе города точки собираются в кластеры по кварталам, крупный зум разворачивает их в отдельные деревья. Leaflet и OpenStreetMap, без API-ключей.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+        <h3>Цифровой паспорт объекта</h3>
+        <p>Инвентарный номер, история обследований, печать в фирменном виде с QR-кодом на точные координаты — открывается прямо в поле.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+        <h3>Предиктивный режим</h3>
+        <p>Детерминированная модель риска: тяжесть состояния × время без осмотра × порода. На выходе — четыре полосы срочности и прогноз последствий бездействия.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Три роли и RLS</h3>
+        <p>Житель, специалист, руководитель. Разграничение — политиками Row Level Security в базе, а не скрытыми кнопками в интерфейсе.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 14 0M1.4 9.4a15 15 0 0 1 21.2 0"/></svg></div>
+        <h3>Офлайн-первое</h3>
+        <p>Service Worker, очередь в IndexedDB, три независимых триггера синхронизации — включая ручной, потому что Background Sync не работает в Safari.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg></div>
+        <h3>Выгрузка для акимата</h3>
+        <p>Excel и печать одним кликом, без сторонних PDF-библиотек, которые ломаются на кириллице.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>Human-in-the-loop</h3>
+        <p>Модель не выписывает наряд. Предсказание уходит в очередь на проверку, решение принимает и подписывает человек.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ АРХИТЕКТУРА ============ -->
+<section class="section" id="arch">
+  <div class="wrap reveal">
+    <div class="eyebrow">Архитектура</div>
+    <h2>Как устроена система</h2>
+    <p class="lead">
+      Клиент самодостаточен: он остаётся рабочим при недоступности и модели, и базы —
+      это не аварийный режим, а проектное требование полевого приложения.
+    </p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 900 420" role="img" aria-label="Схема архитектуры Jasyl">
+        <defs>
+          <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+            <path d="M0 0 L7 3.2 L0 6.4 z" fill="#6b7972"/>
+          </marker>
+          <style>
+            .bx{fill:rgba(23,31,26,.9);stroke:rgba(255,255,255,.15)}
+            .bx-a{fill:rgba(95,208,138,.06);stroke:rgba(95,208,138,.35)}
+            .t{fill:#e9efeb;font:600 14px -apple-system,sans-serif}
+            .s{fill:#98a59e;font:12px -apple-system,sans-serif}
+            .m{fill:#6b7972;font:11px ui-monospace,monospace}
+            .ln{stroke:#6b7972;stroke-width:1.4;fill:none;marker-end:url(#ar)}
+            .ln-d{stroke-dasharray:5 4}
+            .lbl{fill:#5fd08a;font:600 11px ui-monospace,monospace}
+          </style>
+        </defs>
+
+        <rect class="bx-a" x="20" y="60" width="230" height="300" rx="14"/>
+        <text class="lbl" x="38" y="88">КЛИЕНТ · PWA / Android / iOS / macOS</text>
+        <rect class="bx" x="38" y="104" width="194" height="52" rx="10"/>
+        <text class="t" x="54" y="128">Съёмка + GPS</text>
+        <text class="s" x="54" y="145">камера, координаты, вид дерева</text>
+
+        <rect class="bx" x="38" y="168" width="194" height="52" rx="10"/>
+        <text class="t" x="54" y="192">Очередь IndexedDB</text>
+        <text class="s" x="54" y="209">фото копятся офлайн</text>
+
+        <rect class="bx" x="38" y="232" width="194" height="52" rx="10"/>
+        <text class="t" x="54" y="256">Карта · реестр · паспорт</text>
+        <text class="s" x="54" y="273">Leaflet + OpenStreetMap</text>
+
+        <rect class="bx" x="38" y="296" width="194" height="46" rx="10"/>
+        <text class="t" x="54" y="318">Service Worker</text>
+        <text class="s" x="54" y="334">оболочка работает без сети</text>
+
+        <rect class="bx-a" x="335" y="76" width="230" height="132" rx="14"/>
+        <text class="lbl" x="353" y="104">ИНФЕРЕНС · FastAPI + ONNX</text>
+        <text class="t" x="353" y="132">MobileNetV3-Large</text>
+        <text class="s" x="353" y="152">6 классов · severity 1–5</text>
+        <text class="s" x="353" y="170">рекомендация из справочника</text>
+        <text class="m" x="353" y="192">POST /predict → JSON</text>
+
+        <rect class="bx-a" x="335" y="240" width="230" height="132" rx="14"/>
+        <text class="lbl" x="353" y="268">ДАННЫЕ · Supabase</text>
+        <text class="t" x="353" y="296">Postgres + Auth + Storage</text>
+        <text class="s" x="353" y="316">таблица trees, профили ролей</text>
+        <text class="s" x="353" y="334">Row Level Security</text>
+        <text class="m" x="353" y="356">upsert по client_uid</text>
+
+        <rect class="bx-a" x="650" y="120" width="230" height="180" rx="14"/>
+        <text class="lbl" x="668" y="148">СЛУЖБА ОЗЕЛЕНЕНИЯ</text>
+        <rect class="bx" x="668" y="164" width="194" height="46" rx="10"/>
+        <text class="t" x="684" y="186">Очередь на проверку</text>
+        <text class="s" x="684" y="202">специалист подтверждает класс</text>
+        <rect class="bx" x="668" y="222" width="194" height="62" rx="10"/>
+        <text class="t" x="684" y="244">Дашборд руководителя</text>
+        <text class="s" x="684" y="261">KPI, план работ по срочности</text>
+        <text class="s" x="684" y="277">выгрузка Excel, печать</text>
+
+        <path class="ln" d="M250 140 H335"/>
+        <text class="m" x="262" y="132">фото</text>
+        <path class="ln ln-d" d="M335 186 H250"/>
+        <text class="m" x="262" y="202">класс</text>
+
+        <path class="ln" d="M250 200 C300 200 300 300 335 300"/>
+        <text class="m" x="258" y="278">синхронизация</text>
+
+        <path class="ln" d="M565 300 C610 300 620 250 650 250"/>
+        <text class="m" x="576" y="292">реестр</text>
+        <path class="ln ln-d" d="M650 190 C610 190 610 152 565 152"/>
+        <text class="m" x="574" y="176">правки</text>
+      </svg>
+    </div>
+
+    <div class="grid grid--2" style="margin-top:24px">
+      <div class="card">
+        <h3>Права — в базе, а не в интерфейсе</h3>
+        <p>Анонимный житель читает реестр и добавляет записи. Менять статус заявки и исправлять класс может только аутентифицированный сотрудник — это политика <code>trees_update_staff</code> на уровне Postgres. Политики <code>DELETE</code> нет ни у кого: муниципальный реестр не должен терять записи по клику.</p>
+      </div>
+      <div class="card">
+        <h3>Устойчивость к обрыву сети</h3>
+        <p>Каждая запись получает <code>client_uid</code> на клиенте, синхронизация делает upsert по нему — повторная отправка не плодит дубли. Запросы к базе обёрнуты таймаутом: зависший лок обновления токена не превращает приложение в кирпич, экран просто уходит в локальный кеш.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ МОДЕЛЬ ============ -->
+<section class="section" id="model">
+  <div class="wrap reveal">
+    <div class="eyebrow">Машинное обучение</div>
+    <h2>Модель и честные цифры</h2>
+    <p class="lead">
+      Собственный датасет, собранный и размеченный за два дня хакатона. Ниже — реальные
+      метрики валидации, а не подобранные под слайд.
+    </p>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric__n">343</div>
+        <div class="metric__l">фотографии, сплит по дереву — 268 / 75</div>
+      </div>
+      <div class="metric">
+        <div class="metric__n">54,7%</div>
+        <div class="metric__l">лучшая точность на валидации</div>
+        <div class="bar"><i style="width:54.7%"></i></div>
+      </div>
+      <div class="metric">
+        <div class="metric__n">0,55</div>
+        <div class="metric__l">macro F1 по шести классам</div>
+        <div class="bar"><i style="width:55%"></i></div>
+      </div>
+      <div class="metric">
+        <div class="metric__n">16,8 МБ</div>
+        <div class="metric__l">ONNX-модель для инференса на CPU</div>
+      </div>
+    </div>
+
+    <div class="grid grid--2">
+      <div>
+        <h3 style="margin-bottom:14px">Качество по классам</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Класс</th><th>Precision</th><th>Recall</th><th>F1</th><th>Тяжесть</th></tr></thead>
+            <tbody>
+              <tr><td><b>Повреждение ствола</b></td><td class="num">0,82</td><td class="num">0,82</td><td class="num">0,82</td><td class="num">3</td></tr>
+              <tr><td><b>Аварийные ветви</b></td><td class="num">0,88</td><td class="num">0,54</td><td class="num">0,67</td><td class="num">5</td></tr>
+              <tr><td><b>Сухое</b></td><td class="num">0,43</td><td class="num">0,75</td><td class="num">0,55</td><td class="num">4</td></tr>
+              <tr><td><b>Наклон</b></td><td class="num">0,40</td><td class="num">0,67</td><td class="num">0,50</td><td class="num">4</td></tr>
+              <tr><td><b>Болезнь</b></td><td class="num">0,64</td><td class="num">0,33</td><td class="num">0,44</td><td class="num">2</td></tr>
+              <tr><td><b>Здоровое</b></td><td class="num">0,27</td><td class="num">0,43</td><td class="num">0,33</td><td class="num">1</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="color:var(--text-3);font-size:13.5px;margin-top:12px">
+          MobileNetV3-Large, дообучение в Google Colab на T4: 8 эпох головы плюс 15 эпох
+          полного fine-tuning, взвешивание классов по частоте, сплит по дереву — не по
+          фотографии, иначе кадры одного объекта попадают и в train, и в val, а метрика
+          становится враньём.
+        </p>
+      </div>
+
+      <div>
+        <h3 style="margin-bottom:14px">Что мы не выдаём за то, чем оно не является</h3>
+        <ul class="honest">
+          <li><b>Точность 55% — это MVP, а не продакшн.</b> Опасные классы модель ловит уверенно (аварийные ветви — precision 0,88), путается на паре «здоровое / болезнь». Поэтому решение подтверждает человек, а не автомат.</li>
+          <li><b>Уверенность коррелирует с правотой.</b> Медиана confidence: 0,93 на верных ответах против 0,68 на ошибочных — низкая уверенность помечает объект как требующий внимания специалиста.</li>
+          <li><b>Породу определяет человек.</b> На нашем объёме данных достоверно определить вид по фото нельзя, а неверная порода в муниципальном реестре хуже пустого поля.</li>
+          <li><b>Предиктивный режим — не вторая нейросеть.</b> Истории одних деревьев за годы физически неоткуда взять за два дня. Это детерминированная актуарная модель на трёх наблюдаемых признаках, и она объясняет каждый свой вывод.</li>
+          <li><b>Рекомендации — справочник, не языковая модель.</b> Риск выдуманной рекомендации в муниципальном документе выше любой пользы от красивой формулировки.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:32px">
+      <b>Статус после хакатона.</b> Инференс-сервис и база выключены — держать
+      их ради витрины смысла нет. На качестве классификации это не отразилось:
+      та же модель переехала в браузер и считается прямо на устройстве
+      (ONNX Runtime Web, загрузка один раз, дальше работает и офлайн). Реестр
+      при этом живёт на встроенном демо-наборе, и приложение честно помечает
+      это плашкой. Возврат живых сервисов — две строки в конфигурации.
+    </div>
+  </div>
+</section>
+
+<!-- ============ СТЕК ============ -->
+<section class="section" id="stack">
+  <div class="wrap reveal">
+    <div class="eyebrow">Технологии</div>
+    <h2>Стек</h2>
+    <p class="lead">Выбор каждого слоя объяснимый: бесплатно, без ключей, разворачивается за два дня.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Слой</th><th>Технологии</th><th>Почему так</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>Клиент</b></td>
+            <td>Vite · React 18 · TypeScript · React Router</td>
+            <td>PWA открывается по ссылке — городскому сервису не место в очереди на модерацию в сторе</td>
+          </tr>
+          <tr>
+            <td><b>Кроссплатформа</b></td>
+            <td>Capacitor 6 (Android, iOS) · Electron 33 (macOS)</td>
+            <td>Одна кодовая база, нативные камера и геолокация там, где это нужно</td>
+          </tr>
+          <tr>
+            <td><b>Карта</b></td>
+            <td>Leaflet 1.9 · OpenStreetMap</td>
+            <td>Бесплатно и без API-ключа — ключ в демо это точка отказа</td>
+          </tr>
+          <tr>
+            <td><b>Данные</b></td>
+            <td>Supabase — Postgres, Auth, Row Level Security, Storage</td>
+            <td>Настоящее разграничение прав из коробки, без своего бэкенда</td>
+          </tr>
+          <tr>
+            <td><b>Инференс</b></td>
+            <td>ONNX Runtime Web (в браузере) · FastAPI · Docker</td>
+            <td>Та же модель считается прямо на устройстве — демо живёт без сервера и без холодного старта</td>
+          </tr>
+          <tr>
+            <td><b>Модель</b></td>
+            <td>PyTorch · MobileNetV3-Large · Google Colab (T4)</td>
+            <td>Лёгкая архитектура: 16,8 МБ и быстрый ответ на бесплатном тарифе</td>
+          </tr>
+          <tr>
+            <td><b>Офлайн</b></td>
+            <td>Service Worker · IndexedDB · Background Sync и фолбэки</td>
+            <td>Поле — это не Wi-Fi. Три триггера синхронизации, потому что один не работает в Safari</td>
+          </tr>
+          <tr>
+            <td><b>Выгрузка</b></td>
+            <td>CSV · <code>window.print()</code></td>
+            <td>Печать браузером вместо PDF-библиотек, которые ломаются на кириллице; CSV Excel открывает нативно</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ЭКРАНЫ ============ -->
+<section class="section" id="screens" hidden>
+  <div class="wrap reveal in">
+    <div class="eyebrow">Интерфейс</div>
+    <h2>Экраны приложения</h2>
+    <p class="lead">
+      Визуальный язык намеренно повторяет городской суперапп Smart Qostanai —
+      это аргумент за встраивание сервиса в существующую городскую платформу,
+      а не за ещё одно отдельное приложение.
+    </p>
+
+    <div class="shots" id="shots"></div>
+  </div>
+</section>
+
+<!-- ============ КОМАНДА ============ -->
+<section class="section" id="team">
+  <div class="wrap reveal">
+    <div class="eyebrow">Команда</div>
+    <h2>Кто делал</h2>
+    <p class="lead">
+      Три человека и два ноутбука за двое суток.
+      КГУ «Школа-лицей №1 отдела образования города Костаная».
+    </p>
+
+    <div class="people">
+      <div class="person">
+        <div class="person__ava">КА</div>
+        <div class="person__name">Кабдуалы Алихан Аязбекұлы</div>
+        <div class="person__role">Разработка и ML</div>
+        <p class="person__txt">
+          Приложение и кроссплатформенные сборки, обучение модели классификации,
+          инференс-сервис, база данных и разграничение прав, офлайн-синхронизация.
+        </p>
+      </div>
+      <div class="person">
+        <div class="person__ava">МД</div>
+        <div class="person__name">Мирасбек Дайана Асетовна</div>
+        <div class="person__role">Дизайн и презентация</div>
+        <p class="person__txt">
+          Визуальная часть проекта, оформление материалов и подготовка
+          презентации решения.
+        </p>
+      </div>
+      <div class="person">
+        <div class="person__ava">СГ</div>
+        <div class="person__name">Скалаух Глеб Евгеньевич</div>
+        <div class="person__role">Дизайн-основа и датасет</div>
+        <p class="person__txt">
+          Поиск и подбор дизайн-шаблона интерфейса, сбор фотографий для датасета,
+          участие в работе над моделью.
+        </p>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">КГУ «Школа-лицей №1 отдела образования города Костаная»</span>
+      <span class="tag">Qostanai Smart City Hackathon 2026</span>
+      <span class="tag">Кейс №1 — мониторинг зелёных насаждений</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ СЕРТИФИКАТ ============ -->
+<section class="section" id="cert" hidden>
+  <div class="wrap reveal in">
+    <div class="eyebrow">Участие</div>
+    <h2>Сертификат хакатона</h2>
+    <p class="lead">
+      Qostanai Smart City Hackathon, кейс №1 «Интеллектуальная система мониторинга
+      зелёных насаждений», 13–14 августа 2026 года.
+    </p>
+
+    <div class="cert">
+      <div>
+        <h3>Сертификат участника</h3>
+        <p>
+          Команда Jasyl прошла кейс полностью: от сбора собственного датасета
+          и обучения модели до работающего приложения и документации,
+          по которой проект разворачивается с нуля.
+        </p>
+        <div class="btn-row" style="margin-top:18px">
+          <a class="btn" id="cert-open" href="#" target="_blank" rel="noopener">Открыть оригинал</a>
+        </div>
+      </div>
+
+      <div class="cert__stage" id="cert-stage"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПОДВАЛ ============ -->
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <img src="assets/icon-512.png" alt="" width="32" height="32" style="border-radius:9px" />
+        <b style="color:var(--text);font-size:16px">Jasyl</b>
+      </div>
+      <div>AI-мониторинг зелёных насаждений Костаная<br />Костанай, Казахстан · 2026</div>
+    </div>
+    <div class="footer__links">
+      <a href="https://qostanai-smart-green-rho.vercel.app/" target="_blank" rel="noopener">Демо</a>
+      <a href="#how">Как работает</a>
+      <a href="#model">Модель</a>
+      <a href="#team">Команда</a>
+      <a href="mailto:hi@alikhandev.com">hi@alikhandev.com</a>
+      <a href="/qa-dashboard">Другой проект: QA Vision</a>
+      <a href="#top">Наверх</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /#page -->
+
+<script>
+/* ==================================================================
+   1. КИНЕТИЧЕСКАЯ СЕТКА
+   Сетка тянется к курсору, клик пускает волну. Ноль зависимостей.
+
+   Осознанные ограничения:
+   • сенсорный ввод и «грубый» указатель — сетка рисуется один раз
+     статично: тянуть её нечем, а вечный requestAnimationFrame
+     на телефоне это только расход батареи;
+   • prefers-reduced-motion — то же самое, один статичный кадр;
+   • вкладка не видна — цикл останавливается.
+   ================================================================== */
+(function () {
+  var canvas = document.getElementById('grid');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+
+  var CELL_SIZE = 58;
+  var INFLUENCE_RADIUS = 260;
+  var MAX_WARP = 24;
+  var DOT_SPACING = 28;
+  var LERP_SPEED = 0.08;
+  var WAVE_WIDTH = 55;
+  var WAVE_SPEED = 400;      // пикселей в секунду
+  var NODE_BASE_R = 1.6;
+  var NODE_ACTIVE_R = 3.2;
+
+  var BG = '#080b09';
+  var LINE_BASE = { r: 255, g: 255, b: 255, a: 0.085 };
+  var LINE_ACTIVE = { r: 95, g: 208, b: 138, a: 0.9 };
+  var NODE_BASE = { r: 255, g: 255, b: 255, a: 0.18 };
+  var NODE_ACTIVE = { r: 95, g: 208, b: 138, a: 1 };
+  var GLOW = '95,208,138';
+  var RIPPLE = '120,224,160';
+
+  var mouse = { x: -9999, y: -9999 };
+  var target = { x: -9999, y: -9999 };
+  var ripples = [];
+  var W = 0, H = 0, raf = 0, running = false;
+  var dotsLayer = null; // статичная текстура, перерисовывается только при resize
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(pointer: fine)').matches;
+  var interactive = finePointer && !reduced;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function mixColor(base, active, t) {
+    return 'rgba(' +
+      Math.round(lerp(base.r, active.r, t)) + ',' +
+      Math.round(lerp(base.g, active.g, t)) + ',' +
+      Math.round(lerp(base.b, active.b, t)) + ',' +
+      lerp(base.a, active.a, t).toFixed(3) + ')';
+  }
+
+  /* Точечная текстура неподвижна, но занимает ~1500 окружностей. Рисовать её
+     заново каждый кадр — впустую жечь процессор, поэтому она живёт в отдельном
+     слое и попадает в кадр одним drawImage. */
+  function buildDots(dpr) {
+    var off = document.createElement('canvas');
+    off.width = Math.round(W * dpr);
+    off.height = Math.round(H * dpr);
+    var octx = off.getContext('2d');
+    octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    octx.fillStyle = 'rgba(255,255,255,0.045)';
+    for (var x = DOT_SPACING / 2; x < W; x += DOT_SPACING) {
+      for (var y = DOT_SPACING / 2; y < H; y += DOT_SPACING) {
+        octx.beginPath();
+        octx.arc(x, y, 0.7, 0, Math.PI * 2);
+        octx.fill();
+      }
+    }
+    return off;
+  }
+
+  function resize() {
+    // На телефоне сетка статична, и ретиновая плотность ей не нужна: холст
+    // на 3x от экрана iPhone — это десятки мегабайт, из-за которых Safari
+    // выгружает вкладку. 1.5x на глаз неотличимо, памяти втрое меньше.
+    var cap = interactive ? 2 : 1.5;
+    var dpr = Math.min(window.devicePixelRatio || 1, cap);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    // Размер на экране намеренно оставлен за CSS (100% / 100%). Инлайновые
+    // пиксели делали холст источником горизонтальной прокрутки, если он
+    // не успел пересобраться под новый экран. Растянутый на несколько
+    // процентов кадр на глаз неотличим, а вылезти за экран уже не может.
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Отдельный слой под точки нужен только анимации, которая перерисовывает
+    // кадр 60 раз в секунду. Статичному кадру он лишь удваивает расход памяти.
+    dotsLayer = interactive ? buildDots(dpr) : null;
+    // Кадр рисуем сразу, не дожидаясь цикла: в фоновой вкладке
+    // requestAnimationFrame не вызывается вовсе, и холст остался бы пустым
+    // до момента, когда вкладку откроют.
+    draw(performance.now());
+  }
+
+  /** Точка сетки, смещённая курсором и волнами. */
+  function warp(gx, gy, col, row, cols, rows) {
+    // Края закреплены: без этого сетка «отлипает» от границ экрана.
+    var edge = 1.5;
+    var colPin = Math.min(col / edge, (cols - 1 - col) / edge, 1);
+    var rowPin = Math.min(row / edge, (rows - 1 - row) / edge, 1);
+    var pin = colPin * colPin * rowPin * rowPin;
+
+    var dx = gx - mouse.x, dy = gy - mouse.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var proximity = Math.max(0, 1 - dist / INFLUENCE_RADIUS) * pin;
+
+    var rx = 0, ry = 0;
+    for (var i = 0; i < ripples.length; i++) {
+      var r = ripples[i];
+      var rdx = gx - r.x, rdy = gy - r.y;
+      var rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+      var diff = rdist - r.radius;
+      if (Math.abs(diff) < WAVE_WIDTH) {
+        var strength = (1 - Math.abs(diff) / WAVE_WIDTH) * r.opacity * 18 * pin;
+        var ang = Math.atan2(rdy, rdx);
+        var sign = diff < 0 ? -1 : 1;
+        rx += Math.cos(ang) * strength * sign * -1;
+        ry += Math.sin(ang) * strength * sign * -1;
+      }
+    }
+
+    if (dist < INFLUENCE_RADIUS && dist > 0 && pin > 0) {
+      var t = dist / INFLUENCE_RADIUS;
+      var eased = t < 0.01 ? 0 : (1 - t) * (1 - t) * Math.min(1, dist / 60);
+      var amt = eased * MAX_WARP * pin;
+      var a = Math.atan2(dy, dx);
+      return {
+        x: gx - Math.cos(a) * amt + rx,
+        y: gy - Math.sin(a) * amt + ry,
+        p: proximity
+      };
+    }
+    return { x: gx + rx, y: gy + ry, p: proximity };
+  }
+
+  function draw(now) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    if (dotsLayer) {
+      ctx.drawImage(dotsLayer, 0, 0, W, H);
+    } else {
+      // Статичный кадр рисуется считаные разы — точки дешевле нарисовать
+      // на месте, чем держать под них второй холст размером с экран.
+      ctx.fillStyle = 'rgba(255,255,255,0.045)';
+      for (var dx = DOT_SPACING / 2; dx < W; dx += DOT_SPACING) {
+        for (var dy = DOT_SPACING / 2; dy < H; dy += DOT_SPACING) {
+          ctx.beginPath();
+          ctx.arc(dx, dy, 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    for (var i = ripples.length - 1; i >= 0; i--) {
+      var age = (now - ripples[i].born) / 1000;
+      ripples[i].radius = Math.max(0, age * WAVE_SPEED);
+      ripples[i].opacity = Math.max(0, 1 - age * 1.2);
+      if (ripples[i].opacity <= 0) ripples.splice(i, 1);
+    }
+
+    var cols = Math.max(2, Math.ceil(W / CELL_SIZE)) + 1;
+    var rows = Math.max(2, Math.ceil(H / CELL_SIZE)) + 1;
+    var cellW = W / (cols - 1);
+    var cellH = H / (rows - 1);
+
+    var pts = [];
+    for (var row = 0; row < rows; row++) {
+      pts[row] = [];
+      for (var col = 0; col < cols; col++) {
+        pts[row][col] = warp(col * cellW, row * cellH, col, row, cols, rows);
+      }
+    }
+
+    function seg(p1, p2) {
+      var avg = (p1.p + p2.p) / 2;
+      var t = avg * avg * (3 - 2 * avg); // smoothstep
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = mixColor(LINE_BASE, LINE_ACTIVE, t);
+      ctx.lineWidth = lerp(0.8, 1.5, t);
+      ctx.stroke();
+    }
+
+    ctx.lineCap = 'butt';
+    for (var r1 = 0; r1 < rows; r1++)
+      for (var c1 = 0; c1 < cols - 1; c1++) seg(pts[r1][c1], pts[r1][c1 + 1]);
+    for (var c2 = 0; c2 < cols; c2++)
+      for (var r2 = 0; r2 < rows - 1; r2++) seg(pts[r2][c2], pts[r2 + 1][c2]);
+
+    for (var r3 = 0; r3 < rows; r3++) {
+      for (var c3 = 0; c3 < cols; c3++) {
+        var p = pts[r3][c3];
+        var t2 = p.p * p.p * (3 - 2 * p.p);
+        var rad = lerp(NODE_BASE_R, NODE_ACTIVE_R, t2);
+
+        if (t2 > 0.3) {
+          var glowR = rad + lerp(0, 6, (t2 - 0.3) / 0.7);
+          var grd = ctx.createRadialGradient(p.x, p.y, rad * 0.5, p.x, p.y, glowR);
+          grd.addColorStop(0, 'rgba(' + GLOW + ',' + (t2 * 0.3).toFixed(3) + ')');
+          grd.addColorStop(1, 'rgba(' + GLOW + ',0)');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+          ctx.fillStyle = grd;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+        ctx.fillStyle = mixColor(NODE_BASE, NODE_ACTIVE, t2);
+        ctx.fill();
+      }
+    }
+
+    for (var k = 0; k < ripples.length; k++) {
+      ctx.beginPath();
+      ctx.arc(ripples[k].x, ripples[k].y, Math.max(0, ripples[k].radius), 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(' + RIPPLE + ',' + (ripples[k].opacity * 0.28).toFixed(3) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  function frame(now) {
+    mouse.x = lerp(mouse.x, target.x, LERP_SPEED);
+    mouse.y = lerp(mouse.y, target.y, LERP_SPEED);
+    draw(now);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running || !interactive) return;
+    running = true;
+    raf = requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  /* Мобильный Safari шлёт resize на каждое появление и сворачивание адресной
+     строки, то есть буквально во время прокрутки. Пересоздавать холст
+     размером с экран по такому поводу — верный способ уронить вкладку.
+
+     Ширина при этом не меняется: меняется только высота, и ровно на высоту
+     панели. Поэтому реагируем на изменение ширины, а изменение одной высоты
+     игнорируем, пока оно не превысит порог (поворот экрана, разделённый
+     экран — настоящие события, их пропустить нельзя). Холст всё равно
+     нарисован на весь экран, а снизу за ним тот же фон — стыка не видно. */
+  var URL_BAR_SLACK = 200;
+  var resizeTimer = 0;
+  window.addEventListener('resize', function () {
+    var dw = Math.abs(window.innerWidth - W);
+    var dh = Math.abs(window.innerHeight - H);
+    if (dw === 0 && dh < URL_BAR_SLACK) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
+
+  // Поворот экрана: размеры к моменту события ещё старые, ждём следующий кадр.
+  window.addEventListener('orientationchange', function () {
+    setTimeout(resize, 250);
+  });
+
+  resize();
+
+  if (interactive) {
+    document.getElementById('hint').style.display = 'flex';
+
+    window.addEventListener('mousemove', function (e) {
+      target.x = e.clientX;
+      target.y = e.clientY;
+    });
+
+    window.addEventListener('click', function (e) {
+      ripples.push({ x: e.clientX, y: e.clientY, radius: 0, opacity: 1, born: performance.now() });
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    start();
+  }
+})();
+
+/* ==================================================================
+   2. СКРИНШОТЫ И СЕКЦИЯ СЕРТИФИКАТА
+   Обе секции скрыты, пока соответствующих файлов нет в assets/.
+   Появляется файл — появляется секция и пункт в меню.
+   ================================================================== */
+(function () {
+  var EXT = ['png', 'jpg', 'jpeg'];
+
+  var SHOTS = [
+    ['screen-1', 'Съёмка и результат', 'Класс состояния, тяжесть, рекомендация и поле для правки человеком'],
+    ['screen-2', 'Карта города', 'Кластеры по кварталам, цвет — состояние объекта'],
+    ['screen-3', 'Паспорт объекта', 'Инвентарный номер, история обследований, печать с QR-кодом'],
+    ['screen-4', 'Панель службы', 'Очередь на подтверждение, статусы заявок, фильтры'],
+    ['screen-5', 'Дашборд руководителя', 'KPI, план работ по срочности, выгрузка в Excel'],
+    ['screen-6', 'Офлайн-режим', 'Счётчик очереди в шапке и ручная синхронизация']
+  ];
+
+  /** Пробует источники по очереди, отдаёт первый загрузившийся. */
+  function firstImage(list, onFound) {
+    var i = 0;
+    (function next() {
+      if (i >= list.length) return;
+      var src = list[i++];
+      var img = new Image();
+      img.onload = function () { onFound(src); };
+      img.onerror = next;
+      img.src = src;
+    })();
+  }
+
+  function candidates(name) {
+    return EXT.map(function (e) { return 'assets/' + name + '.' + e; });
+  }
+
+  // ── скриншоты ──────────────────────────────────────────────────
+  var box = document.getElementById('shots');
+  var section = document.getElementById('screens');
+  var navShots = document.getElementById('nav-screens');
+
+  SHOTS.forEach(function (s) {
+    firstImage(candidates(s[0]), function (src) {
+      var fig = document.createElement('figure');
+      fig.className = 'shot';
+      fig.setAttribute('data-order', s[0]);
+      fig.innerHTML =
+        '<div class="shot__frame"><img src="' + src + '" alt="' + s[1] + '" loading="lazy" /></div>' +
+        '<figcaption class="shot__cap"><b>' + s[1] + '</b>' + s[2] + '</figcaption>';
+
+      // Вставляем в порядке объявления, а не в порядке загрузки.
+      var placed = false;
+      var existing = box.children;
+      for (var i = 0; i < existing.length; i++) {
+        if (existing[i].getAttribute('data-order') > s[0]) {
+          box.insertBefore(fig, existing[i]);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) box.appendChild(fig);
+
+      section.hidden = false;
+      navShots.hidden = false;
+    });
+  });
+
+  // ── сертификат ─────────────────────────────────────────────────
+  var stage = document.getElementById('cert-stage');
+  var certSection = document.getElementById('cert');
+  var navCert = document.getElementById('nav-cert');
+  var openBtn = document.getElementById('cert-open');
+
+  function showCert(src, isPdf) {
+    stage.innerHTML = isPdf
+      ? '<object data="' + src + '#toolbar=0&navpanes=0" type="application/pdf"></object>'
+      : '<img src="' + src + '" alt="Сертификат участника Qostanai Smart City Hackathon" />';
+    openBtn.href = src;
+    certSection.hidden = false;
+    navCert.hidden = false;
+  }
+
+  firstImage(candidates('certificate'), function (src) { showCert(src, false); });
+
+  // Картинки может не быть, но может лежать PDF.
+  fetch('assets/certificate.pdf', { method: 'HEAD' })
+    .then(function (r) { if (r.ok && certSection.hidden) showCert('assets/certificate.pdf', true); })
+    .catch(function () { /* файла нет — секция остаётся скрытой */ });
+})();
+
+/* ==================================================================
+   3. МЯГКОЕ ПОЯВЛЕНИЕ СЕКЦИЙ ПРИ ПРОКРУТКЕ
+   ================================================================== */
+(function () {
+  var items = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    for (var i = 0; i < items.length; i++) items[i].classList.add('in');
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+  for (var j = 0; j < items.length; j++) io.observe(items[j]);
+})();
+</script>
+</body>
+</html>
