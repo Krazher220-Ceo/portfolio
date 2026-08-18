@@ -319,6 +319,11 @@ ul.honest{border-left:2px solid var(--accent-line);padding-left:22px;margin:0}
   .hint__dot{animation:none}
 }
 
+/* Ячейки сеток не должны раздуваться под min-width таблиц и схем: без
+   min-width:0 элемент грид-сетки не может стать уже своего содержимого,
+   и таблица с min-width:520px растягивает всю страницу вбок на телефоне. */
+.grid>*,.metrics>*,.people>*,.flow>*,.shots>*,.hero__grid>*,.cert>*,.contact>*,.mockrow>*,.kpis>*{min-width:0}
+
 [hidden]{display:none !important}
 
 /* ---------- телефоны ---------- */
@@ -1054,7 +1059,9 @@ a,button{touch-action:manipulation}
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     // Отдельный слой под точки нужен только анимации, которая перерисовывает
     // кадр 60 раз в секунду. Статичному кадру он лишь удваивает расход памяти.
-    dotsLayer = interactive ? buildDots(dpr) : null;
+    // Ширина или высота 0 (свёрнутое окно, фоновая вкладка) — слоя не будет:
+    // drawImage от пустого холста бросает InvalidStateError и роняет кадр.
+    dotsLayer = (interactive && W > 0 && H > 0) ? buildDots(dpr) : null;
     // Кадр рисуем сразу, не дожидаясь цикла: в фоновой вкладке
     // requestAnimationFrame не вызывается вовсе, и холст остался бы пустым
     // до момента, когда вкладку откроют.
@@ -1107,7 +1114,7 @@ a,button{touch-action:manipulation}
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, W, H);
 
-    if (dotsLayer) {
+    if (dotsLayer && dotsLayer.width > 0 && dotsLayer.height > 0) {
       ctx.drawImage(dotsLayer, 0, 0, W, H);
     } else {
       // Статичный кадр рисуется считаные разы — точки дешевле нарисовать
