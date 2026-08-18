@@ -118,11 +118,42 @@ p{margin:0 0 14px}
 .nav__links{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
 .nav__links a{color:var(--text-2);font-size:14px;padding:7px 10px;border-radius:9px;transition:.15s}
 .nav__links a:hover{color:var(--text);background:var(--surface-2);text-decoration:none}
-.nav__cta{margin-left:16px;padding:9px 16px;font-size:14px;flex:none}
+.nav__cta{padding:9px 16px;font-size:14px;flex:none;margin-left:10px}
+
+/* ---------- мобильное меню ---------- */
+.nav__burger{
+  display:none;position:relative;width:38px;height:38px;flex:none;
+  border-radius:10px;border:1px solid var(--border-strong);background:var(--surface-2);
+  cursor:pointer;padding:0;
+}
+.nav__burger span{
+  position:absolute;left:9px;right:9px;height:2px;border-radius:2px;
+  background:var(--text);transition:transform .2s ease,opacity .2s ease,top .2s ease;
+}
+.nav__burger span:nth-child(1){top:13px}
+.nav__burger span:nth-child(2){top:18px}
+.nav__burger span:nth-child(3){top:23px}
+.nav__burger[aria-expanded="true"] span:nth-child(1){top:18px;transform:rotate(45deg)}
+.nav__burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.nav__burger[aria-expanded="true"] span:nth-child(3){top:18px;transform:rotate(-45deg)}
+
+.nav__mobile{display:none}
+.nav__mobile__in{padding:2px 24px 20px;display:flex;flex-direction:column}
+.nav__mobile__in a:not(.btn){color:var(--text-2);font-size:15.5px;padding:13px 2px;border-bottom:1px solid var(--border);display:block}
+.nav__mobile__in a:not(.btn):hover{color:var(--text);text-decoration:none}
+.nav__mobile__in a:not(.btn):last-of-type{border-bottom:none}
+.nav__mobile__in .btn{margin-top:14px;justify-content:center}
+
 @media(max-width:960px){
   .nav__links{display:none}
-  /* Меню скрыто — без этого «Демо» прилипала бы вплотную к логотипу. */
-  .nav__cta{margin-left:auto}
+  .nav__burger{display:inline-flex;margin-left:auto}
+  .nav__mobile{
+    display:block;position:absolute;top:100%;left:0;right:0;
+    max-height:0;overflow:hidden;background:var(--bg);
+    border-bottom:1px solid var(--border);
+    transition:max-height .25s ease;
+  }
+  .nav__mobile.open{max-height:640px}
 }
 
 /* ---------- кнопки ---------- */
@@ -356,6 +387,40 @@ ul.honest{border-left:2px solid var(--accent-line);padding-left:22px;margin:0}
    и таблица с min-width:520px растягивает всю страницу вбок на телефоне. */
 .grid>*,.metrics>*,.people>*,.flow>*,.shots>*,.hero__grid>*,.cert>*,.contact>*,.mockrow>*,.kpis>*{min-width:0}
 
+/* ---------- визуальный ритм: номера секций, чередующийся фон ---------- */
+.section{position:relative;isolation:isolate}
+.section[data-idx]::before{
+  content:attr(data-idx);
+  position:absolute;top:40px;right:24px;z-index:-1;
+  font:800 150px/1 var(--mono);letter-spacing:-.05em;
+  color:var(--accent-soft);-webkit-text-stroke:1px rgba(255,255,255,.09);
+  pointer-events:none;
+}
+.section:nth-of-type(even){
+  background:linear-gradient(180deg,var(--accent-soft) 0%,rgba(0,0,0,0) 62%);
+}
+@media(max-width:900px){
+  .section[data-idx]::before{display:none}
+}
+
+/* ---------- акцентная карточка: одна на сетку, чтобы взгляд не скользил ровно ---------- */
+.card--accent{
+  background:var(--accent-soft);border-color:var(--accent-line);
+}
+.card--accent .card__ico{background:rgba(255,255,255,.08);border-color:var(--accent-line)}
+
+/* ---------- полоса-цитата: пауза между плотными текстовыми секциями ---------- */
+.stripe{
+  position:relative;z-index:1;background:var(--accent-soft);
+  border-top:1px solid var(--accent-line);border-bottom:1px solid var(--accent-line);
+  padding:46px 0;
+}
+.stripe__text{
+  margin:0 auto;max-width:48ch;text-align:center;
+  font-size:clamp(19px,2.6vw,26px);font-weight:500;letter-spacing:-.01em;color:var(--text);
+}
+.stripe__text b{color:var(--accent);font-weight:650}
+
 [hidden]{display:none !important}
 
 /* ---------- телефоны ---------- */
@@ -412,6 +477,23 @@ a,button{touch-action:manipulation}
       <a href="#cert" id="nav-cert" hidden>Сертификат</a>
     </div>
     <a class="btn btn--primary nav__cta" href="https://qostanai-smart-green-rho.vercel.app/" target="_blank" rel="noopener">Демо</a>
+    <button class="nav__burger" id="navBurger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navMobile">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile" id="navMobile">
+    <div class="nav__mobile__in">
+      <a href="#problem">Задача</a>
+      <a href="#how">Как работает</a>
+      <a href="#features">Возможности</a>
+      <a href="#arch">Архитектура</a>
+      <a href="#model">Модель</a>
+      <a href="#screens" id="nav-screens-m" hidden>Экраны</a>
+      <a href="#photos">Хакатон</a>
+      <a href="#team">Команда</a>
+      <a href="#cert" id="nav-cert-m" hidden>Сертификат</a>
+      <a class="btn btn--primary" href="https://qostanai-smart-green-rho.vercel.app/" target="_blank" rel="noopener">Открыть демо</a>
+    </div>
   </div>
 </nav>
 
@@ -526,7 +608,7 @@ a,button{touch-action:manipulation}
 </header>
 
 <!-- ============ ЗАДАЧА ============ -->
-<section class="section" id="problem">
+<section class="section" id="problem" data-idx="01">
   <div class="wrap reveal">
     <div class="eyebrow">Задача</div>
     <h2>Город не знает, какие деревья опасны</h2>
@@ -558,7 +640,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ КАК РАБОТАЕТ ============ -->
-<section class="section" id="how">
+<section class="section" id="how" data-idx="02">
   <div class="wrap reveal">
     <div class="eyebrow">Сценарий</div>
     <h2>Четыре шага от фотографии до наряда</h2>
@@ -607,7 +689,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ ВОЗМОЖНОСТИ ============ -->
-<section class="section" id="features">
+<section class="section" id="features" data-idx="03">
   <div class="wrap reveal">
     <div class="eyebrow">Что внутри</div>
     <h2>Возможности продукта</h2>
@@ -657,7 +739,7 @@ a,button{touch-action:manipulation}
         <h3>Выгрузка для акимата</h3>
         <p>Excel и печать одним кликом, без сторонних PDF-библиотек, которые ломаются на кириллице.</p>
       </div>
-      <div class="card">
+      <div class="card card--accent">
         <div class="card__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
         <h3>Human-in-the-loop</h3>
         <p>Модель не выписывает наряд. Предсказание уходит в очередь на проверку, решение принимает и подписывает человек.</p>
@@ -667,7 +749,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ АРХИТЕКТУРА ============ -->
-<section class="section" id="arch">
+<section class="section" id="arch" data-idx="04">
   <div class="wrap reveal">
     <div class="eyebrow">Архитектура</div>
     <h2>Как устроена система</h2>
@@ -765,7 +847,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ МОДЕЛЬ ============ -->
-<section class="section" id="model">
+<section class="section" id="model" data-idx="05">
   <div class="wrap reveal">
     <div class="eyebrow">Машинное обучение</div>
     <h2>Модель и честные цифры</h2>
@@ -842,8 +924,17 @@ a,button{touch-action:manipulation}
   </div>
 </section>
 
+<div class="stripe">
+  <div class="wrap">
+    <p class="stripe__text">
+      Медиана уверенности модели — 0,93 на верных ответах и 0,68 на ошибочных.
+      <b>Она как будто знает, когда сомневаться.</b>
+    </p>
+  </div>
+</div>
+
 <!-- ============ СТЕК ============ -->
-<section class="section" id="stack">
+<section class="section" id="stack" data-idx="06">
   <div class="wrap reveal">
     <div class="eyebrow">Технологии</div>
     <h2>Стек</h2>
@@ -915,7 +1006,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ КОМАНДА ============ -->
-<section class="section" id="team">
+<section class="section" id="team" data-idx="07">
   <div class="wrap reveal">
     <div class="eyebrow">Команда</div>
     <h2>Кто делал</h2>
@@ -973,7 +1064,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ ХАКАТОН ============ -->
-<section class="section" id="photos">
+<section class="section" id="photos" data-idx="08">
   <div class="wrap reveal">
     <div class="eyebrow">Хакатон</div>
     <h2>Как это было</h2>
@@ -1024,7 +1115,7 @@ a,button{touch-action:manipulation}
 </section>
 
 <!-- ============ СЕРТИФИКАТ ============ -->
-<section class="section" id="cert" hidden>
+<section class="section" id="cert" data-idx="09" hidden>
   <div class="wrap reveal in">
     <div class="eyebrow">Участие</div>
     <h2>Сертификат хакатона</h2>
@@ -1077,6 +1168,41 @@ a,button{touch-action:manipulation}
 </div><!-- /#page -->
 
 <script>
+/* ==================================================================
+   0. МОБИЛЬНОЕ МЕНЮ
+   ================================================================== */
+(function () {
+  var btn = document.getElementById('navBurger');
+  var panel = document.getElementById('navMobile');
+  if (!btn || !panel) return;
+
+  function close() {
+    panel.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Открыть меню');
+  }
+  function open() {
+    panel.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-label', 'Закрыть меню');
+  }
+
+  btn.addEventListener('click', function () {
+    panel.classList.contains('open') ? close() : open();
+  });
+  panel.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  // Разворот экрана или ресайз к десктопной ширине не должны оставлять
+  // открытую панель поверх контента, у которого больше нет кнопки для неё.
+  window.addEventListener('resize', function () {
+    if (getComputedStyle(btn).display === 'none') close();
+  });
+})();
+
 /* ==================================================================
    1. КИНЕТИЧЕСКАЯ СЕТКА
    Сетка тянется к курсору, клик пускает волну. Ноль зависимостей.
@@ -1434,6 +1560,8 @@ a,button{touch-action:manipulation}
 
     section.hidden = false;
     navShots.hidden = false;
+    var navShotsM = document.getElementById('nav-screens-m');
+    if (navShotsM) navShotsM.hidden = false;
   }
 
   /* Сначала ищем только первый снимок. Пока скриншотов нет, страница
@@ -1461,6 +1589,8 @@ a,button{touch-action:manipulation}
     openBtn.href = src;
     certSection.hidden = false;
     navCert.hidden = false;
+    var navCertM = document.getElementById('nav-cert-m');
+    if (navCertM) navCertM.hidden = false;
   }
 
   firstImage(candidates('certificate'), function (src) { showCert(src, false); });
