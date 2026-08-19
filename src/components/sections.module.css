@@ -1,0 +1,192 @@
+.head { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-12); }
+.head .lead { max-width: 62ch; color: var(--ink-2); margin: 0; }
+
+.split { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-6); align-items: start; }
+.text { grid-column: 2 / 9; }
+.meta { grid-column: 9 / 13; display: flex; flex-direction: column; gap: var(--s-3); }
+@media (max-width: 900px) {
+  .split { grid-template-columns: 1fr; }
+  .text, .meta { grid-column: 1 / -1; }
+}
+
+.moreLink {
+  display: inline-flex;
+  gap: var(--s-2);
+  color: var(--ink);
+  position: relative;
+  margin-top: var(--s-6);
+}
+.moreLink::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--t-quick) var(--e-out);
+}
+.moreLink:hover::after { transform: scaleX(1); }
+
+/* ── Хронология: линия тянется, точки зажигаются по одной ─── */
+.timeline { position: relative; display: flex; flex-direction: column; gap: var(--s-12); }
+.line {
+  position: absolute;
+  left: 5px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--accent), color-mix(in srgb, var(--accent) 10%, transparent));
+  transform: scaleY(var(--tl, 0));
+  transform-origin: 50% 0;
+  transition: transform 600ms var(--e-out);
+}
+.event { position: relative; padding-left: var(--s-8); display: grid; gap: var(--s-2); }
+.dot {
+  position: absolute;
+  left: 0; top: 7px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-edge);
+  background: var(--bg);
+  transition: background-color var(--t-base) var(--e-out), box-shadow var(--t-base) var(--e-out);
+}
+.event[data-lit="true"] .dot {
+  background: var(--accent-hi);
+  box-shadow: 0 0 16px -2px var(--accent-hi);
+}
+.year { color: var(--ink-3); }
+.city { color: var(--accent-hi); }
+.evTitle { font-size: 1.125rem; color: var(--ink); }
+.evNote { color: var(--ink-2); margin: 0; }
+
+/* ── Лента стека: три уровня, разная прозрачность ────────
+      Половины ленты одинаковой ширины ВМЕСТЕ со своим хвостовым
+      отступом — только тогда сдвиг на -50% попадает встык и шва
+      не видно. Отступ между элементами живёт внутри половины,
+      а не между ними, иначе на стыке появляется лишний зазор
+      и лента «заканчивается» на глазах. */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.track {
+  display: flex;
+  width: max-content;
+  animation: slide 44s linear infinite;
+}
+.half {
+  display: flex;
+  gap: var(--s-3);
+  padding-right: var(--s-3);
+  flex: none;
+}
+.marquee:hover .track,
+.marquee:focus-within .track {
+  animation-play-state: paused;
+}
+.tier2 .track { animation-duration: 54s; opacity: 0.74; }
+.tier3 .track { animation-duration: 64s; opacity: 0.5; }
+@keyframes slide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.tech {
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  flex: none;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.tierRow { display: grid; gap: var(--s-3); margin-bottom: var(--s-8); }
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+  .half:nth-child(2) { display: none; }
+  .half { flex-wrap: wrap; }
+  .marquee { mask-image: none; -webkit-mask-image: none; }
+}
+
+/* ── Сертификаты ─────────────────────────────────────────
+      Документ показывается целиком. object-fit: cover резал бы его
+      по краям — у сертификата обрезанная шапка и подписи означают,
+      что смотреть, собственно, не на что. */
+.certGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-6);
+  align-items: start;
+}
+@media (max-width: 760px) { .certGrid { grid-template-columns: 1fr; } }
+.cert {
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  text-align: left;
+}
+.certShot {
+  border-radius: var(--r-ctl);
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: color-mix(in srgb, var(--bg-deep) 55%, transparent);
+  transition: transform var(--t-base) var(--e-out);
+}
+.cert button { display: block; width: 100%; border-radius: var(--r-ctl); }
+.cert button:hover .certShot { transform: scale(1.015); }
+.certMeta { display: flex; flex-direction: column; gap: var(--s-1); }
+.certEvent { color: var(--ink); font-size: 1rem; line-height: 1.3; }
+.certNote { color: var(--ink-3); margin: 0; }
+
+/* Пустой слот: пунктирная кромка, медленная пульсация, не кликается */
+.slot {
+  border: 1px dashed color-mix(in srgb, var(--glass-edge) 55%, transparent);
+  border-radius: var(--r-card);
+  padding: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  animation: slotPulse 4s var(--e-in-out) infinite;
+}
+.slotBox {
+  width: 100%;
+  aspect-ratio: 1.42 / 1;
+  border-radius: var(--r-ctl);
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+  background: color-mix(in srgb, var(--bg-deep) 40%, transparent);
+}
+@keyframes slotPulse {
+  0%, 100% { border-color: color-mix(in srgb, var(--glass-edge) 30%, transparent); }
+  50% { border-color: color-mix(in srgb, var(--glass-edge) 70%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .slot { animation: none; } }
+
+/* ── Контакты ────────────────────────────────────────────── */
+.contactRow { display: flex; flex-wrap: wrap; gap: var(--s-4); align-items: center; margin-top: var(--s-8); }
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-6);
+  border-radius: var(--r-ctl);
+  color: var(--ink);
+  transition: transform var(--t-instant) var(--e-out), box-shadow var(--t-quick) var(--e-out);
+}
+.cta:hover { box-shadow: var(--glow); }
+.cta:active { transform: scale(0.97); transition-timing-function: var(--e-snap); }
+.ctaSize { color: var(--ink-3); }
+.mailBig { font-size: clamp(1.5rem, 4vw, 2.5rem); letter-spacing: -0.02em; color: var(--ink); }
+
+.divider { margin-block: var(--section-gap); position: relative; }
+.dividerImg {
+  width: 100%;
+  height: clamp(180px, 30vh, 340px);
+  object-fit: cover;
+  border-radius: var(--r-card);
+  filter: saturate(0.5) brightness(0.62) contrast(1.08);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+:global([data-state="en"]) .dividerImg { filter: grayscale(1) brightness(0.58) contrast(1.1); }

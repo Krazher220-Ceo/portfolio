@@ -1,0 +1,86 @@
+.dot, .ring {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 110;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+}
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  transition: opacity var(--t-quick) linear, width var(--t-quick) var(--e-out),
+    height var(--t-quick) var(--e-out);
+}
+.dot[data-mode="link"], .dot[data-mode="photo"],
+.dot[data-mode="image"], .dot[data-mode="drag"] { width: 0; height: 0; }
+
+.ring {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent-hi) 65%, transparent);
+  display: grid;
+  place-items: center;
+  transition: opacity var(--t-quick) linear, width var(--t-base) var(--e-out),
+    height var(--t-base) var(--e-out), border-color var(--t-quick) linear,
+    background-color var(--t-quick) linear;
+}
+.ring[data-mode="link"] { width: 44px; height: 44px; }
+.ring[data-mode="photo"] { width: 62px; height: 62px; background: color-mix(in srgb, var(--bg-deep) 55%, transparent); }
+.ring[data-mode="image"] { width: 84px; height: 84px; background: color-mix(in srgb, var(--bg-deep) 55%, transparent); }
+.ring[data-mode="drag"] { width: 48px; height: 48px; }
+
+.cap {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Шнур-выключатель: курсор в зоне фигуры превращается в него */
+.cord {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent, var(--accent-hi));
+  transform-origin: 50% 0;
+  animation: sway 2.4s var(--e-in-out) infinite;
+}
+.cord::after {
+  content: "";
+  position: absolute;
+  bottom: -5px; left: -2.5px;
+  width: 6px; height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-hi);
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+.arrows {
+  width: 22px; height: 1px;
+  background: var(--accent-hi);
+  position: relative;
+}
+.arrows::before, .arrows::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  width: 7px; height: 7px;
+  border-top: 1px solid var(--accent-hi);
+  border-left: 1px solid var(--accent-hi);
+}
+.arrows::before { left: 0; transform: rotate(-45deg); }
+.arrows::after { right: 0; transform: rotate(135deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dot, .ring { display: none; }
+  .cord { animation: none; }
+}

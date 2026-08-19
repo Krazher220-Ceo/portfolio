@@ -1,0 +1,198 @@
+/* ───────────────────────────────────────────────────────────────
+   Стекло. Не «блюр + белая рамка», а материал: толщина, кромка,
+   преломление, точечные блики. Конус света стоит сверху и чуть
+   левее центра — вся асимметрия кромок и бликов следует за ним.
+   ─────────────────────────────────────────────────────────────── */
+
+.glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--r-card);
+  /* 1 — заливка */
+  background: var(--glass-tint);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  /* 2 — внутренний верхний хайлайт: толщина скошенной кромки */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04), var(--shade-2);
+}
+
+/* 3 — кромка. Ярче со стороны, обращённой к конусу,
+      почти невидима с противоположной. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    158deg,
+    var(--glass-edge) 0%,
+    color-mix(in srgb, var(--glass-edge) 45%, transparent) 26%,
+    color-mix(in srgb, var(--glass-edge) 12%, transparent) 58%,
+    color-mix(in srgb, var(--glass-edge) 30%, transparent) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 5 — зерно внутри стекла: убирает пластиковость */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--noise-url);
+  background-size: 160px 160px;
+  opacity: 0.028;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 4 — точечные блики. Главная примета настоящего стекла:
+      на референсе чёрного стекла именно они делают материал. */
+.glint {
+  position: absolute;
+  border-radius: var(--r-pill);
+  background: var(--glass-spec);
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 3;
+  will-change: auto;
+}
+
+/* ── три плотности, больше не вводить ─────────────────── */
+.glassThin {
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  backdrop-filter: blur(12px) saturate(130%);
+  background: var(--glass-tint-thin);
+}
+.glassThick {
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  backdrop-filter: blur(40px) saturate(150%);
+  background: var(--glass-tint-thick);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 0 0 1px color-mix(in srgb, var(--glass-edge) 22%, transparent),
+    var(--shade-3);
+}
+
+/* ── линза. Искажение едва заметное — 3–6px по кромке.
+      Не цирк с двукратным увеличением текста. ─────────── */
+.lens {
+  position: relative;
+  border-radius: var(--r-pill);
+  -webkit-backdrop-filter: blur(2px) brightness(1.08) saturate(120%);
+  backdrop-filter: blur(2px) brightness(1.08) saturate(120%);
+  background: color-mix(in srgb, var(--glass-tint) 60%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 22px -10px var(--accent-hi), var(--shade-2);
+}
+.lens::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    158deg,
+    var(--glass-edge),
+    color-mix(in srgb, var(--glass-edge) 10%, transparent) 60%,
+    var(--glass-edge)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+@supports (filter: url("#lens-warp")) {
+  .lensWarp {
+    filter: url("#lens-warp");
+  }
+}
+
+/* ── бюджет backdrop-filter ────────────────────────────────
+   Снимается за пределами вьюпорта, понижается на мобильных,
+   полностью заменяется плотной заливкой там, где стекла быть
+   не должно. Внешний вид при фолбэке — приличный, а не руины. */
+.glass[data-offscreen="true"],
+.lens[data-offscreen="true"] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (max-width: 768px) {
+  .glassThick {
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+  }
+}
+
+html[data-blur="off"] .glass,
+html[data-blur="off"] .lens {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glassThin,
+  .glassThick,
+  .lens {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--bg) 92%, var(--glass-edge));
+  }
+  .glint {
+    display: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glassThin,
+  .glassThick,
+  .lens {
+    background: color-mix(in srgb, var(--bg) 92%, var(--glass-edge));
+  }
+}
+
+/* Наклон: 3D работает только там, где стекло реально трогают */
+.glassTilt {
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+  transition: transform var(--t-base) var(--e-out);
+}
+.glint {
+  transition: transform var(--t-base) var(--e-out),
+    opacity var(--t-base) var(--e-out);
+}
+
+/* Пробег света по кромке — один раз за наведение, не цикл */
+.edgeRun {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--run-angle, 0deg),
+    transparent 0deg,
+    transparent 316deg,
+    var(--glass-spec) 344deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
+}

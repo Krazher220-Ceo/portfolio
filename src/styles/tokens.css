@@ -1,0 +1,162 @@
+/* --lit — общий уровень света всей сцены, 0…1. Его читают конус,
+   гало, пятно на «полу», фоновая текстура, градиентная сетка и
+   подсвет вокруг фигуры. Поэтому лампа зажигается не «на фотке»,
+   а целиком: мигает всё сразу, как и должно быть у одного источника.
+
+   Регистрация обязательна: незарегистрированные кастомные свойства
+   не интерполируются и не анимируются ключевыми кадрами. */
+@property --lit {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/* Без регистрации кастомные свойства не интерполируются: переход
+   подсвета вокруг фигуры щёлкал бы вместо плавного нарастания. */
+@property --halo {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 26px;
+}
+@property --halo-a {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0.34;
+}
+@property --lift {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Токены сцены. Единственный источник цвета на всём сайте.
+   Ни один компонент не имеет права писать цвет литералом:
+   смена языка анимирует сами переменные, хардкод рвёт кадр.
+   ─────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── RU · голубой свет ─────────────────────────────────
+     Синий здесь глубокий и приглушённый, а не «электрический»:
+     цвет живёт в кромках и бликах, а не в заливке. Поэтому
+     заливка стекла почти нейтральная, а насыщенность собрана
+     в узких местах — там, где на референсе и есть цвет. */
+  --bg: #04060b;
+  --bg-deep: #010208;
+
+  --ink: #eef3ff;
+  --ink-2: #9fb0ce;
+  --ink-3: #66788f;
+
+  --accent: #3b78e7;
+  --accent-hi: #9ad4ff;
+  --accent-lo: #14356e;
+
+  --cone: #8cbeff;
+  --light-core: #e6f1ff;
+
+  --glass-tint: rgba(38, 86, 170, 0.1);
+  --glass-edge: rgba(168, 206, 255, 0.38);
+  --glass-spec: rgba(226, 242, 255, 0.95);
+
+  --shadow-hsl: 220 55% 3%;
+
+  --warn: #ff8a5c;
+  --ok: #3ed598;
+
+  /* производные — множители плотности стекла */
+  --glass-tint-thin: rgba(38, 86, 170, 0.05);
+  --glass-tint-thick: rgba(38, 86, 170, 0.17);
+  --texture-url: url("/media/texture-ru.webp");
+  --texture-opacity: 0.07;
+
+  /* ── тени: многослойно от одного источника ───────────── */
+  --shade-1: 0 1px 2px hsl(var(--shadow-hsl) / 0.4);
+  --shade-2: 0 4px 12px hsl(var(--shadow-hsl) / 0.45),
+    0 12px 32px hsl(var(--shadow-hsl) / 0.35);
+  --shade-3: 0 8px 24px hsl(var(--shadow-hsl) / 0.5),
+    0 32px 80px hsl(var(--shadow-hsl) / 0.45);
+  --glow: 0 0 0 1px var(--glass-edge), 0 0 40px -8px var(--accent-hi);
+
+  /* ── моушн ───────────────────────────────────────────── */
+  --t-instant: 80ms;
+  --t-quick: 160ms;
+  --t-base: 240ms;
+  --t-slow: 420ms;
+  --t-scene: 900ms;
+  --t-epic: 1400ms;
+
+  --e-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --e-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-in: cubic-bezier(0.4, 0, 1, 1);
+  --e-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── пространство: шаг 4px ───────────────────────────── */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-24: 96px;
+  --s-32: 128px;
+  --s-48: 192px;
+
+  --section-gap: clamp(96px, 14vh, 192px);
+  --container: 1280px;
+  --gutter: clamp(20px, 5vw, 64px);
+
+  /* ── радиусы ─────────────────────────────────────────── */
+  --r-tag: 4px;
+  --r-ctl: 12px;
+  --r-card: 20px;
+  --r-pill: 999px;
+
+  /* Зерно: feTurbulence инлайном — ни одного лишнего запроса */
+  --noise-url: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.82%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E");
+
+  color-scheme: dark;
+}
+
+/* ── EN · белый свет. Цвет разрешён ровно в двух местах ── */
+[data-state="en"] {
+  --bg: #050505;
+  --bg-deep: #000000;
+
+  --ink: #f5f5f5;
+  --ink-2: #a8a8a8;
+  --ink-3: #6a6a6a;
+
+  --accent: #ffffff;
+  --accent-hi: #ffffff;
+  --accent-lo: #c4c4c4;
+
+  --cone: #ffffff;
+  --light-core: #ffffff;
+
+  --glass-tint: rgba(255, 255, 255, 0.045);
+  --glass-edge: rgba(255, 255, 255, 0.3);
+  --glass-spec: rgba(255, 255, 255, 1);
+
+  --shadow-hsl: 0 0% 0%;
+
+  --warn: #ff7a52;
+  --ok: #3ed598;
+
+  --glass-tint-thin: rgba(255, 255, 255, 0.022);
+  --glass-tint-thick: rgba(255, 255, 255, 0.072);
+  --texture-url: url("/media/texture-en.webp");
+  --texture-opacity: 0.06;
+}
+
+/* Интерполяция токенов на кадре «зажигание». Класс вешает сцена,
+   а не медиазапрос: вне сцены переходы цвета не нужны и мешают. */
+.scene-lighting,
+.scene-lighting * {
+  transition: color var(--t-scene) var(--e-out),
+    background-color var(--t-scene) var(--e-out),
+    border-color var(--t-scene) var(--e-out),
+    box-shadow var(--t-scene) var(--e-out);
+}

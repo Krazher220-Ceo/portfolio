@@ -1,0 +1,155 @@
+.top { padding-top: var(--s-16); padding-bottom: var(--s-12); }
+.crumbs { display: flex; gap: var(--s-3); align-items: center; color: var(--ink-3); margin-bottom: var(--s-8); }
+.title { margin-block: var(--s-4) var(--s-3); }
+.tagline { max-width: 52ch; color: var(--ink-2); }
+
+.hero {
+  position: relative;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  margin-top: var(--s-8);
+}
+.hero img { width: 100%; height: 100%; object-fit: cover; }
+:global([data-state="en"]) .hero img { filter: saturate(0.25) contrast(1.06); }
+
+/* ── Липкий подзаголовок: подменяется следующим со сдвигом-маской ── */
+.sticky {
+  position: sticky;
+  top: 64px;
+  z-index: 50;
+  align-self: start;
+  display: inline-flex;
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  height: 32px;
+  align-items: center;
+  margin-bottom: var(--s-8);
+}
+.stickyIn { display: block; animation: subIn 320ms var(--e-out); }
+@keyframes subIn { from { transform: translateY(110%); opacity: 0; } }
+
+/* ── Карточка фактов: строки проявляются по одной ─────────── */
+.facts { padding: var(--s-6); display: grid; gap: 0; }
+.factRow {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: var(--s-4);
+  padding-block: var(--s-3);
+  position: relative;
+  opacity: 0;
+  animation: factIn 380ms var(--e-out) forwards;
+}
+.factRow + .factRow::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  height: 1px; width: 100%;
+  background: color-mix(in srgb, var(--glass-edge) 26%, transparent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  animation: rule 420ms var(--e-out) forwards;
+}
+@keyframes factIn { to { opacity: 1; } }
+@keyframes rule { to { transform: scaleX(1); } }
+.factVal { color: var(--ink); }
+.factVal a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 700px) { .factRow { grid-template-columns: 1fr; gap: var(--s-1); } }
+
+.block { margin-bottom: var(--section-gap); }
+.blockBody { max-width: 68ch; }
+.list { display: grid; gap: var(--s-4); margin: 0; padding: 0; list-style: none; max-width: 68ch; }
+.list li { position: relative; padding-left: var(--s-6); color: var(--ink-2); }
+.list li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.62em;
+  width: 10px; height: 1px;
+  background: var(--accent-hi);
+}
+
+/* ── «Что пошло не так»: другой визуальный язык. Честность
+      оформлена как отдельный жанр, а не спрятана в подвал. ─── */
+.wrong {
+  border-left: 2px solid var(--warn);
+  padding-left: var(--s-6);
+}
+.wrong .kicker { color: var(--warn); }
+.wrong li::before { background: var(--warn); }
+.wrong li { animation: wrongIn 240ms var(--e-out) backwards; }
+@keyframes wrongIn { from { opacity: 0; transform: translateX(-8px); } }
+
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-6); margin-bottom: var(--s-12); }
+@media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+.metric { padding: var(--s-6); display: grid; gap: var(--s-2); align-content: start; }
+.metricVal {
+  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.metricLabel { color: var(--ink-3); }
+
+.links { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-8); }
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-6);
+  border-radius: var(--r-ctl);
+  color: var(--ink);
+  transition: transform var(--t-instant) var(--e-out), box-shadow var(--t-quick) var(--e-out);
+}
+.link:hover { box-shadow: var(--glow); }
+.link:active { transform: scale(0.97); transition-timing-function: var(--e-snap); }
+
+/* Кадры с площадки показываются крупно: смысл фотографии с защиты
+   в том, что на ней видно людей и экран, а в миниатюре не видно
+   ни того, ни другого. Первый кадр — во всю ширину. */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-6);
+}
+.gallery > :first-child {
+  grid-column: 1 / -1;
+}
+@media (max-width: 860px) {
+  .gallery { grid-template-columns: 1fr; }
+  .gallery > :first-child { grid-column: auto; }
+}
+.shot {
+  border-radius: var(--r-card);
+  overflow: hidden;
+  margin: 0;
+  box-shadow: var(--shade-2);
+}
+.shot img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  transition: transform var(--t-slow) var(--e-out);
+}
+.shot:hover img { transform: scale(1.02); }
+.shot figcaption {
+  color: var(--ink-3);
+  padding: var(--s-3) var(--s-4) var(--s-4);
+}
+
+.next {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-6);
+  padding: var(--s-8) var(--s-6);
+  border-radius: var(--r-card);
+  flex-wrap: wrap;
+}
+.nextName { font-size: clamp(1.75rem, 4vw, 3rem); letter-spacing: -0.03em; color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .factRow, .wrong li, .stickyIn { animation: none; opacity: 1; }
+  .factRow + .factRow::before { animation: none; transform: none; }
+}

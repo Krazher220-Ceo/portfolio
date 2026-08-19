@@ -1,0 +1,455 @@
+@import "../styles/tokens.css";
+@import "../styles/glass.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Сцена целиком: конус — единственный источник, углы кадра глубже */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: radial-gradient(
+      120% 80% at 46% -10%,
+      color-mix(in srgb, var(--cone) calc(8% * var(--lit)), transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(100% 100% at 50% 50%, transparent 30%, var(--bg-deep) 100%);
+  pointer-events: none;
+  transition: background var(--t-scene) var(--e-out);
+}
+
+/* Фоновая текстура: настолько неброская, что её нельзя описать словами */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--texture-url);
+  background-size: cover;
+  background-position: center;
+  opacity: calc(var(--texture-opacity) * (0.28 + 0.72 * var(--lit)));
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity var(--t-scene) var(--e-out);
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-tag);
+}
+
+/* ── Типографика ─────────────────────────────────────────
+   Кириллица и латиница в одном семействе с одинаковыми
+   метриками: иначе смена языка прыгает по высоте строк. */
+
+.hero {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(4rem, 14vw, 13rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.86;
+  margin: 0;
+}
+.displayL {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0;
+}
+h2,
+.h2 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+h3,
+.h3 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0;
+}
+.bodyL {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+.small {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  color: var(--ink-3);
+}
+
+/* Инженерный шов: цифры, проценты и названия технологий —
+   всегда моно, даже внутри абзаца. */
+.mono,
+code,
+kbd,
+samp {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
+}
+.num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+p {
+  margin: 0 0 1em;
+  max-width: 68ch;
+}
+p:last-child {
+  margin-bottom: 0;
+}
+.dim {
+  color: var(--ink-2);
+}
+.dimmer {
+  color: var(--ink-3);
+}
+
+/* ── Сетка и ритм ───────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+.grid12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--s-6);
+}
+.section {
+  padding-block: var(--section-gap);
+  position: relative;
+}
+.colText {
+  grid-column: 2 / 9;
+}
+.colMeta {
+  grid-column: 9 / 13;
+}
+@media (max-width: 900px) {
+  .grid12 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .colText,
+  .colMeta {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Появление секций: один раз, никогда не повторяется ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--t-slow) var(--e-out),
+    transform var(--t-slow) var(--e-out);
+}
+.reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Зерно поверх всей страницы. Статичное: анимированное
+      зерно жрёт кадры и ничего не добавляет. ───────────── */
+.pageGrain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background-image: var(--noise-url);
+  background-size: 200px 200px;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+}
+
+/* ── Тёмный кадр сцены переключения ─────────────────────── */
+.sceneRoot {
+  transition: filter var(--t-quick) linear;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skipLink {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 200;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-ctl);
+  background: var(--bg-deep);
+  box-shadow: var(--glow);
+  transition: top var(--t-quick) var(--e-out);
+}
+.skipLink:focus {
+  top: var(--s-4);
+}
+
+/* ── Курсор: прячем нативный только там, где рисуем свой ── */
+html[data-cursor="on"] body,
+html[data-cursor="on"] a,
+html[data-cursor="on"] button {
+  cursor: none;
+}
+html[data-cursor="on"] input,
+html[data-cursor="on"] textarea,
+html[data-cursor="on"] select,
+html[data-cursor="on"] [data-native-cursor] {
+  cursor: auto;
+}
+
+/* ── reduced-motion: не отключение функций, а другой их вид ─ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    transform: none;
+    transition: opacity 200ms linear !important;
+  }
+  .sceneRoot {
+    transition: opacity 200ms linear !important;
+  }
+}
+
+/* ── Без JS текст обязан читаться ───────────────────────── */
+.noJsHidden {
+  opacity: 1;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--s-6);
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .cardsGrid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) { .cardsGrid { grid-template-columns: 1fr; } }
+
+
+/* ── Разделение секций. Тонкая световая нить: ярче там, где на неё
+      падает конус, и растворяется к краям кадра. Держит страницу
+      как одну сцену, а не как стопку блоков. ─────────────────── */
+.section {
+  position: relative;
+}
+.section + .section::before,
+.sectionRule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1280px, 92vw);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--glass-edge) 18%, transparent) 22%,
+    color-mix(in srgb, var(--accent-hi) 42%, transparent) 46%,
+    color-mix(in srgb, var(--glass-edge) 18%, transparent) 72%,
+    transparent 100%
+  );
+  opacity: 0.55;
+  pointer-events: none;
+}
+/* Крошечный узел на нити — ровно под конусом */
+.section + .section::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 46%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  box-shadow: 0 0 14px 1px var(--accent-hi);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Печать. Единственное место на сайте, где допустима светлая
+      тема: белый лист, чёрный текст, ни стекла, ни конуса.
+      Правила глобальные, потому что убирать нужно слои, которые
+      живут вне печатаемой страницы. ─────────────────────────── */
+@media print {
+  /* На печать всё содержимое идёт раскрытым: раскрытия зависят
+     от скролла, которого при печати нет. */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  body::before,
+  body::after {
+    display: none !important;
+  }
+  .pageGrain,
+  .skipLink,
+  [data-print-hide],
+  header,
+  footer {
+    display: none !important;
+  }
+  .section + .section::before,
+  .section + .section::after {
+    display: none !important;
+  }
+  a {
+    color: #111 !important;
+    text-decoration: none;
+  }
+}
+
+
+/* ── Свет сцены. Один выключатель на всё: конус, фон, сетка и
+      подсвет фигуры читают --lit и гаснут вместе.
+
+      Гашение и зажигание — не плавные, а разрядами настоящей лампы.
+      steps(1, end) даёт восемь дискретных ступеней вместо анимации
+      каждого кадра: и выглядит как надо, и не жжёт кадры на
+      наследуемом свойстве. ───────────────────────────────────── */
+html { --lit: 1; }
+html[data-lit="off"] { --lit: 0.1; }
+
+/* Значения ступеней проставляет SceneLight: анимация
+   зарегистрированного кастомного свойства на корне заводится
+   не во всех браузерах, и вместо мигания выходил скачок. */
+
+/* Мигание — это вспышки. В reduced-motion остаётся тот же смысл
+   (тьма ⇄ свет), но ровным кроссфейдом. */
+@media (prefers-reduced-motion: reduce) {
+  html { transition: --lit 240ms linear; }
+}
+
+/* ── Лёгкая пилюля. Выглядит как тонкое стекло, но без
+      backdrop-filter.
+
+      Ленты стека — это полторы сотни элементов; со стеклом на каждом
+      композитор пересчитывает столько же фоновых размытий на кадр,
+      и страница начинает подлагивать на ровном месте. Размытие имеет
+      смысл там, где сквозь пластину реально что-то видно: шапка,
+      карточки, модалка. На пилюле высотой 30px его не видно вовсе. */
+.pill {
+  position: relative;
+  background: var(--glass-tint-thin);
+  border: 1px solid color-mix(in srgb, var(--glass-edge) 30%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), var(--shade-1);
+}
+
+/* ── Выделение текста. По умолчанию выключено: на сайте, где почти
+      всё — заголовки, метки и подписи, случайное выделение при
+      скролле пальцем или при промахе мышью выглядит мусором.
+
+      Разрешено там, где текст реально копируют: «Обо мне» и резюме.
+      Плюс — везде адрес почты и ссылка на GitHub: контакт, который
+      нельзя выделить, это издевательство. ─────────────────────── */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-selectable],
+[data-selectable] *,
+.selectable,
+.selectable * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Поля ввода остаются выделяемыми всегда — иначе их не отредактировать. */
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}

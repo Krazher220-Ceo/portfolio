@@ -1,0 +1,35 @@
+/* Страница стартует в полной темноте; щелчок — и конус
+   раскрывается сверху вниз. Уходит за 1.4s, не дольше. */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: #000;
+  animation: lift 1400ms var(--e-out) forwards;
+  pointer-events: none;
+}
+@keyframes lift {
+  0%   { opacity: 1; clip-path: inset(0 0 0 0); }
+  16%  { opacity: 1; }
+  100% { opacity: 0; clip-path: inset(0 0 100% 0); }
+}
+
+.count {
+  position: absolute;
+  left: var(--gutter);
+  bottom: var(--s-8);
+  color: var(--ink-3);
+  animation: fadeOut 1400ms var(--e-in) forwards;
+}
+@keyframes fadeOut {
+  0%, 60% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Фигура, имя и стеклянные панели проявляются из темноты
+   со stagger — раскадровка живёт в hero.module.css. */
+:global(html[data-booting="1"]) :global(.reveal) { transition-delay: 900ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .veil { display: none; }
+}

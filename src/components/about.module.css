@@ -1,0 +1,19 @@
+.top { padding-top: var(--s-16); }
+.title { margin-block: var(--s-4) var(--s-12); }
+.layout { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-8); align-items: start; }
+.prose { grid-column: 2 / 9; display: grid; gap: var(--s-4); }
+.prose p { color: var(--ink-2); }
+.prose p:first-child { color: var(--ink); }
+.aside { grid-column: 9 / 13; display: grid; gap: var(--s-6); position: sticky; top: 88px; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .prose, .aside { grid-column: 1 / -1; }
+  .aside { position: static; }
+}
+.figure { margin: 0; border-radius: var(--r-card); overflow: hidden; }
+.figure img { width: 100%; height: auto; filter: saturate(0.7) brightness(0.82) contrast(1.05); }
+:global([data-state="en"]) .figure img { filter: grayscale(1) brightness(0.78) contrast(1.1); }
+.card { padding: var(--s-6); display: grid; gap: var(--s-3); justify-items: start; }
+.card a { color: var(--ink-2); }
+.card a:hover { color: var(--ink); }
+.cv { color: var(--ink) !important; }

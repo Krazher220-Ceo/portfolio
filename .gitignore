@@ -1,1 +1,12 @@
+node_modules
+.next
+out
+.vercel
+.env*
+*.tsbuildinfo
 .DS_Store
+
+# служебное, в публичном репозитории ни к чему
+.claude/
+CLAUDE.md
+AGENTS.md

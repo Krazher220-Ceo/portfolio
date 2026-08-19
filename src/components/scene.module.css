@@ -1,0 +1,292 @@
+/* ── Конус света. Единственный источник в кадре: он определяет фон,
+      цвет стекла, направление теней и положение бликов. ───────── */
+
+.wrap {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  transform-origin: 46% 0%;
+  /* качание от рывка шнура — затухает пружиной за ~1.3s */
+  transform: rotate(var(--cone-swing, 0deg));
+}
+
+/* Источник — настоящий светильник, а не абстрактное пятно.
+   Вырезан по альфе, а не наложен через screen: слой сцены живёт
+   в собственном контексте наложения из-за transform, и смешиваться
+   с фоном страницы screen оттуда физически не может — вместо света
+   получался тёмный прямоугольник кадра.
+
+   Держится в самом верху кадра: светильник — источник, а не герой
+   сцены, и налезать на фигуру он не должен. */
+.head {
+  position: absolute;
+  top: 0;
+  left: 46%;
+  width: var(--lamp-w, 132px);
+  transform: translateX(-50%);
+  /* Уходит по мере прокрутки: светильник висит над первым экраном,
+     и текст, проезжающий сквозь него, выглядит поломкой. */
+  opacity: calc(var(--cone-on, 1) * var(--lamp-fade, 1));
+  transform-origin: 50% 0%;
+  animation: lampSway 9s var(--e-in-out) infinite;
+  will-change: opacity;
+}
+@media (min-width: 900px) { .head { --lamp-w: 150px; } }
+@media (min-width: 1400px) { .head { --lamp-w: 168px; } }
+
+/* Один кадр светильника — выключенного. «Включён» рисуется
+   настоящим светом: колба разгорается, металл ловит отсвет.
+   Два разных кадра пришлось бы совмещать пиксель в пиксель,
+   и на зажигании светильник бы прыгал. */
+.lampStack { position: relative; display: block; width: 100%; }
+.lamp {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Металл ловит отсвет от собственной колбы. */
+  filter: brightness(calc(0.72 + 0.95 * var(--lit)))
+    saturate(calc(0.25 + 0.35 * var(--lit)));
+}
+:global([data-state="en"]) .lamp {
+  filter: grayscale(1) brightness(calc(0.9 + 0.7 * var(--lit)));
+}
+
+/* Колба. Растёт и разгорается вместе со сценой. */
+.bulb {
+  position: absolute;
+  left: 50%;
+  top: 87%;
+  width: 26%;
+  aspect-ratio: 1 / 1.15;
+  transform: translate(-50%, -50%) scale(calc(0.75 + 0.45 * var(--lit)));
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(--light-core) 0%,
+    color-mix(in srgb, var(--light-core) 70%, transparent) 34%,
+    color-mix(in srgb, var(--cone) 45%, transparent) 62%,
+    transparent 100%
+  );
+  filter: blur(6px);
+  opacity: var(--lit);
+}
+
+/* Отсвет на внутренней стороне плафона: без него зажжённая лампа
+   читается как наклейка поверх тёмной. */
+.shadeSpill {
+  position: absolute;
+  left: 50%;
+  top: 82%;
+  width: 84%;
+  aspect-ratio: 3 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--light-core) 34%, transparent) 0%,
+    color-mix(in srgb, var(--cone) 14%, transparent) 52%,
+    transparent 100%
+  );
+  filter: blur(16px);
+  opacity: var(--lit);
+  mix-blend-mode: plus-lighter;
+}
+
+@keyframes lampSway {
+  0%, 100% { transform: translateX(-50%) rotate(-0.45deg); }
+  50% { transform: translateX(-50%) rotate(0.45deg); }
+}
+
+/* Свечение колбы — в устье плафона, чтобы лампа читалась
+   как включённая, а не как предмет в темноте. */
+.bulb {
+  position: absolute;
+  left: 50%;
+  top: 74%;
+  width: 128%;
+  aspect-ratio: 2 / 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(--light-core) 0%,
+    color-mix(in srgb, var(--cone) 50%, transparent) 46%,
+    transparent 100%
+  );
+  filter: blur(12px);
+  opacity: var(--lit);
+}
+
+.halo {
+  position: absolute;
+  top: -40px;
+  left: 46%;
+  width: 380px;
+  height: 260px;
+  transform: translateX(-50%) scale(var(--cone-scale, 1));
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--light-core) 30%, transparent) 0%,
+    color-mix(in srgb, var(--cone) 10%, transparent) 45%,
+    transparent 78%
+  );
+  filter: blur(24px);
+  opacity: calc(var(--cone-on, 1) * var(--lit));
+}
+
+/* Луч. Разворачивается сверху вниз при зажигании, слабо
+   доворачивается по мере скролла — так страница читается
+   как одна сцена, а не как набор блоков.
+
+   Никакого clip-path: у многоугольника видны рёбра, и blur их
+   не прячет — на тёмном фоне граница кадра читается как рамка.
+   Форма собрана двумя эллипсами и вертикальной маской. */
+.beam {
+  position: absolute;
+  top: -6vh;
+  left: 46%;
+  width: min(1500px, 130vw);
+  height: 150vh;
+  transform: translateX(-50%) rotate(var(--cone-tilt, 0deg));
+  transform-origin: 50% 0%;
+  background:
+    radial-gradient(
+      ellipse 16% 74% at 50% 0%,
+      color-mix(in srgb, var(--cone) 16%, transparent) 0%,
+      color-mix(in srgb, var(--cone) 6%, transparent) 42%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 38% 96% at 50% -4%,
+      color-mix(in srgb, var(--cone) 7%, transparent) 0%,
+      color-mix(in srgb, var(--cone) 2%, transparent) 46%,
+      transparent 82%
+    );
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 46%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 46%, transparent 96%);
+  filter: blur(26px);
+  opacity: calc(var(--cone-on, 1) * var(--lit));
+  scale: 1 var(--cone-reach, 1);
+}
+
+/* Световое пятно на «полу»: основание фигуры растворяется в нём,
+   жёсткого обреза по низу быть не должно. */
+.pool {
+  position: absolute;
+  top: 74vh;
+  left: 46%;
+  width: min(62vw, 720px);
+  height: 190px;
+  transform: translateX(-50%) rotate(var(--cone-tilt, 0deg));
+  transform-origin: 50% -74vh;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--light-core) 11%, transparent) 0%,
+    color-mix(in srgb, var(--cone) 5%, transparent) 42%,
+    transparent 76%
+  );
+  filter: blur(42px);
+  opacity: calc(var(--cone-on, 1) * var(--lit));
+}
+
+/* Дыхание света: ±3% с периодом 7s. Едва заметно — но именно это
+   делает сцену живой, а не картинкой. */
+.breathe {
+  animation: breathe 7s var(--e-in-out) infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.97; }
+}
+
+/* Градиентная сетка за фигурой: 2–3 размытых пятна, дрейф 22s */
+.mesh {
+  position: absolute;
+  inset: 0;
+  opacity: calc(0.42 * var(--lit));
+}
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(56px);
+  will-change: transform;
+  animation: drift 22s var(--e-in-out) infinite alternate;
+}
+.blob1 {
+  top: 12%; left: 28%; width: 34vw; height: 34vw;
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+.blob2 {
+  top: 34%; left: 56%; width: 26vw; height: 26vw;
+  background: color-mix(in srgb, var(--accent-lo) 22%, transparent);
+  animation-delay: -7s;
+}
+.blob3 {
+  top: 4%; left: 44%; width: 18vw; height: 18vw;
+  background: color-mix(in srgb, var(--cone) 8%, transparent);
+  animation-delay: -13s;
+}
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(3.5vw, 4vh, 0) scale(1.12); }
+}
+
+/* width/height обязательны: canvas — замещаемый элемент, inset: 0
+   его не растягивает, и размер из атрибута начинает кормить сам себя. */
+.dust {
+  position: absolute;
+  top: 0;
+  left: 46%;
+  transform: translateX(-50%);
+  width: min(760px, 60vw);
+  height: 78vh;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breathe, .blob { animation: none; }
+  .dust { display: none; }
+}
+
+
+/* ── Свет идёт по всей странице, а не гаснет за первым экраном.
+      Мягкое пятно едет по вертикали вслед за скроллом и подсвечивает
+      ту секцию, которая сейчас читается. ─────────────────────── */
+.trail {
+  position: absolute;
+  left: 46%;
+  top: 0;
+  width: min(1250px, 118vw);
+  height: 74vh;
+  transform: translate(-50%, calc(var(--trail-y, 60) * 1vh - 50%));
+  background: radial-gradient(
+    ellipse 44% 50% at 50% 50%,
+    color-mix(in srgb, var(--cone) 5.5%, transparent) 0%,
+    color-mix(in srgb, var(--cone) 2%, transparent) 44%,
+    transparent 76%
+  );
+  filter: blur(50px);
+  opacity: calc(var(--cone-on, 1) * var(--lit));
+  transition: transform 620ms var(--e-out);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trail { transition: none; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp { animation: none; }
+}
+
+
+/* Дрейф пятен и пылинки — только там, где есть запас по кадрам.
+   На узком экране это чистые траты на композитинг. */
+@media (max-width: 860px) {
+  .blob { animation: none; }
+  .dust { display: none; }
+}

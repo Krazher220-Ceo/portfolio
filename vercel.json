@@ -1,34 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "trailingSlash": true,
-  "redirects": [
-    { "source": "/jasyl", "destination": "/projects/", "permanent": true },
-    { "source": "/jasyl/", "destination": "/projects/", "permanent": true },
-    { "source": "/qa-dashboard", "destination": "/projects/", "permanent": true },
-    { "source": "/qa-dashboard/", "destination": "/projects/", "permanent": true },
-    { "source": "/projects/kostanai/qa-dashboard", "destination": "/projects/kostanai/qa-vision/", "permanent": true },
-    { "source": "/projects/kostanai/qa-dashboard/", "destination": "/projects/kostanai/qa-vision/", "permanent": true }
-  ],
-  "rewrites": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "projects.alikhandev.com" }],
-      "destination": "/projects/:path*"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    }
-  ]
+  "framework": "nextjs",
+  "trailingSlash": false
 }

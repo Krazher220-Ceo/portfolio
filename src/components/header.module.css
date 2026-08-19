@@ -1,0 +1,195 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  padding: var(--s-3) var(--gutter) 0;
+}
+.bar {
+  /* Лист меню — потомок шапки, поэтому он кроет её независимо от
+     z-index снаружи. Панель с бургером поднимаем над ним: иначе
+     открытое меню невозможно закрыть. */
+  position: relative;
+  z-index: 66;
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--s-6);
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+}
+.brand { display: flex; align-items: center; gap: var(--s-3); white-space: nowrap; }
+.brand .label { color: var(--ink-2); }
+.brand:hover .label { color: var(--ink); }
+.mark {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  box-shadow: 0 0 12px -1px var(--accent-hi);
+  flex: none;
+}
+
+.nav { position: relative; display: flex; align-items: center; gap: var(--s-2); margin-left: auto; }
+.link {
+  position: relative;
+  z-index: 1;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-pill);
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  transition: color var(--t-quick) var(--e-out);
+  white-space: nowrap;
+}
+.link:hover { color: var(--ink); }
+.link[data-active="true"] { color: var(--ink); }
+
+.indicator {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: transform var(--t-base) var(--e-snap), width var(--t-base) var(--e-out),
+    opacity var(--t-quick) linear;
+  pointer-events: none;
+}
+
+.tools { display: flex; align-items: center; gap: var(--s-1); }
+
+.lang {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-pill);
+  color: var(--ink-3);
+  transition: box-shadow var(--t-quick) var(--e-out);
+}
+.lang:hover { box-shadow: var(--glow); }
+.lang span[data-on="true"] { color: var(--ink); }
+.slash { color: var(--ink-3); opacity: 0.5; }
+
+.sound {
+  display: grid;
+  place-items: center;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  color: var(--ink-3);
+  transition: color var(--t-quick) var(--e-out), box-shadow var(--t-quick) var(--e-out);
+}
+.sound:hover { color: var(--ink); box-shadow: var(--glow); }
+
+/* ── Бургер: три штриха, которые складываются в крест ─────── */
+.burger {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  position: relative;
+  color: var(--ink-2);
+  flex: none;
+}
+.burgerBar {
+  position: absolute;
+  left: 50%;
+  width: 15px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: translateX(-50%);
+  transition: transform var(--t-base) var(--e-snap),
+    opacity var(--t-quick) linear, top var(--t-base) var(--e-out);
+}
+.burgerBar:nth-child(1) { top: 12px; }
+.burgerBar:nth-child(2) { top: 16.5px; }
+.burgerBar:nth-child(3) { top: 21px; }
+.burger[aria-expanded="true"] { color: var(--ink); }
+.burger[aria-expanded="true"] .burgerBar:nth-child(1) {
+  top: 16.5px;
+  transform: translateX(-50%) rotate(45deg);
+}
+.burger[aria-expanded="true"] .burgerBar:nth-child(2) { opacity: 0; transform: translateX(-50%) scaleX(0.2); }
+.burger[aria-expanded="true"] .burgerBar:nth-child(3) {
+  top: 16.5px;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+/* ── Мобильное меню: отдельный слой поверх сцены, а не список,
+      втиснутый в шапку. Пункты въезжают по очереди. ────────── */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: calc(var(--s-24) + 12px) var(--gutter) var(--s-16);
+  background: color-mix(in srgb, var(--bg-deep) 82%, transparent);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+  animation: sheetIn var(--t-base) var(--e-out);
+}
+.sheetOpen { display: flex; }
+@keyframes sheetIn { from { opacity: 0; } }
+
+.sheetLink {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.75rem, 8vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--ink-2);
+  padding-block: var(--s-3);
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-4);
+  animation: itemIn 420ms var(--e-out) backwards;
+}
+.sheetLink:nth-child(1) { animation-delay: 40ms; }
+.sheetLink:nth-child(2) { animation-delay: 90ms; }
+.sheetLink:nth-child(3) { animation-delay: 140ms; }
+.sheetLink:nth-child(4) { animation-delay: 190ms; }
+.sheetLink[data-active="true"] { color: var(--ink); }
+.sheetLink::before {
+  content: counter(sheet, decimal-leading-zero);
+  counter-increment: sheet;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  transform: translateY(-0.6em);
+}
+.sheet { counter-reset: sheet; }
+@keyframes itemIn {
+  from { opacity: 0; transform: translateY(18px); }
+}
+
+.sheetFoot {
+  margin-top: var(--s-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  animation: itemIn 420ms var(--e-out) 240ms backwards;
+}
+.sheetMail { color: var(--ink); }
+.sheetRule {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent-hi) 40%, transparent),
+    transparent 70%
+  );
+  margin-block: var(--s-4);
+}
+
+@media (max-width: 860px) {
+  .burger { display: block; }
+  .nav { display: none; }
+  .bar { gap: var(--s-3); }
+  .brand .label { font-size: 0.68rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheetLink, .sheetFoot { animation: none; }
+  .burgerBar { transition: opacity var(--t-quick) linear; }
+}

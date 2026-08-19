@@ -1,0 +1,91 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-6);
+}
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+.cover {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: var(--r-card) var(--r-card) 0 0;
+}
+.cover img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform var(--t-slow) var(--e-out), filter var(--t-scene) var(--e-out);
+}
+:global([data-state="en"]) .cover img { filter: saturate(0.25) contrast(1.06); }
+.card:hover .cover img { transform: scale(1.03); }
+
+.body {
+  padding: var(--s-4) var(--s-6) var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  align-items: start;
+  flex: 1;
+}
+.title { font-size: 1.25rem; }
+.tagline { max-width: 46ch; margin: 0; font-size: 0.9375rem; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: auto; }
+.chip {
+  font-size: 0.72rem;
+  padding: 3px var(--s-2);
+  border-radius: var(--r-tag);
+  color: var(--ink-3);
+  border: 1px solid color-mix(in srgb, var(--glass-edge) 30%, transparent);
+}
+.open {
+  margin-top: var(--s-3);
+  color: var(--ink);
+  position: relative;
+  display: inline-flex;
+  gap: var(--s-2);
+}
+.open::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--t-quick) var(--e-out);
+}
+.open:hover::after { transform: scaleX(1); }
+
+/* Обложка-данные: там, где фотографии с площадки нет */
+.cover[data-kind="data"] {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--s-2);
+  padding: var(--s-6);
+  background: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    transparent 62%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--glass-edge) 20%, transparent);
+}
+.dataCover { display: grid; gap: var(--s-2); }
+.dataBig {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.dataLabel { max-width: 30ch; }
+.dataDate { color: var(--ink-3); font-size: 0.75rem; }
+
+/* Кликается вся карточка */
+.card[data-clickable] { cursor: pointer; }
+.card[data-clickable]:hover .open::after { transform: scaleX(1); }
