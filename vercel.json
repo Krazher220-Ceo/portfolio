@@ -3,8 +3,11 @@
   "trailingSlash": true,
   "redirects": [
     { "source": "/jasyl", "destination": "/projects/", "permanent": true },
+    { "source": "/jasyl/", "destination": "/projects/", "permanent": true },
     { "source": "/qa-dashboard", "destination": "/projects/", "permanent": true },
-    { "source": "/projects/kostanai/qa-dashboard", "destination": "/projects/kostanai/qa-vision/", "permanent": true }
+    { "source": "/qa-dashboard/", "destination": "/projects/", "permanent": true },
+    { "source": "/projects/kostanai/qa-dashboard", "destination": "/projects/kostanai/qa-vision/", "permanent": true },
+    { "source": "/projects/kostanai/qa-dashboard/", "destination": "/projects/kostanai/qa-vision/", "permanent": true }
   ],
   "rewrites": [
     {
