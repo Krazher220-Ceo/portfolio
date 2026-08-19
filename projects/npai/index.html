@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<script>
+/* Страница может открыться и как /qa-dashboard (без завершающего слэша) —
+   тогда относительные пути assets/… разрешаются от корня домена и дают 404.
+   Ставим базу явно, до первой ссылки на файл ниже по документу. */
+(function () {
+  var p = location.pathname;
+  if (p.length > 1 && p.charAt(p.length - 1) !== '/' && !/\.[a-z0-9]+$/i.test(p)) {
+    var b = document.createElement('base');
+    b.href = p + '/';
+    document.head.appendChild(b);
+  }
+})();
+</script>
+<title>NPAI — маркетплейс готовых решений для промышленного IoT</title>
+<meta name="description" content="Завод покупает проверенный модуль вместо трёх месяцев собственной разработки: коды для IoT-датчиков, AI-модели и дашборды в одном каталоге. Стартап из Костаная, топ-30 Startup Battle на IT Fest 2025." />
+<meta name="theme-color" content="#140f08" />
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="NPAI — маркетплейс готовых решений для промышленного IoT" />
+<meta property="og:description" content="Коды для IoT, AI-модели и дашборды в одном каталоге. Бесплатный Eco-модуль, защита кода авторов, данные остаются на заводе." />
+<meta property="og:image" content="assets/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<style>
+/* ============================================================
+   NPAI — витрина проекта.
+   Один файл, ноль зависимостей, ноль внешних запросов:
+   страница открывается с любого хостинга и из локальной папки.
+   Тот же каркас, что у соседнего лендинга Jasyl, — другая палитра
+   и другая предметная область.
+   ============================================================ */
+
+:root{
+  --bg:#140f08;
+  --surface:rgba(31,26,19,.82);
+  --surface-2:rgba(39,34,27,.9);
+  --panel:rgba(24,19,12,.78);
+  --border:rgba(255,255,255,.09);
+  --border-strong:rgba(255,255,255,.17);
+
+  --text:#e9eef6;
+  --text-2:#99a5b8;
+  --text-3:#6c7a8d;
+
+  --accent:#f59e42;
+  --accent-soft:rgba(245,158,66,.10);
+  --accent-line:rgba(245,158,66,.30);
+
+  /* Цвет = тяжесть дефекта. Зеркало палитры дашборда. */
+  --ok:#4ade80;
+  --warn:#f0a83a;
+  --danger:#f4595f;
+
+  --radius:16px;
+  --radius-lg:22px;
+  --maxw:1140px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--font);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.9em}
+
+/* Кинетическая сетка живёт под всем содержимым и не перехватывает события. */
+#grid{position:fixed;inset:0;width:100%;height:100%;max-width:100%;z-index:0;pointer-events:none}
+#page{position:relative;z-index:1}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.section{padding:96px 0;position:relative}
+.section+.section{border-top:1px solid var(--border)}
+
+.eyebrow{
+  font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 14px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--accent-line)}
+
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em;font-weight:650}
+h2{font-size:clamp(28px,4vw,40px);margin-bottom:16px}
+h3{font-size:19px;letter-spacing:-.01em;margin-bottom:8px}
+.lead{font-size:clamp(16px,2vw,18px);color:var(--text-2);max-width:66ch;margin:0 0 40px}
+p{margin:0 0 14px}
+
+/* ---------- шапка ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  /* Непрозрачный фон по умолчанию: размытие подложки у липкой шапки
+     пересчитывается на каждом кадре прокрутки и дороже всего обходится
+     мобильному Safari. Включаем только там, где есть мышь. */
+  background:#140f08;
+  border-bottom:1px solid var(--border);
+}
+@media(hover:hover) and (pointer:fine){
+  .nav{
+    background:rgba(20,15,8,.78);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+}
+.nav__in{max-width:var(--maxw);margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
+.nav__brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em;color:var(--text)}
+.nav__brand:hover{text-decoration:none}
+.nav__brand img{width:28px;height:28px;border-radius:8px}
+.nav__links{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.nav__links a{color:var(--text-2);font-size:14px;padding:7px 10px;border-radius:9px;transition:.15s}
+.nav__links a:hover{color:var(--text);background:var(--surface-2);text-decoration:none}
+.nav__cta{padding:9px 16px;font-size:14px;flex:none;margin-left:10px}
+
+/* ---------- мобильное меню ---------- */
+.nav__burger{
+  display:none;position:relative;width:38px;height:38px;flex:none;
+  border-radius:10px;border:1px solid var(--border-strong);background:var(--surface-2);
+  cursor:pointer;padding:0;
+}
+.nav__burger span{
+  position:absolute;left:9px;right:9px;height:2px;border-radius:2px;
+  background:var(--text);transition:transform .2s ease,opacity .2s ease,top .2s ease;
+}
+.nav__burger span:nth-child(1){top:13px}
+.nav__burger span:nth-child(2){top:18px}
+.nav__burger span:nth-child(3){top:23px}
+.nav__burger[aria-expanded="true"] span:nth-child(1){top:18px;transform:rotate(45deg)}
+.nav__burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.nav__burger[aria-expanded="true"] span:nth-child(3){top:18px;transform:rotate(-45deg)}
+
+.nav__mobile{display:none}
+.nav__mobile__in{padding:2px 24px 20px;display:flex;flex-direction:column}
+.nav__mobile__in a:not(.btn){color:var(--text-2);font-size:15.5px;padding:13px 2px;border-bottom:1px solid var(--border);display:block}
+.nav__mobile__in a:not(.btn):hover{color:var(--text);text-decoration:none}
+.nav__mobile__in a:not(.btn):last-of-type{border-bottom:none}
+.nav__mobile__in .btn{margin-top:14px;justify-content:center}
+
+@media(max-width:1080px){
+  .nav__links{display:none}
+  .nav__burger{display:inline-flex;margin-left:auto}
+  .nav__mobile{
+    display:block;position:absolute;top:100%;left:0;right:0;
+    max-height:0;overflow:hidden;background:var(--bg);
+    border-bottom:1px solid var(--border);
+    transition:max-height .25s ease;
+  }
+  .nav__mobile.open{max-height:640px}
+}
+
+/* ---------- кнопки ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 20px;border-radius:12px;font-size:15px;font-weight:600;
+  border:1px solid var(--border-strong);color:var(--text);background:var(--surface-2);
+  transition:.16s;cursor:pointer;
+}
+.btn:hover{border-color:var(--text-3);transform:translateY(-1px);text-decoration:none}
+.btn--primary{background:var(--accent);color:#231603;border-color:transparent}
+.btn--primary:hover{background:#ffb968}
+.btn--ghost{background:rgba(31,26,19,.5)}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ---------- герой ---------- */
+.hero{position:relative;overflow:hidden;padding:84px 0 100px}
+.hero__grid{position:relative;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center}
+@media(max-width:980px){.hero__grid{grid-template-columns:1fr;gap:48px}}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.chip{
+  font-size:12.5px;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text-2);
+}
+.chip--accent{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+
+.hero h1{font-size:clamp(40px,6.4vw,68px);letter-spacing:-.035em;margin-bottom:8px}
+.hero__sub{font-size:clamp(19px,2.6vw,23px);color:var(--text);font-weight:500;margin-bottom:20px}
+.hero__text{font-size:17px;color:var(--text-2);max-width:56ch;margin-bottom:32px}
+
+.hint{
+  display:none;align-items:center;gap:9px;margin-top:26px;
+  font-size:13px;color:var(--text-3);
+}
+.hint b{color:var(--text-2);font-weight:600}
+.hint__dot{
+  width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:40px}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--panel);padding:20px 18px}
+.stat__n{font-size:27px;font-weight:650;letter-spacing:-.03em;color:var(--text);line-height:1.1}
+.stat__l{font-size:13px;color:var(--text-3);margin-top:5px}
+
+/* ---------- макет дашборда ---------- */
+.win{
+  border-radius:16px;overflow:hidden;
+  background:linear-gradient(160deg,rgb(46,41,34),rgb(25,20,13));
+  border:1px solid var(--border-strong);
+  box-shadow:0 40px 80px -34px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.03) inset;
+}
+.win__bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.07)}
+.win__dot{width:9px;height:9px;border-radius:50%;background:#39424f}
+.win__url{
+  margin-left:8px;font-family:var(--mono);font-size:10.5px;color:var(--text-3);
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);
+  border-radius:6px;padding:3px 9px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.win__body{padding:14px;display:flex;flex-direction:column;gap:12px;background:rgb(23,18,11)}
+
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.kpi{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 11px}
+.kpi__l{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.kpi__n{font-size:20px;font-weight:650;letter-spacing:-.02em;margin-top:3px;line-height:1}
+.kpi__d{font-size:10px;color:var(--text-3);margin-top:4px}
+
+.mockrow{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px}
+@media(max-width:420px){.mockrow{grid-template-columns:1fr}}
+.mockbox{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:11px}
+.mockbox__t{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);margin-bottom:9px}
+.mockbox svg{width:100%;height:auto;display:block}
+
+.det{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+.det__row{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--text-2)}
+.det__sw{width:8px;height:8px;border-radius:2px;flex:none}
+.det__row b{color:var(--text);font-weight:600}
+.det__row span{margin-left:auto;font-family:var(--mono);color:var(--text-3)}
+
+/* ---------- сетки карточек ---------- */
+.grid{display:grid;gap:16px}
+.grid--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.grid--3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.grid--2,.grid--3{grid-template-columns:1fr}}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;transition:.18s;
+}
+.card:hover{border-color:var(--border-strong);background:var(--surface-2)}
+.card p{color:var(--text-2);font-size:14.5px;margin:0}
+.card__ico{
+  width:38px;height:38px;border-radius:11px;background:var(--accent-soft);
+  border:1px solid var(--accent-line);display:grid;place-items:center;margin-bottom:14px;
+}
+.card__ico svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- поток «как это работает» ---------- */
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:step}
+@media(max-width:900px){.flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.flow{grid-template-columns:1fr}}
+.step{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.step__n{
+  counter-increment:step;font-family:var(--mono);font-size:12px;color:var(--accent);
+  border:1px solid var(--accent-line);background:var(--accent-soft);
+  width:28px;height:28px;border-radius:9px;display:grid;place-items:center;margin-bottom:14px;font-weight:600;
+}
+.step__n::before{content:counter(step,decimal-leading-zero)}
+.step h3{font-size:16px}
+.step p{color:var(--text-2);font-size:14px;margin:0}
+
+/* ---------- схема ---------- */
+.diagram{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px;overflow-x:auto;
+}
+.diagram svg{min-width:760px;width:100%;height:auto;display:block}
+
+/* ---------- таблицы ---------- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14.5px}
+th,td{text-align:left;padding:13px 18px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);font-weight:600;background:rgba(20,15,8,.5)}
+tr:last-child td{border-bottom:none}
+td b{font-weight:600}
+td.num{font-family:var(--mono);color:var(--text)}
+
+/* ---------- метрики ---------- */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:32px}
+@media(max-width:820px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px}
+.metric__n{font-size:32px;font-weight:650;letter-spacing:-.03em;line-height:1}
+.metric__l{font-size:13px;color:var(--text-3);margin-top:8px}
+.bar{height:6px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+
+/* ---------- «честно» ---------- */
+ul.honest{border-left:2px solid var(--accent-line);padding-left:22px;margin:0}
+.honest li{margin-bottom:16px;color:var(--text-2);font-size:15px;list-style:none}
+.honest li:last-child{margin-bottom:0}
+.honest b{color:var(--text);display:block;margin-bottom:2px;font-weight:600}
+
+.note{
+  background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--warn);
+  border-radius:12px;padding:16px 20px;color:var(--text-2);font-size:14.5px;
+}
+.note b{color:var(--text)}
+.note--accent{border-left-color:var(--accent)}
+
+/* ---------- галерея ---------- */
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:700px){.shots{grid-template-columns:1fr}}
+.shot{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:0}
+.shot__frame{aspect-ratio:16/10;background:rgba(20,15,8,.6);position:relative}
+.shot__frame img{width:100%;height:100%;object-fit:cover;object-position:top}
+.shot__cap{padding:13px 16px;font-size:13.5px;color:var(--text-2);border-top:1px solid var(--border)}
+.shot__cap b{display:block;color:var(--text);font-size:14px;font-weight:600;margin-bottom:1px}
+
+/* ---------- сертификат ---------- */
+.cert{
+  display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px;align-items:center;
+  background:linear-gradient(150deg,var(--surface),var(--panel));
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;
+}
+@media(max-width:860px){.cert{grid-template-columns:1fr;padding:24px}}
+.cert__stage{
+  border-radius:14px;background:#fff;overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+}
+.cert__stage img{width:100%;height:auto}
+.cert__stage object{width:100%;height:480px;border:0}
+.cert__ph{
+  aspect-ratio:1.4/1;display:grid;place-items:center;text-align:center;padding:24px;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 12px,transparent 12px 24px);
+  color:var(--text-3);font-size:13.5px;border:1px dashed var(--border-strong);border-radius:14px;
+}
+.cert h3{font-size:24px;letter-spacing:-.02em;margin-bottom:10px}
+.cert p{color:var(--text-2);font-size:15px}
+
+/* ---------- команда ---------- */
+.people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:820px){.people{grid-template-columns:1fr}}
+.person{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:24px;transition:.18s;display:flex;flex-direction:column;
+}
+.person:hover{border-color:var(--accent-line)}
+.person__ava{
+  width:44px;height:44px;border-radius:13px;margin-bottom:16px;
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+  display:grid;place-items:center;color:var(--accent);font-weight:650;font-size:15px;letter-spacing:.02em;
+}
+.person__name{font-size:16.5px;font-weight:650;letter-spacing:-.01em;margin-bottom:3px}
+.person__role{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.person__txt{font-size:14px;color:var(--text-2);margin:0 0 18px}
+
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.tag{font-size:13px;padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+
+/* ---------- контакты ---------- */
+.contact{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:32px;align-items:center;
+  background:linear-gradient(150deg,var(--surface),var(--panel));
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px;
+}
+@media(max-width:820px){.contact{grid-template-columns:1fr;padding:26px}}
+.mailto{
+  display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:clamp(15px,2.4vw,19px);
+  padding:14px 18px;border-radius:14px;border:1px solid var(--accent-line);background:var(--accent-soft);
+  color:var(--accent);font-weight:600;letter-spacing:-.01em;transition:.16s;
+}
+.mailto:hover{background:rgba(245,158,66,.16);text-decoration:none;transform:translateY(-1px)}
+.mailto svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* ---------- подвал ---------- */
+.footer{border-top:1px solid var(--border);padding:56px 0 72px;color:var(--text-3);font-size:14px;background:rgba(20,15,8,.6)}
+.footer__grid{display:flex;gap:32px;flex-wrap:wrap;justify-content:space-between;align-items:flex-start}
+.footer a{color:var(--text-2)}
+.footer a:hover{color:var(--accent)}
+.footer__links{display:flex;gap:22px;flex-wrap:wrap}
+
+/* ---------- появление при прокрутке ---------- */
+.reveal{opacity:0;transform:translateY(14px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .55s ease,transform .55s ease}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+  .hint__dot{animation:none}
+}
+
+/* Ячейки сеток не должны раздуваться под min-width таблиц и схем: без
+   min-width:0 элемент грид-сетки не может стать уже своего содержимого,
+   и таблица с min-width:520px растягивает всю страницу вбок на телефоне. */
+.grid>*,.metrics>*,.people>*,.flow>*,.shots>*,.hero__grid>*,.cert>*,.contact>*,.mockrow>*,.kpis>*{min-width:0}
+
+/* ---------- визуальный ритм: номера секций, чередующийся фон ---------- */
+.section{position:relative;isolation:isolate}
+.section[data-idx]::before{
+  content:attr(data-idx);
+  position:absolute;top:40px;right:24px;z-index:-1;
+  font:800 150px/1 var(--mono);letter-spacing:-.05em;
+  color:var(--accent-soft);-webkit-text-stroke:1px rgba(255,255,255,.09);
+  pointer-events:none;
+}
+.section:nth-of-type(even){
+  background:linear-gradient(180deg,var(--accent-soft) 0%,rgba(0,0,0,0) 62%);
+}
+@media(max-width:900px){
+  .section[data-idx]::before{display:none}
+}
+
+/* ---------- акцентная карточка: одна на сетку, чтобы взгляд не скользил ровно ---------- */
+.card--accent{
+  background:var(--accent-soft);border-color:var(--accent-line);
+}
+.card--accent .card__ico{background:rgba(255,255,255,.08);border-color:var(--accent-line)}
+
+/* ---------- полоса-цитата: пауза между плотными текстовыми секциями ---------- */
+.stripe{
+  position:relative;z-index:1;background:var(--accent-soft);
+  border-top:1px solid var(--accent-line);border-bottom:1px solid var(--accent-line);
+  padding:46px 0;
+}
+.stripe__text{
+  margin:0 auto;max-width:48ch;text-align:center;
+  font-size:clamp(19px,2.6vw,26px);font-weight:500;letter-spacing:-.01em;color:var(--text);
+}
+.stripe__text b{color:var(--accent);font-weight:650}
+
+/* ---------- витрина модулей в макете ---------- */
+.mods{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.mod{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:9px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.mod__ico{
+  font-size:8.5px;font-weight:700;letter-spacing:.05em;flex:none;
+  width:30px;height:24px;border-radius:6px;display:grid;place-items:center;
+  background:var(--accent-soft);border:1px solid var(--accent-line);color:var(--accent);
+}
+.mod__ico--ai{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.3);color:#a78bfa}
+.mod__ico--free{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);color:var(--ok)}
+.mod__txt{flex:1;min-width:0}
+.mod__txt b{display:block;font-size:11px;font-weight:600;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mod__txt span{display:block;font-size:9.5px;color:var(--text-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mod__price{font-family:var(--mono);font-size:10px;color:var(--text-2);flex:none}
+.mod__price--free{color:var(--ok)}
+
+[hidden]{display:none !important}
+
+/* ---------- телефоны ---------- */
+@media(max-width:640px){
+  .section{padding:56px 0}
+  .hero{padding:40px 0 56px}
+  .wrap{padding:0 18px}
+
+  h2{font-size:26px}
+  .lead{font-size:15.5px;margin-bottom:28px}
+  .hero__text{font-size:16px}
+  .card,.step,.metric,.person{padding:20px}
+
+  .btn-row{gap:10px}
+  .btn-row .btn{flex:1 1 100%;justify-content:center}
+
+  .footer__links{gap:14px 22px}
+  .footer__links a{padding:6px 0;display:inline-block}
+
+  .tbl-wrap,.diagram{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .diagram{padding:16px}
+}
+
+/* Убираем 300 мс задержку тапа и серую вспышку по нажатию. */
+a,button{touch-action:manipulation}
+</style>
+</head>
+<body>
+
+<canvas id="grid" aria-hidden="true"></canvas>
+
+<div id="page">
+
+<!-- ============ ШАПКА ============ -->
+<nav class="nav">
+  <div class="nav__in">
+    <a class="nav__brand" href="#top"><img src="assets/icon-512.png" alt="" /> NPAI</a>
+    <div class="nav__links">
+      <a href="#problem">Проблема</a>
+      <a href="#how">Как работает</a>
+      <a href="#features">Платформа</a>
+      <a href="#market">Рынок</a>
+      <a href="#money">Модель</a>
+      <a href="#road">Дальше</a>
+      <a href="#events">Площадки</a>
+      <a href="#team">Команда</a>
+      <a href="#contact">Контакты</a>
+    </div>
+    <a class="btn btn--primary nav__cta" href="https://krazher220-ceo.github.io/npai-landing/" target="_blank" rel="noopener">Демо</a>
+    <button class="nav__burger" id="navBurger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navMobile">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav__mobile" id="navMobile">
+    <div class="nav__mobile__in">
+      <a href="#problem">Проблема</a>
+      <a href="#how">Как работает</a>
+      <a href="#features">Платформа</a>
+      <a href="#market">Рынок</a>
+      <a href="#money">Модель</a>
+      <a href="#road">Дальше</a>
+      <a href="#events">Площадки</a>
+      <a href="#team">Команда</a>
+      <a href="#contact">Контакты</a>
+      <a class="btn btn--primary" href="https://krazher220-ceo.github.io/npai-landing/" target="_blank" rel="noopener">Открыть демо</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ ГЕРОЙ ============ -->
+<header class="hero" id="top">
+  <div class="wrap hero__grid">
+    <div>
+      <div class="chips">
+        <span class="chip chip--accent">Стартап · идёт по площадкам с 2024 года</span>
+        <span class="chip">Startup Battle · топ-30</span>
+        <span class="chip">Костанай · Павлодар · Алматы</span>
+      </div>
+
+      <h1>NPAI</h1>
+      <div class="hero__sub">Маркетплейс готовых решений для промышленного IoT</div>
+      <p class="hero__text">
+        Завод хочет следить за температурой в цехе или предсказывать поломку
+        станка — и каждый раз пишет это с нуля: три месяца разработки, свой
+        программист, свои баги. NPAI — витрина проверенных модулей: кодов для
+        датчиков, AI-моделей и дашбордов, которые ставятся за вечер. Как
+        магазин приложений, только для производства.
+      </p>
+
+      <div class="btn-row">
+        <a class="btn btn--primary" href="https://krazher220-ceo.github.io/npai-landing/" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Открыть демо
+        </a>
+        <a class="btn btn--ghost" href="#how">Как это работает</a>
+      </div>
+
+      <p style="margin:14px 0 0;font-size:13px;color:var(--text-3)">
+        Демо — витрина платформы на демо-данных: маркетплейс, дашборды
+        и бесплатный Eco-модуль. Бэкенда и оплаты пока нет — честно
+        <a href="#honest">разобрано ниже</a>.
+      </p>
+
+      <div class="hint" id="hint">
+        <span class="hint__dot"></span>
+        <span><b>Наведите курсор</b> — сетка тянется за ним. <b>Кликните</b> — расходится волна.</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat__n">1 день</div><div class="stat__l">вместо трёх месяцев разработки</div></div>
+        <div class="stat"><div class="stat__n">2</div><div class="stat__l">типа дашборда</div></div>
+        <div class="stat"><div class="stat__n">30</div><div class="stat__l">команд в финале Startup Battle</div></div>
+        <div class="stat"><div class="stat__n">3</div><div class="stat__l">города, где показывали проект</div></div>
+      </div>
+    </div>
+
+    <!-- Витрина маркетплейса — свёрстанный макет, а не снимок демо. -->
+    <div class="win" aria-hidden="true">
+      <div class="win__bar">
+        <span class="win__dot"></span><span class="win__dot"></span><span class="win__dot"></span>
+        <span class="win__url">npai — маркетплейс модулей</span>
+      </div>
+      <div class="win__body">
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpi__l">Модулей</div>
+            <div class="kpi__n">50+</div>
+            <div class="kpi__d">в каталоге</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__l">Установка</div>
+            <div class="kpi__n" style="color:var(--accent)">5 мин</div>
+            <div class="kpi__d">вместо 3 месяцев</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi__l">Eco-модуль</div>
+            <div class="kpi__n" style="color:var(--ok)">free</div>
+            <div class="kpi__d">без регистрации</div>
+          </div>
+        </div>
+
+        <div class="mockrow">
+          <div class="mockbox">
+            <div class="mockbox__t">Каталог модулей</div>
+            <div class="mods">
+              <div class="mod">
+                <span class="mod__ico">IoT</span>
+                <span class="mod__txt"><b>Контроль температуры</b><span>драйвер + пороги + алерты</span></span>
+                <span class="mod__price">₸</span>
+              </div>
+              <div class="mod">
+                <span class="mod__ico mod__ico--ai">AI</span>
+                <span class="mod__txt"><b>Предиктивный ремонт</b><span>модель по вибрации станка</span></span>
+                <span class="mod__price">₸₸</span>
+              </div>
+              <div class="mod">
+                <span class="mod__ico mod__ico--free">ECO</span>
+                <span class="mod__txt"><b>Качество воздуха</b><span>публичные данные, live</span></span>
+                <span class="mod__price mod__price--free">free</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mockbox">
+            <div class="mockbox__t">Дашборд цеха</div>
+            <svg viewBox="0 0 200 128" role="img" aria-label="График показаний датчиков">
+              <g font-family="-apple-system,sans-serif" font-size="8" fill="#8d8272">
+                <line x1="0" y1="104" x2="200" y2="104" stroke="rgba(255,255,255,.09)"/>
+                <line x1="0" y1="40" x2="200" y2="40" stroke="rgba(245,158,66,.25)" stroke-dasharray="3 3"/>
+                <text x="2" y="36" fill="#f59e42">порог</text>
+                <polyline points="6,88 30,80 54,84 78,66 102,72 126,50 150,58 174,34 194,44"
+                          fill="none" stroke="#f59e42" stroke-width="2.4" stroke-linejoin="round"/>
+                <circle cx="174" cy="34" r="3.6" fill="#f4595f"/>
+                <text x="140" y="24" fill="#f4595f">алерт</text>
+              </g>
+            </svg>
+            <div class="det">
+              <div class="det__row"><span class="det__sw" style="background:var(--accent)"></span><b>Датчиков онлайн</b><span>128</span></div>
+              <div class="det__row"><span class="det__sw" style="background:var(--danger)"></span><b>Превышений за смену</b><span>2</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ ПРОБЛЕМА ============ -->
+<section class="section" id="problem" data-idx="01">
+  <div class="wrap reveal">
+    <div class="eyebrow">Проблема</div>
+    <h2>Каждый завод пишет один и тот же код заново</h2>
+    <p class="lead">
+      Датчик температуры в цехе мебельной фабрики и датчик температуры
+      в цехе пищевого производства — это одна и та же задача, решённая дважды
+      двумя разными подрядчиками за двойные деньги. И так по всей стране.
+    </p>
+
+    <div class="grid grid--3">
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>Привязка к одному вендору</h3>
+        <p>Купил систему у крупного поставщика — купил и его правила: закрытые протоколы, свои датчики, счёт за каждое расширение. Уйти нельзя, всё построено вокруг него.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>Долгая и дорогая интеграция</h3>
+        <p>От «нам нужно следить за станком» до работающего решения проходят месяцы: техзадание, подрядчик, разработка, отладка. Малому производству это просто не по карману.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+        <h3>Данные есть, пользы нет</h3>
+        <p>Датчики стоят и что-то пишут в базу годами. Но пока поверх этих чисел нет модели, которая скажет «подшипник умрёт через две недели», это просто занятое место на диске.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ КАК РАБОТАЕТ ============ -->
+<section class="section" id="how" data-idx="02">
+  <div class="wrap reveal">
+    <div class="eyebrow">Решение</div>
+    <h2>Четыре шага вместо трёх месяцев</h2>
+    <p class="lead">
+      Логика та же, что у магазина приложений: кто-то один решил задачу
+      хорошо — остальные покупают результат, а не повторяют путь.
+    </p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Смотрит бесплатно</h3>
+        <p>Eco-модуль с данными о качестве воздуха открыт без регистрации: предприятие видит, как устроена платформа, ничего не покупая.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Выбирает модуль</h3>
+        <p>Каталог кодов для IoT и AI-моделей по категориям. Перед покупкой можно посмотреть фрагмент кода и понять, что именно берёшь.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Ставит у себя</h3>
+        <p>Модуль разворачивается на инфраструктуре предприятия и подключается к своим датчикам. Данные остаются на заводе.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Смотрит дашборд</h3>
+        <p>Полная версия для цеха и облегчённая для телефона руководителя: ключевые метрики, пороги и уведомления о превышениях.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПЛАТФОРМА ============ -->
+<section class="section" id="features" data-idx="03">
+  <div class="wrap reveal">
+    <div class="eyebrow">Что внутри</div>
+    <h2>Платформа</h2>
+    <p class="lead">
+      Не одна витрина: вокруг покупки модуля должна быть вся обвязка —
+      от бесплатной точки входа до защиты прав автора кода.
+    </p>
+
+    <div class="grid grid--3">
+      <div class="card card--accent">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></div>
+        <h3>Маркетплейс модулей</h3>
+        <p>Коды для IoT-датчиков, AI-модели и интеграции в одном каталоге, с категориями, рейтингами и отзывами. Купил — поставил, а не «свяжитесь с отделом продаж».</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20zM2 12h20"/></svg></div>
+        <h3>Бесплатный Eco-модуль</h3>
+        <p>Публичные данные о загрязнении воздуха в реальном времени, без регистрации. Это одновременно и польза городу, и честная витрина: видно, как платформа работает.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <h3>Два дашборда</h3>
+        <p>Полный — для цеха: все модули, история, экспорт отчётов. Лёгкий — для руководителя: ключевые метрики и уведомления с телефона.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Защита кода автора</h3>
+        <p>Просмотр перед покупкой — с ограничениями: юридическое соглашение, водяные знаки в примерах, отслеживание использования. Без этого разработчик не понесёт свой модуль на площадку.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/></svg></div>
+        <h3>Площадка для разработчиков</h3>
+        <p>Программист публикует своё решение и получает долю с продаж. Один написанный модуль продаётся сотне заводов вместо одного проекта на заказ.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M4 4h16v6H4zM4 14h16v6H4z"/><path d="M8 7h.01M8 17h.01"/></svg></div>
+        <h3>Данные остаются у завода</h3>
+        <p>Модуль ставится на инфраструктуру предприятия. Для производства это принципиально: телеметрия цеха не уезжает в чужое облако вместе с покупкой.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ РЫНОК ============ -->
+<section class="section" id="market" data-idx="04">
+  <div class="wrap reveal">
+    <div class="eyebrow">Рынок</div>
+    <h2>TAM, SAM, SOM</h2>
+    <p class="lead">
+      Цифры, с которыми мы выходили на Startup Battle. Это оценки на основе
+      открытых отраслевых отчётов, а не наша выручка — ниже честно
+      про то, чем они являются.
+    </p>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric__n">$700 млрд</div>
+        <div class="metric__l">TAM — мировой рынок IoT и AI для промышленности к 2030 году</div>
+      </div>
+      <div class="metric">
+        <div class="metric__n">$1–2 млрд</div>
+        <div class="metric__l">SAM — СНГ и Центральная Азия</div>
+        <div class="bar"><i style="width:22%"></i></div>
+      </div>
+      <div class="metric">
+        <div class="metric__n">$10–30 млн</div>
+        <div class="metric__l">SOM — реалистичная доля к третьему году</div>
+        <div class="bar"><i style="width:9%"></i></div>
+      </div>
+      <div class="metric">
+        <div class="metric__n">15–20%</div>
+        <div class="metric__l">ежегодный рост рынка по отраслевым прогнозам</div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Горизонт</th><th>Цель</th><th>Что должно случиться</th></tr></thead>
+        <tbody>
+          <tr><td><b>Год 1</b></td><td class="num">$0,5–1 млн</td><td>Запуск платформы, первые клиенты, репутация на локальном рынке</td></tr>
+          <tr><td><b>Год 2</b></td><td class="num">$2–5 млн</td><td>Рост каталога и клиентской базы, продвижение за пределами Казахстана</td></tr>
+          <tr><td><b>Год 3</b></td><td class="num">$10–30 млн</td><td>Масштабирование, партнёрства, выход на соседние рынки</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note" style="margin-top:28px">
+      <b>Про эти цифры.</b> Это план и оценка объёма, а не факт. Выручки
+      у проекта сейчас нет: платформа существует как работающая витрина
+      на демо-данных, продажи не запускались. Мы говорили это жюри
+      и говорим здесь — цифра рынка без первого платящего клиента
+      стоит ровно столько, сколько стоит хорошая презентация.
+    </div>
+  </div>
+</section>
+
+<!-- ============ БИЗНЕС-МОДЕЛЬ ============ -->
+<section class="section" id="money" data-idx="05">
+  <div class="wrap reveal">
+    <div class="eyebrow">Экономика</div>
+    <h2>На чём это зарабатывает</h2>
+    <p class="lead">
+      Четыре источника, и три из них не требуют, чтобы мы сами писали каждый
+      модуль, — в этом и смысл площадки.
+    </p>
+
+    <div class="grid grid--2">
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+        <h3>Продажа модулей</h3>
+        <p>Разовая покупка готового кода или AI-модели. Для завода это дешевле собственной разработки на порядок, для нас — основная выручка на старте.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <h3>Комиссия с чужих решений</h3>
+        <p>Сторонний разработчик публикует модуль, площадка берёт процент с продаж. Каталог растёт без нашего участия — это то, что отличает маркетплейс от студии разработки.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14v4M12 9v9M17 5v13"/></svg></div>
+        <h3>Подписка на публикацию</h3>
+        <p>Право выкладывать свои модули — платная функция. Отсекает поток мусорных решений и даёт предсказуемый доход, не зависящий от разовых сделок.</p>
+      </div>
+      <div class="card">
+        <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></div>
+        <h3>Корпоративные тарифы</h3>
+        <p>Крупному предприятию нужны SLA, приватный каталог и поддержка. Это отдельный тариф поверх той же платформы, а не отдельный продукт.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ДАЛЬШЕ ============ -->
+<section class="section" id="road" data-idx="06">
+  <div class="wrap reveal">
+    <div class="eyebrow">Дорожная карта</div>
+    <h2>Где проект сейчас и что дальше</h2>
+    <p class="lead">
+      Мы находимся в самом начале: работает витрина, не работает всё
+      остальное. Показываем это как есть.
+    </p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Витрина · сейчас</h3>
+        <p>Интерфейс платформы, каталог, два дашборда, Eco-модуль, вход через Google. Всё — на демо-данных, в браузере, без сервера.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Бэкенд и оплата</h3>
+        <p>API, база, реальные покупки и выдача модулей. До этого шага говорить о выручке нельзя — это следующая работа, а не «почти готово».</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Первое внедрение</h3>
+        <p>Один настоящий завод, один настоящий модуль, работающий в цехе. Одно такое внедрение весит больше всех презентаций вместе взятых.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Чужие разработчики</h3>
+        <p>Открытая публикация модулей и комиссия с продаж. Момент, когда площадка начинает расти без нас, — цель, ради которой всё затевалось.</p>
+      </div>
+    </div>
+
+    <div class="grid grid--2" style="margin-top:32px" id="honest">
+      <div class="card">
+        <h3>Модульные IoT-устройства — идея, а не продукт</h3>
+        <p>В описании проекта есть направление собственного модульного железа: собрать датчик под задачу, как конструктор. На бумаге это логичное продолжение платформы, но ни одной платы мы не разводили. Это раздел планов, и путать его с тем, что работает, нельзя.</p>
+      </div>
+      <div class="card">
+        <h3>Что мы не выдаём за то, чем оно не является</h3>
+        <p>Демо — фронтенд на демо-данных: покупки симулированы, кода за кнопкой «купить» нет. Каталог «50+ решений» — это витрина каталога, а не пятьдесят готовых проверенных модулей. Конкурентов у идеи много и они крупные. Всё это мы называли на защите вслух — и в тридцатку прошли всё-таки с этим, а не вопреки.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПЛОЩАДКИ ============ -->
+<section class="section" id="events" data-idx="07">
+  <div class="wrap reveal">
+    <div class="eyebrow">История</div>
+    <h2>Где показывали проект</h2>
+    <p class="lead">
+      NPAI не появился на одном фестивале и не закончился вместе с ним:
+      с 2024 года проект прошёл несколько площадок в разных городах,
+      и каждая добавила к нему пару вопросов, на которые не было ответа.
+    </p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Площадка</th><th>Город</th><th>Что дало</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>Идея-баттлы и питч-сессии Qostanai Hub</b></td>
+            <td class="num">Костанай</td>
+            <td>Первые выходы с проектом: научились укладывать идею в короткий питч и слышать вопросы про деньги, а не про код</td>
+          </tr>
+          <tr>
+            <td><b>Питч-площадка</b></td>
+            <td class="num">Павлодар</td>
+            <td>Разговор с людьми из промышленного региона — там вопрос «а кто это купит» звучит предметнее всего</td>
+          </tr>
+          <tr>
+            <td><b>Startup Battle, IT Fest 2025</b></td>
+            <td class="num">Алматы</td>
+            <td>Прошли отбор в 30 команд, защищались очно перед жюри фестиваля. Дальше не прошли</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note note--accent" style="margin-top:28px">
+      <b>Зачем это перечислять.</b> Не ради списка регалий — их тут нет.
+      Просто идея, которую пять раз разобрали разные люди в разных городах,
+      отличается от идеи, которую один раз показали на слайде. Половина
+      того, что написано выше про рынок и модель, появилась именно
+      из этих разговоров. Подробнее про сам фестиваль —
+      <a href="/projects/almaty/itfest/">на странице IT Fest 2025</a>.
+    </div>
+  </div>
+</section>
+
+<!-- ============ КОМАНДА ============ -->
+<section class="section" id="team" data-idx="08">
+  <div class="wrap reveal">
+    <div class="eyebrow">Команда</div>
+    <h2>Кто делает</h2>
+    <p class="lead">
+      Школьники из Костаная. Платформа, презентация и защита — своими силами.
+    </p>
+
+    <div class="people">
+      <div class="person">
+        <div class="person__ava">КА</div>
+        <div class="person__name">Кабдуалы Алихан</div>
+        <div class="person__role">Продукт и разработка</div>
+        <p class="person__txt">
+          Платформа: витрина маркетплейса, дашборды, Eco-модуль, вход
+          и просмотр кода с защитой. Экономика проекта, питч
+          и ответы жюри на площадках.
+        </p>
+      </div>
+      <div class="person">
+        <div class="person__ava">МД</div>
+        <div class="person__name">Мирасбек Дайана</div>
+        <div class="person__role">Презентация и защита</div>
+        <p class="person__txt">
+          Материалы проекта, структура выступления и защита
+          на площадках вместе с командой.
+        </p>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">Костанай, Казахстан</span>
+      <span class="tag">Startup Battle · IT Fest 2025</span>
+      <span class="tag">Промышленный IoT и AI</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ КОНТАКТЫ ============ -->
+<section class="section" id="contact" data-idx="09">
+  <div class="wrap reveal">
+    <div class="eyebrow">Связь</div>
+    <h2>Написать по проекту</h2>
+    <p class="lead">
+      Если вы с производства и вам знакома проблема из первого раздела —
+      это самый полезный для нас разговор. Пишите на почту.
+    </p>
+
+    <div class="contact">
+      <div>
+        <a class="mailto" href="mailto:hi@alikhandev.com?subject=NPAI">
+          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+          hi@alikhandev.com
+        </a>
+        <p style="margin:18px 0 0;color:var(--text-2);font-size:14.5px">
+          Проект с того же фестиваля, но из другого трека —
+          <a href="/projects/almaty/itfest/kz-universe/">KZ UniVerse</a>,
+          платформа выбора университета, собранная за сутки хакатона.
+        </p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="mailto:hi@alikhandev.com">Написать письмо</a>
+        <a class="btn btn--ghost" href="https://github.com/Krazher220-Ceo/npai-landing" target="_blank" rel="noopener">Репозиторий</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПОДВАЛ ============ -->
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <img src="assets/icon-512.png" alt="" width="32" height="32" style="border-radius:9px" />
+        <b style="color:var(--text);font-size:16px">NPAI</b>
+      </div>
+      <div>Маркетплейс решений для промышленного IoT<br />Костанай, Казахстан</div>
+    </div>
+    <div class="footer__links">
+      <a href="https://krazher220-ceo.github.io/npai-landing/" target="_blank" rel="noopener">Демо</a>
+      <a href="/projects/almaty/itfest/">IT Fest 2025</a>
+      <a href="/projects/">Все проекты</a>
+      <a href="#market">Рынок</a>
+      <a href="mailto:hi@alikhandev.com">hi@alikhandev.com</a>
+      <a href="#top">Наверх</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /#page -->
+
+
+<script>
+/* ==================================================================
+   0. МОБИЛЬНОЕ МЕНЮ
+   ================================================================== */
+(function () {
+  var btn = document.getElementById('navBurger');
+  var panel = document.getElementById('navMobile');
+  if (!btn || !panel) return;
+
+  function close() {
+    panel.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Открыть меню');
+  }
+  function open() {
+    panel.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-label', 'Закрыть меню');
+  }
+
+  btn.addEventListener('click', function () {
+    panel.classList.contains('open') ? close() : open();
+  });
+  panel.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+  // Разворот экрана или ресайз к десктопной ширине не должны оставлять
+  // открытую панель поверх контента, у которого больше нет кнопки для неё.
+  window.addEventListener('resize', function () {
+    if (getComputedStyle(btn).display === 'none') close();
+  });
+})();
+
+/* ==================================================================
+   1. КИНЕТИЧЕСКАЯ СЕТКА
+   Сетка тянется к курсору, клик пускает волну. Ноль зависимостей.
+
+   Осознанные ограничения:
+   • сенсорный ввод и «грубый» указатель — сетка рисуется один раз
+     статично: тянуть её нечем, а вечный requestAnimationFrame
+     на телефоне это только расход батареи;
+   • prefers-reduced-motion — то же самое, один статичный кадр;
+   • вкладка не видна — цикл останавливается.
+   ================================================================== */
+(function () {
+  var canvas = document.getElementById('grid');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+
+  var CELL_SIZE = 58;
+  var INFLUENCE_RADIUS = 260;
+  var MAX_WARP = 24;
+  var DOT_SPACING = 28;
+  var LERP_SPEED = 0.08;
+  var WAVE_WIDTH = 55;
+  var WAVE_SPEED = 400;      // пикселей в секунду
+  var NODE_BASE_R = 1.6;
+  var NODE_ACTIVE_R = 3.2;
+
+  var BG = '#140f08';
+  var LINE_BASE = { r: 255, g: 255, b: 255, a: 0.085 };
+  var LINE_ACTIVE = { r: 245, g: 158, b: 66, a: 0.9 };
+  var NODE_BASE = { r: 255, g: 255, b: 255, a: 0.18 };
+  var NODE_ACTIVE = { r: 245, g: 158, b: 66, a: 1 };
+  var GLOW = '245,158,66';
+  var RIPPLE = '255,185,104';
+
+  var mouse = { x: -9999, y: -9999 };
+  var target = { x: -9999, y: -9999 };
+  var ripples = [];
+  var W = 0, H = 0, raf = 0, running = false;
+  var dotsLayer = null; // статичная текстура, перерисовывается только при resize
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(pointer: fine)').matches;
+  var interactive = finePointer && !reduced;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function mixColor(base, active, t) {
+    return 'rgba(' +
+      Math.round(lerp(base.r, active.r, t)) + ',' +
+      Math.round(lerp(base.g, active.g, t)) + ',' +
+      Math.round(lerp(base.b, active.b, t)) + ',' +
+      lerp(base.a, active.a, t).toFixed(3) + ')';
+  }
+
+  /* Точечная текстура неподвижна, но занимает ~1500 окружностей. Рисовать её
+     заново каждый кадр — впустую жечь процессор, поэтому она живёт в отдельном
+     слое и попадает в кадр одним drawImage. */
+  function buildDots(dpr) {
+    var off = document.createElement('canvas');
+    off.width = Math.round(W * dpr);
+    off.height = Math.round(H * dpr);
+    var octx = off.getContext('2d');
+    octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    octx.fillStyle = 'rgba(255,255,255,0.045)';
+    for (var x = DOT_SPACING / 2; x < W; x += DOT_SPACING) {
+      for (var y = DOT_SPACING / 2; y < H; y += DOT_SPACING) {
+        octx.beginPath();
+        octx.arc(x, y, 0.7, 0, Math.PI * 2);
+        octx.fill();
+      }
+    }
+    return off;
+  }
+
+  function resize() {
+    // На телефоне сетка статична, и ретиновая плотность ей не нужна: холст
+    // на 3x от экрана iPhone — это десятки мегабайт, из-за которых Safari
+    // выгружает вкладку. 1.5x на глаз неотличимо, памяти втрое меньше.
+    var cap = interactive ? 2 : 1.5;
+    var dpr = Math.min(window.devicePixelRatio || 1, cap);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Ширина или высота 0 (свёрнутое окно, фоновая вкладка) — слоя не будет:
+    // drawImage от пустого холста бросает InvalidStateError и роняет кадр.
+    dotsLayer = (interactive && W > 0 && H > 0) ? buildDots(dpr) : null;
+    // Кадр рисуем сразу: в фоновой вкладке requestAnimationFrame не вызывается
+    // вовсе, и холст остался бы пустым до момента, когда вкладку откроют.
+    draw(performance.now());
+  }
+
+  /** Точка сетки, смещённая курсором и волнами. */
+  function warp(gx, gy, col, row, cols, rows) {
+    // Края закреплены: без этого сетка «отлипает» от границ экрана.
+    var edge = 1.5;
+    var colPin = Math.min(col / edge, (cols - 1 - col) / edge, 1);
+    var rowPin = Math.min(row / edge, (rows - 1 - row) / edge, 1);
+    var pin = colPin * colPin * rowPin * rowPin;
+
+    var dx = gx - mouse.x, dy = gy - mouse.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var proximity = Math.max(0, 1 - dist / INFLUENCE_RADIUS) * pin;
+
+    var rx = 0, ry = 0;
+    for (var i = 0; i < ripples.length; i++) {
+      var r = ripples[i];
+      var rdx = gx - r.x, rdy = gy - r.y;
+      var rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+      var diff = rdist - r.radius;
+      if (Math.abs(diff) < WAVE_WIDTH) {
+        var strength = (1 - Math.abs(diff) / WAVE_WIDTH) * r.opacity * 18 * pin;
+        var ang = Math.atan2(rdy, rdx);
+        var sign = diff < 0 ? -1 : 1;
+        rx += Math.cos(ang) * strength * sign * -1;
+        ry += Math.sin(ang) * strength * sign * -1;
+      }
+    }
+
+    if (dist < INFLUENCE_RADIUS && dist > 0 && pin > 0) {
+      var t = dist / INFLUENCE_RADIUS;
+      var eased = t < 0.01 ? 0 : (1 - t) * (1 - t) * Math.min(1, dist / 60);
+      var amt = eased * MAX_WARP * pin;
+      var a = Math.atan2(dy, dx);
+      return {
+        x: gx - Math.cos(a) * amt + rx,
+        y: gy - Math.sin(a) * amt + ry,
+        p: proximity
+      };
+    }
+    return { x: gx + rx, y: gy + ry, p: proximity };
+  }
+
+  function draw(now) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    if (dotsLayer && dotsLayer.width > 0 && dotsLayer.height > 0) {
+      ctx.drawImage(dotsLayer, 0, 0, W, H);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.045)';
+      for (var dx = DOT_SPACING / 2; dx < W; dx += DOT_SPACING) {
+        for (var dy = DOT_SPACING / 2; dy < H; dy += DOT_SPACING) {
+          ctx.beginPath();
+          ctx.arc(dx, dy, 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    for (var i = ripples.length - 1; i >= 0; i--) {
+      var age = (now - ripples[i].born) / 1000;
+      ripples[i].radius = Math.max(0, age * WAVE_SPEED);
+      ripples[i].opacity = Math.max(0, 1 - age * 1.2);
+      if (ripples[i].opacity <= 0) ripples.splice(i, 1);
+    }
+
+    var cols = Math.max(2, Math.ceil(W / CELL_SIZE)) + 1;
+    var rows = Math.max(2, Math.ceil(H / CELL_SIZE)) + 1;
+    var cellW = W / (cols - 1);
+    var cellH = H / (rows - 1);
+
+    var pts = [];
+    for (var row = 0; row < rows; row++) {
+      pts[row] = [];
+      for (var col = 0; col < cols; col++) {
+        pts[row][col] = warp(col * cellW, row * cellH, col, row, cols, rows);
+      }
+    }
+
+    function seg(p1, p2) {
+      var avg = (p1.p + p2.p) / 2;
+      var t = avg * avg * (3 - 2 * avg); // smoothstep
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = mixColor(LINE_BASE, LINE_ACTIVE, t);
+      ctx.lineWidth = lerp(0.8, 1.5, t);
+      ctx.stroke();
+    }
+
+    ctx.lineCap = 'butt';
+    for (var r1 = 0; r1 < rows; r1++)
+      for (var c1 = 0; c1 < cols - 1; c1++) seg(pts[r1][c1], pts[r1][c1 + 1]);
+    for (var c2 = 0; c2 < cols; c2++)
+      for (var r2 = 0; r2 < rows - 1; r2++) seg(pts[r2][c2], pts[r2 + 1][c2]);
+
+    for (var r3 = 0; r3 < rows; r3++) {
+      for (var c3 = 0; c3 < cols; c3++) {
+        var p = pts[r3][c3];
+        var t2 = p.p * p.p * (3 - 2 * p.p);
+        var rad = lerp(NODE_BASE_R, NODE_ACTIVE_R, t2);
+
+        if (t2 > 0.3) {
+          var glowR = rad + lerp(0, 6, (t2 - 0.3) / 0.7);
+          var grd = ctx.createRadialGradient(p.x, p.y, rad * 0.5, p.x, p.y, glowR);
+          grd.addColorStop(0, 'rgba(' + GLOW + ',' + (t2 * 0.3).toFixed(3) + ')');
+          grd.addColorStop(1, 'rgba(' + GLOW + ',0)');
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+          ctx.fillStyle = grd;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+        ctx.fillStyle = mixColor(NODE_BASE, NODE_ACTIVE, t2);
+        ctx.fill();
+      }
+    }
+
+    for (var k = 0; k < ripples.length; k++) {
+      ctx.beginPath();
+      ctx.arc(ripples[k].x, ripples[k].y, Math.max(0, ripples[k].radius), 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(' + RIPPLE + ',' + (ripples[k].opacity * 0.28).toFixed(3) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  function frame(now) {
+    mouse.x = lerp(mouse.x, target.x, LERP_SPEED);
+    mouse.y = lerp(mouse.y, target.y, LERP_SPEED);
+    draw(now);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running || !interactive) return;
+    running = true;
+    raf = requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  /* Мобильный Safari шлёт resize на каждое появление и сворачивание адресной
+     строки, то есть буквально во время прокрутки. Пересоздавать холст
+     размером с экран по такому поводу — верный способ уронить вкладку.
+     Реагируем на изменение ширины, а изменение одной высоты игнорируем,
+     пока оно не превысит порог (поворот экрана, разделённый экран). */
+  var URL_BAR_SLACK = 200;
+  var resizeTimer = 0;
+  window.addEventListener('resize', function () {
+    var dw = Math.abs(window.innerWidth - W);
+    var dh = Math.abs(window.innerHeight - H);
+    if (dw === 0 && dh < URL_BAR_SLACK) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 150);
+  });
+
+  // Поворот экрана: размеры к моменту события ещё старые, ждём следующий кадр.
+  window.addEventListener('orientationchange', function () {
+    setTimeout(resize, 250);
+  });
+
+  resize();
+
+  if (interactive) {
+    document.getElementById('hint').style.display = 'flex';
+
+    window.addEventListener('mousemove', function (e) {
+      target.x = e.clientX;
+      target.y = e.clientY;
+    });
+
+    window.addEventListener('click', function (e) {
+      ripples.push({ x: e.clientX, y: e.clientY, radius: 0, opacity: 1, born: performance.now() });
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    start();
+  }
+})();
+
+/* ==================================================================
+   2. МЯГКОЕ ПОЯВЛЕНИЕ СЕКЦИЙ ПРИ ПРОКРУТКЕ
+   ================================================================== */
+(function () {
+  var items = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    for (var i = 0; i < items.length; i++) items[i].classList.add('in');
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+  for (var j = 0; j < items.length; j++) io.observe(items[j]);
+})();
+</script>
+</body>
+</html>
