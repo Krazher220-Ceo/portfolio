@@ -36,7 +36,11 @@
       "Telegram bots",
       "Local LLMs"
     ],
-    "marks": ["16 years old", "Kostanay", "Astana Hub"],
+    "marks": [
+      "16 years old",
+      "Kostanay",
+      "Astana Hub"
+    ],
     "scrollHint": "Scroll",
     "loading": "Turning the light on"
   },
@@ -141,7 +145,10 @@
   "footer": {
     "rights": "Kostanay, Kazakhstan",
     "built": "Hand-built with Next.js. No page builders.",
-    "top": "Back to top"
+    "top": "Back to top",
+    "license": "All rights reserved",
+    "licenseNote": "Source and content are licensed: reading is fine, reuse is not.",
+    "licenseLink": "Terms"
   },
   "a11y": {
     "figure": "Photograph of Alikhan standing in the light cone. Press to switch the language and the colour of the light.",

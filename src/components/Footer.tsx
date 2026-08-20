@@ -4,6 +4,8 @@ import { useSite } from "@/lib/state";
 import { CONTACT } from "@/content/site";
 import s from "./footer.module.css";
 
+const YEAR = 2026;
+
 export default function Footer() {
   const { t } = useSite();
   return (
@@ -38,6 +40,21 @@ export default function Footer() {
             <p className={`small dimmer ${s.note}`}>{t.footer.built}</p>
             <a className={`label ${s.top}`} href="#top">{t.footer.top}</a>
           </div>
+        </div>
+
+        {/* Молчание о правах читается как разрешение брать что угодно.
+            Поэтому условие стоит на самом сайте, а не только
+            в файле LICENSE, который открывают единицы. */}
+        <div className={s.legal}>
+          <span className="label">
+            © {YEAR} {t.hero.first} {t.hero.last} · {t.footer.license}
+          </span>
+          <p className={`small dimmer ${s.legalNote}`}>
+            {t.footer.licenseNote}{" "}
+            <a className={s.legalLink} href={CONTACT.license} target="_blank" rel="noreferrer">
+              {t.footer.licenseLink} <span aria-hidden="true">↗</span>
+            </a>
+          </p>
         </div>
       </div>
     </footer>

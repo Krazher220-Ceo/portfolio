@@ -4,6 +4,8 @@ export const CONTACT = {
   email: "hi@alikhandev.com",
   github: "https://github.com/Krazher220-Ceo",
   githubLabel: "github.com/Krazher220-Ceo",
+  repo: "https://github.com/Krazher220-Ceo/portfolio",
+  license: "https://github.com/Krazher220-Ceo/portfolio/blob/main/LICENSE",
   domain: "https://alikhandev.com",
   projectsIndex: "https://alikhandev.com/projects/",
   itFest: "https://alikhandev.com/projects/almaty/itfest/",

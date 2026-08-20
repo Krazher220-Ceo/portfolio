@@ -35,3 +35,20 @@
 @media (max-width: 760px) {
   .grid { grid-template-columns: 1fr; gap: var(--s-8); }
 }
+
+/* Правовая строка: отделена от навигации, но не спрятана */
+.legal {
+  margin-top: var(--s-16);
+  padding-top: var(--s-6);
+  border-top: 1px solid color-mix(in srgb, var(--glass-edge) 16%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.legalNote { max-width: 62ch; margin: 0; }
+.legalLink {
+  color: var(--ink-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink-3) 60%, transparent);
+  white-space: nowrap;
+}
+.legalLink:hover { color: var(--ink); border-bottom-color: currentColor; }
