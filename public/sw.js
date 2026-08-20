@@ -16,6 +16,8 @@ const PRECACHE = [
   "/media/texture-en.webp",
   "/media/switch.m4a",
   "/media/figure-620.webp",
+  "/icons/icon-192.png",
+  "/manifest.webmanifest",
 ];
 
 self.addEventListener("install", (e) => {

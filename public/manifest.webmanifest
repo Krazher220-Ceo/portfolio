@@ -1,0 +1,14 @@
+{
+  "name": "Алихан Кабдуалы — AI & Web разработчик",
+  "short_name": "alikhandev",
+  "description": "Портфолио: компьютерное зрение, PWA и Telegram-боты — от идеи до деплоя.",
+  "start_url": "/ru",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#04060b",
+  "theme_color": "#04060b",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
