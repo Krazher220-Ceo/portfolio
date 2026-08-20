@@ -3,7 +3,7 @@
   min-height: 100svh;
   display: flex;
   align-items: center;
-  padding-block: clamp(80px, 12vh, 160px) var(--s-24);
+  padding-block: clamp(150px, 22vh, 260px) var(--s-24);
   overflow: clip;
 }
 
@@ -230,11 +230,24 @@
   gap: var(--s-8);
   flex-wrap: wrap;
 }
-.marks { display: flex; gap: var(--s-2); flex-wrap: wrap; }
-.mark {
-  padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-pill);
-  color: var(--ink-2);
+/* Метки набором, а не пилюлями: три одинаковые рамки подряд —
+   ровно тот приём, по которому шаблон узнаётся с первого взгляда. */
+.marks {
+  display: flex;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.mark { color: var(--ink-2); position: relative; }
+.mark + .mark::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--s-4) / -2);
+  top: 50%;
+  width: 1px;
+  height: 10px;
+  transform: translateY(-50%);
+  background: color-mix(in srgb, var(--ink-3) 60%, transparent);
 }
 .tagline {
   max-width: 34ch;
@@ -242,12 +255,20 @@
   margin: 0;
 }
 .panel {
-  padding: var(--s-4) var(--s-6);
-  max-width: 380px;
+  padding: 0;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
+  background: none;
+  border: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-left: 1px solid color-mix(in srgb, var(--accent-hi) 30%, transparent);
+  padding-left: var(--s-6);
 }
+.panel::before, .panel::after { display: none; }
 .panelRow { display: flex; gap: var(--s-2); flex-wrap: wrap; }
 .chip { color: var(--ink-2); font-size: 0.78rem; }
 .chip::after { content: " ·"; color: var(--ink-3); }

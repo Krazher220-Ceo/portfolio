@@ -42,6 +42,10 @@ export default function SceneLight() {
   const lit = !isHome || !fine || figureHover;
 
   useEffect(() => {
+    document.documentElement.dataset.inner = isHome ? "0" : "1";
+  }, [isHome]);
+
+  useEffect(() => {
     const root = document.documentElement;
     if (prev.current === null) {
       // Первый кадр: без вспышек, просто нужное состояние.

@@ -1,6 +1,5 @@
 "use client";
 import Reveal from "./Reveal";
-import Glass from "./Glass";
 import A from "./A";
 import { TimelineSection, StackSection } from "./Sections";
 import { useSite } from "@/lib/state";
@@ -39,7 +38,7 @@ export default function AboutView() {
                 decoding="async"
               />
             </figure>
-            <Glass className={s.card}>
+            <div className={s.card}>
               <span className="label">{t.contacts.kicker}</span>
               <a className="mono" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
               <a className="mono" href={CONTACT.github} target="_blank" rel="noreferrer">
@@ -49,7 +48,7 @@ export default function AboutView() {
                 {t.contacts.cv} <span aria-hidden="true">↓</span>
               </a>
               <A className="label" href="/resume">{t.contacts.cvHtml} →</A>
-            </Glass>
+            </div>
           </Reveal>
         </div>
       </section>

@@ -10,10 +10,34 @@
   .prose, .aside { grid-column: 1 / -1; }
   .aside { position: static; }
 }
-.figure { margin: 0; border-radius: var(--r-card); overflow: hidden; }
+.figure {
+  margin: 0;
+  border-radius: var(--r-flat);
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 86%, transparent 100%);
+  mask-composite: intersect;
+}
 .figure img { width: 100%; height: auto; filter: saturate(0.7) brightness(0.82) contrast(1.05); }
 :global([data-state="en"]) .figure img { filter: grayscale(1) brightness(0.78) contrast(1.1); }
-.card { padding: var(--s-6); display: grid; gap: var(--s-3); justify-items: start; }
+.card {
+  padding-left: var(--s-6);
+  display: grid;
+  gap: var(--s-3);
+  justify-items: start;
+  background: none;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--accent-hi) 30%, transparent);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.card::before, .card::after { display: none; }
 .card a { color: var(--ink-2); }
 .card a:hover { color: var(--ink); }
 .cv { color: var(--ink) !important; }

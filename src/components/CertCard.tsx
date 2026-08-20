@@ -1,7 +1,6 @@
 "use client";
 import { useRef } from "react";
 import A from "./A";
-import Glass from "./Glass";
 import { useSite } from "@/lib/state";
 import { useLightbox } from "./Lightbox";
 import type { Certificate } from "@/content/certificates";
@@ -29,7 +28,7 @@ export default function CertCard({ cert }: { cert: Certificate }) {
   }
 
   return (
-    <Glass className={s.cert} as="figure" style={{ margin: 0 }}>
+    <figure className={s.cert} style={{ margin: 0 }}>
       <button
         ref={btn}
         data-cursor="image"
@@ -62,7 +61,7 @@ export default function CertCard({ cert }: { cert: Certificate }) {
         <span className="mono label">{cert.date}</span>
         <p className={`small ${s.certNote}`}>{cert.note[locale]}</p>
       </figcaption>
-    </Glass>
+    </figure>
   );
 }
 
@@ -70,7 +69,7 @@ export default function CertCard({ cert }: { cert: Certificate }) {
 export function FestivalOnlyCard({ cert }: { cert: Certificate }) {
   const { t, locale } = useSite();
   return (
-    <Glass className={s.cert}>
+    <div className={s.cert}>
       <span className="label">{t.projects.certificate}</span>
       <p className="small dim" style={{ margin: 0 }}>{t.certificates.festivalOnly}</p>
       {cert.preview && (
@@ -88,6 +87,6 @@ export function FestivalOnlyCard({ cert }: { cert: Certificate }) {
       <A href="/events/it-fest-2025" className="label">
         {t.certificates.toFestival} <span aria-hidden="true">→</span>
       </A>
-    </Glass>
+    </div>
   );
 }

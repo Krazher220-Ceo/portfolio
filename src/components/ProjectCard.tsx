@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSite } from "@/lib/state";
 import { localizePath } from "@/i18n/dict";
 import { remember } from "@/lib/shared-element";
-import Glass from "./Glass";
 import type { Project } from "@/content/projects";
 import s from "./cards.module.css";
 
@@ -13,7 +12,6 @@ export default function ProjectCard({ p, index }: { p: Project; index: number })
   const { t, locale } = useSite();
   const router = useRouter();
   const cover = useRef<HTMLDivElement>(null);
-  const run = useRef<HTMLSpanElement>(null);
   const href = localizePath(`/projects/${p.slug}`, locale);
 
   /* Настоящая ссылка внутри остаётся — её видит скринридер, её можно
@@ -29,27 +27,11 @@ export default function ProjectCard({ p, index }: { p: Project; index: number })
   };
 
   return (
-    <Glass
-      as="article"
-      tilt
+    <article
       className={s.card}
       data-clickable
       onClick={openFromCard}
-      onPointerEnter={() => {
-        // Пробег света по кромке — один раз за наведение, не цикл.
-        const el = run.current;
-        if (!el) return;
-        el.animate(
-          [{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.25 },
-           { opacity: 1, offset: 0.7 }, { opacity: 0, offset: 1 }],
-          { duration: 900, easing: "linear" }
-        );
-        el.animate([{ "--run-angle": "0deg" }, { "--run-angle": "360deg" }] as never,
-          { duration: 900, easing: "linear" });
-      }}
     >
-      <span ref={run} className="edgeRun" aria-hidden="true" />
-
       <div ref={cover} className={s.cover} data-kind={p.cover ? "photo" : "data"}>
         {p.cover && p.coverAlt ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -95,6 +77,6 @@ export default function ProjectCard({ p, index }: { p: Project; index: number })
           <span className="srOnly">: {p.name}</span>
         </Link>
       </div>
-    </Glass>
+    </article>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import A from "./A";
-import Glass from "./Glass";
 import Reveal from "./Reveal";
 import ProjectCard from "./ProjectCard";
 import CertCard from "./CertCard";
@@ -15,12 +14,22 @@ import s from "./sections.module.css";
 /** Сколько раз список повторяется внутри одной половины ленты. */
 const REPEAT = 4;
 
+/**
+ * Заголовок секции. Ведёт типографика, а не коробка: номер и метка
+ * набраны моно и стоят в собственной колонке, заголовок крупный
+ * с плотным трекингом, между ними — волосяная линия. Ни рамки,
+ * ни подложки: разделяют отступ и контраст, а не бордер.
+ */
 export function SectionHead({
-  kicker, title, lead, id,
-}: { kicker: string; title: string; lead?: string; id?: string }) {
+  n, kicker, title, lead, id,
+}: { n: string; kicker: string; title: string; lead?: string; id?: string }) {
   return (
     <Reveal className={s.head} id={id}>
-      <span className="label">{kicker}</span>
+      <div className={s.headMeta}>
+        <span className={`mono ${s.num}`}>{n}</span>
+        <span className={s.rule} aria-hidden="true" />
+        <span className="label">{kicker}</span>
+      </div>
       <h2 data-flip>{title}</h2>
       {lead && <p className={`bodyL ${s.lead}`} data-flip>{lead}</p>}
     </Reveal>
@@ -32,7 +41,7 @@ export function AboutShort() {
   const { t } = useSite();
   return (
     <section className="section container" data-lit-section aria-labelledby="about-h">
-      <SectionHead kicker={t.about.kicker} title={t.about.title} id="about-h" />
+      <SectionHead n="01" kicker={t.about.kicker} title={t.about.title} id="about-h" />
       <div className={s.split}>
         <Reveal className={s.text}>
           <p className="bodyL" data-flip>{t.about.short}</p>
@@ -41,10 +50,10 @@ export function AboutShort() {
           </A>
         </Reveal>
         <Reveal className={s.meta} delay={60}>
-          <Glass className={s.cert} style={{ padding: "var(--s-6)" }}>
+          <div className={s.cert} style={{ paddingLeft: "var(--s-6)", borderLeft: "1px solid color-mix(in srgb, var(--accent-hi) 30%, transparent)" }}>
             <span className="label">{t.timeline.title}</span>
             <p className="small dim" data-flip style={{ margin: 0 }}>{t.timeline.lead}</p>
-          </Glass>
+          </div>
         </Reveal>
       </div>
     </section>
@@ -57,6 +66,7 @@ export function ProjectsSection({ all = false }: { all?: boolean }) {
   return (
     <section className="section container" data-lit-section aria-labelledby="projects-h">
       <SectionHead
+        n="02"
         kicker={t.projects.kicker}
         title={t.projects.title}
         lead={t.projects.lead}
@@ -110,6 +120,7 @@ export function TimelineSection() {
   return (
     <section className="section container" data-lit-section aria-labelledby="timeline-h">
       <SectionHead
+        n="03"
         kicker={t.timeline.kicker}
         title={t.timeline.title}
         lead={t.timeline.lead}
@@ -144,7 +155,8 @@ export function StackSection() {
     <section className="section" data-lit-section aria-labelledby="stack-h">
       <div className="container">
         <SectionHead
-          kicker={t.stack.kicker}
+          n="04"
+        kicker={t.stack.kicker}
           title={t.stack.title}
           lead={t.stack.lead}
           id="stack-h"
@@ -186,6 +198,7 @@ export function CertificatesSection({ all = false }: { all?: boolean }) {
   return (
     <section className="section container" data-lit-section aria-labelledby="certs-h">
       <SectionHead
+        n="05"
         kicker={t.certificates.kicker}
         title={t.certificates.title}
         lead={t.certificates.lead}
@@ -214,6 +227,7 @@ export function ContactsSection({ cvSize }: { cvSize: string }) {
   return (
     <section className="section container" data-lit-section aria-labelledby="contacts-h">
       <SectionHead
+        n="06"
         kicker={t.contacts.kicker}
         title={t.contacts.title}
         lead={t.contacts.lead}

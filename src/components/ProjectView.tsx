@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import A from "./A";
-import Glass from "./Glass";
 import Reveal from "./Reveal";
 import Counter from "./Counter";
 import { FestivalOnlyCard } from "./CertCard";
@@ -91,7 +90,7 @@ export default function ProjectView({ slug }: { slug: string }) {
 
         {/* ── Карточка фактов ──────────────────────────────── */}
         <Reveal className={s.block} data-sub={t.projects.facts}>
-          <Glass className={s.facts}>
+          <div className={s.facts}>
             {([
               [t.projects.role, p.role[locale]],
               [t.projects.stack, <span key="st" className="mono">{p.stack.join(" · ")}</span>],
@@ -108,7 +107,7 @@ export default function ProjectView({ slug }: { slug: string }) {
                 <span className={s.factVal}>{v}</span>
               </div>
             ))}
-          </Glass>
+          </div>
 
           <div className={s.links}>
             {p.links.demo && (
@@ -124,15 +123,15 @@ export default function ProjectView({ slug }: { slug: string }) {
           </div>
         </Reveal>
 
-        <Block sub={t.projects.task} title={t.projects.task}>
+        <Block n="01" sub={t.projects.task} title={t.projects.task}>
           <p className="bodyL">{p.task[locale]}</p>
         </Block>
 
-        <Block sub={t.projects.solution} title={t.projects.solution}>
+        <Block n="02" sub={t.projects.solution} title={t.projects.solution}>
           <p className="bodyL">{p.solution[locale]}</p>
         </Block>
 
-        <Block sub={t.projects.tech} title={t.projects.tech}>
+        <Block n="03" sub={t.projects.tech} title={t.projects.tech}>
           <ul className={s.list}>
             {p.tech[locale].map((x, i) => <li key={i}>{x}</li>)}
           </ul>
@@ -140,10 +139,10 @@ export default function ProjectView({ slug }: { slug: string }) {
 
         {/* ── Что пошло не так ─────────────────────────────── */}
         <Reveal className={`${s.block} ${s.wrong}`} data-sub={t.projects.wrong}>
-          <span className={`label ${s.kicker}`}>{t.projects.wrong}</span>
-          <h2 className="h3" style={{ margin: "var(--s-3) 0 var(--s-6)" }} data-flip>
-            {t.projects.wrong}
-          </h2>
+          <div className={s.blockHead}>
+            <span className={`mono ${s.blockNum} ${s.kicker}`}>!</span>
+            <h2 data-flip>{t.projects.wrong}</h2>
+          </div>
           <ul className={s.list}>
             {p.wrong[locale].map((x, i) => (
               <li key={i} style={{ animationDelay: `${i * 60}ms` }}>{x}</li>
@@ -153,26 +152,28 @@ export default function ProjectView({ slug }: { slug: string }) {
 
         {/* ── Результат ────────────────────────────────────── */}
         <Reveal className={s.block} data-sub={t.projects.result}>
-          <span className="label">{t.projects.result}</span>
-          <h2 style={{ margin: "var(--s-3) 0 var(--s-8)" }} data-flip>{t.projects.result}</h2>
+          <div className={s.blockHead}>
+            <span className={`mono ${s.blockNum}`}>→</span>
+            <h2 data-flip>{t.projects.result}</h2>
+          </div>
           <div className={s.metrics}>
             {p.metrics.map((m, i) => (
-              <Glass key={i} className={s.metric} glints={2}>
+              <div key={i} className={s.metric}>
                 <span className={`num ${s.metricVal}`}>
                   <Counter value={m.value} decimals={m.decimals} suffix={m.suffix} plain={m.plain} />
                 </span>
                 <span className={`label ${s.metricLabel}`}>{m.label[locale]}</span>
-              </Glass>
+              </div>
             ))}
           </div>
           <p className={`bodyL ${s.blockBody}`}>{p.result[locale]}</p>
         </Reveal>
 
-        <Block sub={t.projects.otherwise} title={t.projects.otherwise}>
+        <Block n="04" sub={t.projects.otherwise} title={t.projects.otherwise}>
           <p className="bodyL">{p.otherwise[locale]}</p>
         </Block>
 
-        <Block sub={t.projects.venue} title={t.projects.venue}>
+        <Block n="05" sub={t.projects.venue} title={t.projects.venue}>
           <p className="bodyL">{p.venue[locale]}</p>
         </Block>
 
@@ -202,10 +203,10 @@ export default function ProjectView({ slug }: { slug: string }) {
         {/* ── Сертификат ───────────────────────────────────── */}
         {certInfo && (
           <Reveal className={s.block} data-sub={t.projects.certificate}>
-            <span className="label">{t.projects.certificate}</span>
-            <h2 style={{ margin: "var(--s-3) 0 var(--s-8)" }} data-flip>
-              {t.projects.certificate}
-            </h2>
+            <div className={s.blockHead}>
+              <span className={`mono ${s.blockNum}`}>✓</span>
+              <h2 data-flip>{t.projects.certificate}</h2>
+            </div>
             <div style={{ maxWidth: 420 }}>
               {certInfo.festivalOnly
                 ? <FestivalOnlyCard cert={certInfo.cert} />
@@ -233,11 +234,15 @@ export default function ProjectView({ slug }: { slug: string }) {
   );
 }
 
-function Block({ sub, title, children }: { sub: string; title: string; children: React.ReactNode }) {
+function Block({
+  n, sub, title, children,
+}: { n: string; sub: string; title: string; children: React.ReactNode }) {
   return (
     <Reveal className={s.block} data-sub={sub}>
-      <span className="label">{title}</span>
-      <h2 style={{ margin: "var(--s-3) 0 var(--s-6)" }} data-flip>{title}</h2>
+      <div className={s.blockHead}>
+        <span className={`mono ${s.blockNum}`}>{n}</span>
+        <h2 data-flip>{title}</h2>
+      </div>
       <div className={s.blockBody}>{children}</div>
     </Reveal>
   );

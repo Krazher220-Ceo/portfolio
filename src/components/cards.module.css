@@ -5,28 +5,50 @@
 }
 @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 
+/* ── Карточка проекта.
+      Рамки нет: обложка растворяется в фоне маской, а не стоит
+      прямоугольником в коробке. Именно видимый край фотографии
+      и одинаковая рамка вокруг каждой карточки выдают шаблон. */
 .card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
+.card::before,
+.card::after { display: none; }
+
 .cover {
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: var(--r-card) var(--r-card) 0 0;
+  border-radius: var(--r-flat);
+  /* Края уходят в темноту — границы кадра не видно */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 86%, transparent 100%);
+  mask-composite: intersect;
 }
 .cover img {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  transition: transform var(--t-slow) var(--e-out), filter var(--t-scene) var(--e-out);
+  transition: transform var(--t-quick) var(--e-out), filter var(--t-scene) var(--e-out);
 }
 :global([data-state="en"]) .cover img { filter: saturate(0.25) contrast(1.06); }
-.card:hover .cover img { transform: scale(1.03); }
+.card:hover .cover img { transform: scale(1.025); }
 
 .body {
-  padding: var(--s-4) var(--s-6) var(--s-6);
+  padding: var(--s-4) 0 0;
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
@@ -36,13 +58,11 @@
 .title { font-size: 1.25rem; }
 .tagline { max-width: 46ch; margin: 0; font-size: 0.9375rem; color: var(--ink-2); }
 .chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: auto; }
-.chip {
-  font-size: 0.72rem;
-  padding: 3px var(--s-2);
-  border-radius: var(--r-tag);
-  color: var(--ink-3);
-  border: 1px solid color-mix(in srgb, var(--glass-edge) 30%, transparent);
-}
+/* Технологии — не «теги в рамочках», а перечисление через точку:
+   пятнадцать одинаковых пилюль на экране читаются как шаблон. */
+.chip { font-size: 0.75rem; color: var(--ink-3); }
+.chip::after { content: " ·"; opacity: 0.5; }
+.chip:last-child::after { content: ""; }
 .open {
   margin-top: var(--s-3);
   color: var(--ink);
@@ -63,18 +83,20 @@
 .open:hover::after { transform: scaleX(1); }
 
 /* Обложка-данные: там, где фотографии с площадки нет */
+/* Обложка-данные: та же высота, но это типографика, а не картинка —
+   поэтому маска ей не нужна, нужен воздух и одна крупная цифра. */
 .cover[data-kind="data"] {
+  aspect-ratio: auto;
   display: grid;
-  align-content: center;
+  align-content: end;
   justify-items: start;
   gap: var(--s-2);
-  padding: var(--s-6);
-  background: linear-gradient(
-    158deg,
-    color-mix(in srgb, var(--accent) 9%, transparent),
-    transparent 62%
-  );
-  border-bottom: 1px solid color-mix(in srgb, var(--glass-edge) 20%, transparent);
+  padding: var(--s-6) 0;
+  background: none;
+  border: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--glass-edge) 22%, transparent);
 }
 .dataCover { display: grid; gap: var(--s-2); }
 .dataBig {
@@ -88,4 +110,5 @@
 
 /* Кликается вся карточка */
 .card[data-clickable] { cursor: pointer; }
+.card[data-clickable]:focus-within { outline: none; }
 .card[data-clickable]:hover .open::after { transform: scaleX(1); }

@@ -1,6 +1,5 @@
 "use client";
 import A from "./A";
-import Glass from "./Glass";
 import Reveal from "./Reveal";
 import CertCard from "./CertCard";
 import { useSite } from "@/lib/state";
@@ -30,7 +29,7 @@ export default function FestivalView() {
 
       <Reveal className={c.certGrid} style={{ gridTemplateColumns: "repeat(2, 1fr)", marginTop: "var(--s-12)" }}>
         {tracks.map(({ p, kind }) => (
-          <Glass key={p.slug} className={c.cert} tilt>
+          <div key={p.slug} className={c.cert}>
             <span className="label">{kind}</span>
             <h2 className="h3">{p.name}</h2>
             <p className="small dim" style={{ margin: 0 }}>{p.tagline[locale]}</p>
@@ -38,7 +37,7 @@ export default function FestivalView() {
             <A href={`/projects/${p.slug}`} className="label">
               {t.projects.open} <span aria-hidden="true">→</span>
             </A>
-          </Glass>
+          </div>
         ))}
       </Reveal>
 

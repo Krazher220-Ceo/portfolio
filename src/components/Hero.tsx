@@ -137,7 +137,7 @@ export default function Hero() {
             <div>
               <div className={s.marks}>
                 {t.hero.marks.map((m) => (
-                  <span key={m} className={`pill label ${s.mark}`}>{m}</span>
+                  <span key={m} className={`label ${s.mark}`}>{m}</span>
                 ))}
               </div>
               <p className={`bodyL ${s.tagline}`} style={{ marginTop: "var(--s-4)" }}>
@@ -145,7 +145,7 @@ export default function Hero() {
               </p>
             </div>
 
-            <div className={`glass ${s.panel}`}>
+            <div className={s.panel}>
               <span className="label">{t.stack.confident}</span>
               <div className={s.panelRow}>
                 {stack.confident.map((x) => (
