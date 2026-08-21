@@ -212,3 +212,22 @@
 @media (max-width: 640px) {
   .blockHead { grid-template-columns: 1fr; gap: var(--s-2); }
 }
+
+
+/* Сертификат на странице проекта. 420px — это ширина, на которой
+   документ уже не читается; даём ему половину полосы. */
+.certHolder { max-width: min(640px, 100%); }
+
+/* Переход к следующему проекту: не коробка с рамкой, а полоса
+   с линией сверху — как и остальные разделы. */
+.next {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-top: 1px solid color-mix(in srgb, var(--glass-edge) 26%, transparent);
+  border-radius: var(--r-flat);
+  padding: var(--s-12) 0 0;
+}
+.next::before, .next::after { display: none; }

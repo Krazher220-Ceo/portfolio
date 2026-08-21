@@ -46,13 +46,13 @@
   },
   "about": {
     "kicker": "About",
-    "short": "I'm Alikhan, a 16-year-old developer from Kostanay, Kazakhstan. I build AI-powered products — computer vision models, progressive web apps and Telegram bots — taking them from concept to deployment. I've competed in hackathons and pitch sessions across the Astana Hub ecosystem in Kostanay, Pavlodar and Almaty. My current project is Smart Green Qostanai, a service for monitoring urban tree health.",
+    "short": "I'm Alikhan, a 16-year-old developer from Kostanay, Kazakhstan. I build AI-powered products — computer vision models, progressive web apps and Telegram bots — taking them from concept to deployment. I've competed in hackathons and pitch sessions across the Astana Hub ecosystem in Kostanay, Petropavlovsk and Almaty. My current project is Smart Green Qostanai, a service for monitoring urban tree health.",
     "more": "Read the long version",
     "title": "About me",
     "body": [
       "I'm Alikhan. I'm 16, I live in Kostanay and I study in the maths stream of my lyceum.",
       "My first technical project was in fifth grade — robotics, second place at the school showcase. Then came three years of doing nothing at all. My grades slid, and I dropped everything I had been working on. I'm not going to pretend otherwise: it is part of the story, and everything else grew out of it.",
-      "At the end of eighth grade I decided to start over. Over the following year I pulled my grades back up to nearly straight A's, finished music school alongside it — the final exams at both places ran at the same time — and landed in the environment that turned me around: hackathons, idea battles and pitch sessions across the Astana Hub ecosystem. Kostanay, Pavlodar, Almaty.",
+      "At the end of eighth grade I decided to start over. Over the following year I pulled my grades back up to nearly straight A's, finished music school alongside it — the final exams at both places ran at the same time — and landed in the environment that turned me around: hackathons, idea battles and pitch sessions across the Astana Hub ecosystem. Kostanay, Petropavlovsk, Almaty.",
       "Now I build AI products. Computer vision, progressive web apps, Telegram bots, and work with LLMs — both local and cloud. What interests me is not the technology itself but the moment it turns into a working service somebody actually uses.",
       "My current project is Smart Green Qostanai: a PWA that assesses the condition of a city tree from a photograph. Built at the Qostanai Smart City hackathon.",
       "Next comes an undergraduate degree abroad. First priority is Japan, through the MEXT programme."
@@ -88,7 +88,7 @@
   "timeline": {
     "kicker": "Timeline",
     "title": "2024 → 2026",
-    "lead": "Kostanay, Pavlodar, Almaty — the rooms where strangers took these projects apart."
+    "lead": "Kostanay, Petropavlovsk, Almaty — the rooms where strangers took these projects apart."
   },
   "stack": {
     "kicker": "Stack",
@@ -101,7 +101,7 @@
   "certificates": {
     "kicker": "Certificates",
     "title": "Certificates",
-    "lead": "Two issued, and one slot for the one that hasn't been issued yet. The empty slot is shown as an empty slot.",
+    "lead": "Three certificates from venues in Kostanay and Almaty. One of them is a team certificate rather than a personal one, and it says so here.",
     "all": "All certificates",
     "open": "Open",
     "openOriginal": "Open the original",

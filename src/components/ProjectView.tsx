@@ -207,7 +207,7 @@ export default function ProjectView({ slug }: { slug: string }) {
               <span className={`mono ${s.blockNum}`}>✓</span>
               <h2 data-flip>{t.projects.certificate}</h2>
             </div>
-            <div style={{ maxWidth: 420 }}>
+            <div className={s.certHolder}>
               {certInfo.festivalOnly
                 ? <FestivalOnlyCard cert={certInfo.cert} />
                 : <CertCard cert={certInfo.cert} />}
@@ -219,7 +219,7 @@ export default function ProjectView({ slug }: { slug: string }) {
         <Reveal className={s.block}>
           <A
             href={`/projects/${next.slug}`}
-            className={`glass ${s.next}`}
+            className={s.next}
             onClick={() => remember(`cover-${next.slug}`, null)}
           >
             <span>

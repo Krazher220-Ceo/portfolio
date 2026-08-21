@@ -34,11 +34,11 @@ export const timeline: TimelineEvent[] = [
   },
   {
     year: "2024–2025",
-    city: { ru: "Павлодар", en: "Pavlodar" },
+    city: { ru: "Петропавловск", en: "Petropavlovsk" },
     title: { ru: "Питч-площадка", en: "Pitch venue" },
     note: {
-      ru: "Разговор с людьми из промышленного региона — там вопрос «а кто это купит» звучит предметнее всего.",
-      en: "A conversation with people from an industrial region, where the question of who actually buys this lands hardest.",
+      ru: "Разговор с людьми не из своего города: там вопрос «а кто это купит» звучит предметнее всего.",
+      en: "A conversation with people from outside my own city, where the question of who actually buys this lands hardest.",
     },
   },
   {

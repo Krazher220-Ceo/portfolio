@@ -340,8 +340,8 @@ export const projects: Project[] = [
     },
     date: "2025-12",
     venue: {
-      ru: "Проект идёт по площадкам с 2024 года: идея-баттлы и питч-сессии Qostanai Hub, питч-площадка в Павлодаре, Startup Battle на IT Fest 2025 в Алматы. Здесь код никого не интересует — спрашивают про рынок, про то, кто платит и почему именно вам, про конкурентов, которых вы не назвали. Половина того, что написано выше про рынок и модель, появилась именно из этих разговоров.",
-      en: "The project has been touring venues since 2024: idea battles and pitch sessions at Qostanai Hub, a pitch venue in Pavlodar, and Startup Battle at IT Fest 2025 in Almaty. Nobody there cares about code — they ask about the market, about who pays and why you, about the competitors you failed to name. Half of what is written above about the market and the model came out of exactly those conversations.",
+      ru: "Проект идёт по площадкам с 2024 года: идея-баттлы и питч-сессии Qostanai Hub, питч-площадка в Петропавловске, Startup Battle на IT Fest 2025 в Алматы. Здесь код никого не интересует — спрашивают про рынок, про то, кто платит и почему именно вам, про конкурентов, которых вы не назвали. Половина того, что написано выше про рынок и модель, появилась именно из этих разговоров.",
+      en: "The project has been touring venues since 2024: idea battles and pitch sessions at Qostanai Hub, a pitch venue in Petropavlovsk, and Startup Battle at IT Fest 2025 in Almaty. Nobody there cares about code — they ask about the market, about who pays and why you, about the competitors you failed to name. Half of what is written above about the market and the model came out of exactly those conversations.",
     },
     task: {
       ru: "Датчик температуры в цехе мебельной фабрики и такой же в цехе пищевого производства — это одна задача, решённая дважды двумя подрядчиками за двойные деньги. И так по всей стране.",
