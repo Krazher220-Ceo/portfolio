@@ -98,8 +98,12 @@ export function StateProvider({
       root.style.opacity = "0.35";
       window.setTimeout(() => {
         if (!alive()) return;
+        const snap = measure();
         flushSync(() => setLocale(next));
         applyDom(next);
+        // Компенсируем сдвиг и здесь: тёмного кадра, который мог бы
+        // его спрятать, в этом режиме нет.
+        play(snap, 1);
         root.style.opacity = "1";
         window.setTimeout(() => { root.style.transition = ""; }, 220);
       }, 200);
@@ -123,27 +127,29 @@ export function StateProvider({
         setPhase("dark");
 
         /* Кадр темноты. Только здесь меняется весь текст в DOM —
-           поэтому кадра с перемешанными языками не бывает. */
+           пользователь не видит подмены, поэтому не бывает
+           «половина по-русски».
+
+           FLIP применяется В ТОМ ЖЕ кадре, что и подмена. Если
+           отложить его хотя бы на один кадр, браузер успевает
+           отрисовать новую раскладку без компенсации — и это
+           настоящий сдвиг вёрстки: CLS на переключении языка
+           доходил до 0.66 при норме 0.02. Темнота его прятала
+           от глаза, но не от метрики.
+
+           View Transitions отсюда убран намеренно: он переносит
+           подмену в собственный асинхронный колбэк, из-за чего
+           момент отрисовки перестаёт быть предсказуемым, а свой
+           кроссфейд у него всё равно отключён — кадром управляет
+           сцена. */
         const snap = measure();
-        const swap = () => {
-          flushSync(() => setLocale(next));
-          applyDom(next);
-        };
-        const doc = document as Document & {
-          startViewTransition?: (cb: () => void) => { finished: Promise<void> };
-        };
-        // View Transitions используется как атомарная подмена без
-        // разрыва кадра; собственный кроссфейд отключён в CSS.
-        if (typeof doc.startViewTransition === "function") {
-          try { doc.startViewTransition(swap); } catch { swap(); }
-        } else {
-          swap();
-        }
+        flushSync(() => setLocale(next));
+        applyDom(next);
+        play(snap, T.settle);
 
         window.setTimeout(() => {
           if (!alive()) return;
           setPhase("ignite");
-          play(snap, T.settle);
 
           window.setTimeout(() => {
             if (!alive()) return;

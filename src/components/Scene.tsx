@@ -168,11 +168,6 @@ export default function Scene() {
       data-phase={phase}
       style={{ ["--cone-on" as string]: lit }}
     >
-      <div className={s.mesh}>
-        <span className={`${s.blob} ${s.blob1}`} />
-        <span className={`${s.blob} ${s.blob2}`} />
-        <span className={`${s.blob} ${s.blob3}`} />
-      </div>
       <div className={`${s.beam} ${s.breathe}`} />
       <div className={s.trail} />
       <div className={s.pool} />

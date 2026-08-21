@@ -1,13 +1,13 @@
 .top { padding-top: var(--s-16); padding-bottom: var(--s-12); }
 .crumbs { display: flex; gap: var(--s-3); align-items: center; color: var(--ink-3); margin-bottom: var(--s-8); }
-.title { margin-block: var(--s-4) var(--s-3); }
+.title { margin-block: var(--s-4) var(--s-6); }
 .tagline { max-width: 52ch; color: var(--ink-2); }
 
 .hero {
   position: relative;
   border-radius: var(--r-flat);
   overflow: hidden;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 21 / 9;
   margin-top: var(--s-12);
   -webkit-mask-image:
     linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
@@ -24,7 +24,7 @@
 /* ── Липкий подзаголовок: подменяется следующим со сдвигом-маской ── */
 .sticky {
   position: sticky;
-  top: 64px;
+  top: 88px;
   z-index: 50;
   align-self: start;
   display: inline-flex;

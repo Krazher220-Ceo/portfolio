@@ -206,40 +206,15 @@
   50% { opacity: 0.97; }
 }
 
-/* Градиентная сетка за фигурой: 2–3 размытых пятна, дрейф 22s */
-.mesh {
-  position: absolute;
-  inset: 0;
-  opacity: calc(0.42 * var(--lit));
-}
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(56px);
-  will-change: transform;
-  animation: drift 22s var(--e-in-out) infinite alternate;
-}
-.blob1 {
-  top: 12%; left: 28%; width: 34vw; height: 34vw;
-  background: color-mix(in srgb, var(--accent) 13%, transparent);
-}
-.blob2 {
-  top: 34%; left: 56%; width: 26vw; height: 26vw;
-  background: color-mix(in srgb, var(--accent-lo) 22%, transparent);
-  animation-delay: -7s;
-}
-.blob3 {
-  top: 4%; left: 44%; width: 18vw; height: 18vw;
-  background: color-mix(in srgb, var(--cone) 8%, transparent);
-  animation-delay: -13s;
-}
-@keyframes drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(3.5vw, 4vh, 0) scale(1.12); }
-}
+/* Градиентных пятен за фигурой здесь больше нет.
 
-/* width/height обязательны: canvas — замещаемый элемент, inset: 0
-   его не растягивает, и размер из атрибута начинает кормить сам себя. */
+   Три размытых цветных пятна на тёмном фоне — самый узнаваемый
+   штамп машинной генерации, и они же оказались единственным
+   источником сдвига вёрстки: CLS на переключении языка был 0.60,
+   без них — 0.001. Атмосферу и так держат текстура, конус,
+   пятно за скроллом и подсвет фигуры; четвёртый слой размытия
+   только жёг кадры. */
+
 .dust {
   position: absolute;
   top: 0;
@@ -251,7 +226,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .breathe, .blob { animation: none; }
+  .breathe { animation: none; }
   .dust { display: none; }
 }
 
@@ -290,6 +265,5 @@
 /* Дрейф пятен и пылинки — только там, где есть запас по кадрам.
    На узком экране это чистые траты на композитинг. */
 @media (max-width: 860px) {
-  .blob { animation: none; }
   .dust { display: none; }
 }
