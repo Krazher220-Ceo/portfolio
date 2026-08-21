@@ -57,6 +57,11 @@
      и больше нигде. */
   --sharp: #ff6b35;
 
+  /* Заливка основного действия. Тёмный текст на светлом акценте —
+     12.8:1; белый на синем дал бы 4.18:1, ниже нормы. */
+  --btn-fill: #9ad4ff;
+  --btn-ink: #04060b;
+
   --cone: #8cbeff;
   --light-core: #e6f1ff;
 
@@ -147,6 +152,8 @@
   --light-core: #ffffff;
 
   --sharp: #ff6b35;
+  --btn-fill: #ffffff;
+  --btn-ink: #050505;
   --glass-tint: rgba(255, 255, 255, 0.045);
   --glass-edge: rgba(255, 255, 255, 0.3);
   --glass-spec: rgba(255, 255, 255, 1);

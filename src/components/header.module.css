@@ -18,7 +18,13 @@
   padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
   border-radius: var(--r-pill);
 }
-.brand { display: flex; align-items: center; gap: var(--s-3); white-space: nowrap; }
+.brand {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  gap: var(--s-3);
+  white-space: nowrap;
+}
 .brand .label { color: var(--ink-2); }
 .brand:hover .label { color: var(--ink); }
 .mark {
@@ -33,7 +39,10 @@
 .link {
   position: relative;
   z-index: 1;
-  padding: var(--s-2) var(--s-3);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--s-3);
   border-radius: var(--r-pill);
   font-size: 0.875rem;
   color: var(--ink-2);

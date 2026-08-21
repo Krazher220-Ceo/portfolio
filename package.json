@@ -20,6 +20,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "puppeteer-core": "^25.8.0",
     "typescript": "^5"
   },
   "description": "Портфолио Алихана Кабдуалы — AI & Web разработчик из Костаная"

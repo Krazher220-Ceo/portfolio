@@ -17,7 +17,13 @@
 }
 .col { display: flex; flex-direction: column; gap: var(--s-3); align-items: start; }
 .big { font-size: 1.125rem; color: var(--ink); }
-.item, .top { color: var(--ink-2); position: relative; }
+.item, .top {
+  color: var(--ink-2);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
 .big::after, .item::after {
   content: "";
   position: absolute;

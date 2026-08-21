@@ -238,13 +238,13 @@ export function ContactsSection({ cvSize }: { cvSize: string }) {
           <span className="mono">{CONTACT.email}</span>
         </a>
         <div className={s.contactRow}>
-          <a className={`glass label ${s.cta}`} href={`/resume/${file}`} download>
+          <a className={`btnPrimary label ${s.cta}`} href={`/resume/${file}`} download>
             {t.contacts.cv}
             <span className={`mono ${s.ctaSize}`}>PDF · {cvSize}</span>
           </a>
-          <A className={`glass glassThin label ${s.cta}`} href="/resume">{t.contacts.cvHtml}</A>
+          <A className={`btnGhost label ${s.cta}`} href="/resume">{t.contacts.cvHtml}</A>
           <a
-            className={`glass glassThin label ${s.cta}`}
+            className={`btnGhost label ${s.cta}`}
             href={CONTACT.github}
             target="_blank"
             rel="noreferrer"

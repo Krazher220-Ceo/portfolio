@@ -47,6 +47,8 @@
 
 .moreLink {
   display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   gap: var(--s-2);
   color: var(--ink);
   position: relative;
@@ -209,17 +211,7 @@
 
 /* ── Контакты ────────────────────────────────────────────── */
 .contactRow { display: flex; flex-wrap: wrap; gap: var(--s-4); align-items: center; margin-top: var(--s-8); }
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-3) var(--s-6);
-  border-radius: var(--r-ctl);
-  color: var(--ink);
-  transition: transform var(--t-instant) var(--e-out), box-shadow var(--t-quick) var(--e-out);
-}
-.cta:hover { box-shadow: var(--glow); }
-.cta:active { transform: scale(0.97); transition-timing-function: var(--e-snap); }
+.cta { white-space: nowrap; }
 .ctaSize { color: var(--ink-3); }
 .mailBig { font-size: clamp(1.5rem, 4vw, 2.5rem); letter-spacing: -0.02em; color: var(--ink); }
 

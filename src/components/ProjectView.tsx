@@ -111,12 +111,12 @@ export default function ProjectView({ slug }: { slug: string }) {
 
           <div className={s.links}>
             {p.links.demo && (
-              <a className={`glass label ${s.link}`} href={p.links.demo} target="_blank" rel="noreferrer">
+              <a className={`btnPrimary label ${s.link}`} href={p.links.demo} target="_blank" rel="noreferrer">
                 {t.projects.demo} <span aria-hidden="true">↗</span>
               </a>
             )}
             {p.links.repo && (
-              <a className={`glass glassThin label ${s.link}`} href={p.links.repo} target="_blank" rel="noreferrer">
+              <a className={`btnGhost label ${s.link}`} href={p.links.repo} target="_blank" rel="noreferrer">
                 {t.projects.repo} <span aria-hidden="true">↗</span>
               </a>
             )}

@@ -3,13 +3,7 @@
 .name { margin-block: var(--s-3) var(--s-3); }
 .tagline { max-width: 42ch; margin: 0; }
 .actions { display: flex; gap: var(--s-3); flex-wrap: wrap; }
-.btn {
-  display: inline-flex; align-items: center; gap: var(--s-3);
-  padding: var(--s-3) var(--s-6); border-radius: var(--r-ctl); color: var(--ink);
-  transition: transform var(--t-instant) var(--e-out), box-shadow var(--t-quick) var(--e-out);
-}
-.btn:hover { box-shadow: var(--glow); }
-.btn:active { transform: scale(0.97); transition-timing-function: var(--e-snap); }
+.btn { white-space: nowrap; }
 .hint { margin-top: var(--s-6); max-width: 62ch; }
 
 .block { margin-top: var(--s-16); }

@@ -3,7 +3,7 @@
   min-height: 100svh;
   display: flex;
   align-items: center;
-  padding-block: clamp(150px, 22vh, 260px) var(--s-24);
+  padding-block: clamp(104px, 13vh, 168px) var(--s-16);
   overflow: clip;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .img {
-  width: clamp(210px, 33vw, 440px);
+  width: clamp(190px, min(31vw, 36vh), 400px);
   height: auto;
   /* Основание растворяется в световом пятне на «полу». Силуэт по
      бокам не трогаем: он вырезан честно, и маска съедала бы руки —
@@ -191,9 +191,9 @@
 .roles {
   position: relative;
   z-index: 4;
-  margin-top: var(--s-6);
+  margin-top: var(--s-4);
   padding: var(--s-3) var(--s-6);
-  height: 46px;
+  height: 44px;
   min-width: 260px;
   display: grid;
   place-items: center;
@@ -221,7 +221,7 @@
 .below {
   position: relative;
   z-index: 4;
-  margin-top: var(--s-12);
+  margin-top: clamp(var(--s-8), 5vh, var(--s-16));
   width: 100%;
   max-width: var(--container);
   display: flex;

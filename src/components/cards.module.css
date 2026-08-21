@@ -25,7 +25,7 @@
 
 .cover {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: var(--r-flat);
   /* Края уходят в темноту — границы кадра не видно */
@@ -64,7 +64,9 @@
 .chip::after { content: " ·"; opacity: 0.5; }
 .chip:last-child::after { content: ""; }
 .open {
-  margin-top: var(--s-3);
+  margin-top: var(--s-2);
+  min-height: 44px;
+  align-items: center;
   color: var(--ink);
   position: relative;
   display: inline-flex;
@@ -86,12 +88,11 @@
 /* Обложка-данные: та же высота, но это типографика, а не картинка —
    поэтому маска ей не нужна, нужен воздух и одна крупная цифра. */
 .cover[data-kind="data"] {
-  aspect-ratio: auto;
   display: grid;
   align-content: end;
   justify-items: start;
   gap: var(--s-2);
-  padding: var(--s-6) 0;
+  padding: 0 0 var(--s-6);
   background: none;
   border: 0;
   -webkit-mask-image: none;
@@ -112,3 +113,9 @@
 .card[data-clickable] { cursor: pointer; }
 .card[data-clickable]:focus-within { outline: none; }
 .card[data-clickable]:hover .open::after { transform: scaleX(1); }
+
+/* На узком экране пропорции фотографии делают из блока с одной
+   цифрой высокую пустую коробку — там высота по содержимому. */
+@media (max-width: 700px) {
+  .cover[data-kind="data"] { aspect-ratio: auto; padding-top: var(--s-6); }
+}

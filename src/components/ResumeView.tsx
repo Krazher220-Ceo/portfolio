@@ -25,10 +25,10 @@ export default function ResumeView({ sizes }: { sizes: { ru: string; en: string 
           <p className={`bodyL dim ${s.tagline}`} data-flip>{t.hero.tagline}</p>
         </div>
         <div className={s.actions}>
-          <a className={`glass label ${s.btn}`} href={`/resume/${cvFile(locale)}`} download>
+          <a className={`btnPrimary label ${s.btn}`} href={`/resume/${cvFile(locale)}`} download>
             {t.resume.download} <span className="mono dimmer">PDF · {size}</span>
           </a>
-          <button className={`glass glassThin label ${s.btn}`} onClick={() => window.print()}>
+          <button className={`btnGhost label ${s.btn}`} onClick={() => window.print()}>
             {t.resume.print}
           </button>
         </div>
