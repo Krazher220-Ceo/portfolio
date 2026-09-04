@@ -25,7 +25,11 @@ export default function Cursor() {
     const move = (e: PointerEvent) => {
       mx = e.clientX; my = e.clientY;
       if (!visible) { visible = true; d.style.opacity = "1"; r.style.opacity = "1"; }
-      const el = (e.target as HTMLElement)?.closest?.("[data-cursor]") as HTMLElement | null;
+      /* На <html> висит data-cursor="on" — это флаг включения, а не
+         режим. Без этой отсечки closest() всегда доходит до корня,
+         mode становится "on", и режим link не наступает никогда. */
+      const hit = (e.target as HTMLElement)?.closest?.("[data-cursor]") as HTMLElement | null;
+      const el = hit && hit !== document.documentElement ? hit : null;
       const next = (el?.dataset.cursor as Mode) ??
         ((e.target as HTMLElement)?.closest?.("a,button") ? "link" : "default");
       setMode((prev) => (prev === next ? prev : next));

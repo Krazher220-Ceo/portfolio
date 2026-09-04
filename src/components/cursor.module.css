@@ -1,7 +1,11 @@
+/* Нарисованный курсор — это сам указатель, поэтому он лежит выше
+   всего: прелоадера (120), лайтбокса (130) и skip-link (200).
+   Нативный курсор при data-cursor="on" скрыт, так что любой слой
+   поверх этого z-index оставляет пользователя вообще без курсора. */
 .dot, .ring {
   position: fixed;
   top: 0; left: 0;
-  z-index: 110;
+  z-index: 210;
   pointer-events: none;
   opacity: 0;
   will-change: transform;
