@@ -30,6 +30,47 @@ export type Certificate = {
 
 export const certificates: Certificate[] = [
   {
+    id: "04",
+    projectId: null,
+    event: "ШАГ · School of Active Citizens",
+    date: "2025-05",
+    file: "04-shag-qostanai-2025.jpg",
+    preview: "04-shag-qostanai-2025-preview.webp",
+    previewW: 900,
+    previewH: 611,
+    status: "published",
+    alt: {
+      ru: "Сертификат «Школы активных горожан» за проект благоустройства детской площадки во дворе дома по улице Алтынсарина, 7, Костанай, 2025",
+      en: "Certificate from the School of Active Citizens for a project to rebuild the playground in the courtyard at 7 Altynsarin Street, Kostanay, 2025",
+    },
+    note: {
+      ru: "Бесплатная программа ОЮЛ «Ассоциация развития социальных технологий» вместе с ERG Komek и Qostanai Hub: подростков учат бюджетной грамотности и подготовке заявок в «Бюджет народного участия». Проект — двор на Алтынсарина, 7: чертежи, смета и подписи жильцов, собранные по квартирам; он прошёл экспертный совет акимата, городское голосование и получил финансирование. Подпись: вице-президент ассоциации Сания Арапова.",
+      en: "A free programme run by the Association for the Development of Social Technologies together with ERG Komek and Qostanai Hub: teenagers are taught budget literacy and how to file bids for the participatory budget. The project was the courtyard at 7 Altynsarin Street — drawings, a cost estimate and residents' signatures collected door to door; it passed the city administration's expert board, won the public vote and was funded. Signed by the association's vice-president, Saniya Arapova.",
+    },
+  },
+  {
+    id: "05",
+    projectId: "npai",
+    event: "Pizza Pitch · Qostanai Hub",
+    /* На дипломе проставлен только год. 08 — по Qostanai Investment
+       Forum 2025, в рамках которого проходил питчинг; месяц не
+       подтверждён документом, поэтому оговорён в note. */
+    date: "2025-08",
+    file: "05-npai-pizza-pitch-2025.jpg",
+    preview: "05-npai-pizza-pitch-2025-preview.webp",
+    previewW: 860,
+    previewH: 600,
+    status: "published",
+    alt: {
+      ru: "Диплом за третье место в конкурсе стартап-идей Pizza Pitch, Qostanai Hub, Костанай, 2025",
+      en: "Diploma for third place in the Pizza Pitch startup idea competition, Qostanai Hub, Kostanay, 2025",
+    },
+    note: {
+      ru: "Третье место с NPAI. Pizza Pitch — открытый питчинг Astana Hub: короткая защита идеи перед залом и приглашёнными инвесторами. Подпись — Дамир Мнайдаров, директор костанайского филиала АКФ «Парк инновационных технологий» (юрлицо Astana Hub); на бланке логотипы Qostanai Hub и AMANAT, имя команды вписано от руки. Дата на дипломе — только год.",
+      en: "Third place with NPAI. Pizza Pitch is Astana Hub's open pitching format: a short defence of an idea in front of the room and invited investors. Signed by Damir Mnaidarov, director of the Kostanay branch of the Technopark of Innovation Technologies cluster fund — Astana Hub's legal entity; the form carries the Qostanai Hub and AMANAT logos, with the team name written in by hand. The diploma is dated by year only.",
+    },
+  },
+  {
     id: "01",
     projectId: "qa-vision",
     event: "Qostanai AI-Sana Industry Hackathon: Allur Challenge",
@@ -88,10 +129,13 @@ export const certificates: Certificate[] = [
   },
 ];
 
-/** Треки фестиваля своего сертификата не имеют — они ссылаются на слот 02. */
+/**
+ * Треки фестиваля своего сертификата не имеют — они ссылаются на слот 02.
+ * NPAI здесь больше нет: у него появился собственный диплом (слот 05),
+ * а certForProject отдаёт приоритет своему сертификату.
+ */
 export const festivalOnly: { projectId: string; certId: string }[] = [
   { projectId: "kz-universe", certId: "02" },
-  { projectId: "npai", certId: "02" },
 ];
 
 export const certById = (id: string) => certificates.find((c) => c.id === id);

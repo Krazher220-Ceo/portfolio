@@ -393,7 +393,7 @@ export const projects: Project[] = [
       demo: "https://krazher220-ceo.github.io/npai-landing/",
       repo: "https://github.com/Krazher220-Ceo/npai-landing",
     },
-    certificateId: "02",
+    certificateId: "05",
   },
 ];
 
