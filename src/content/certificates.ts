@@ -24,6 +24,8 @@ export type Certificate = {
   status: CertStatus;
   alt: Bi;
   note: Bi;
+  /** Одна строка для резюме: note там не помещается. */
+  short: Bi;
   /** для festival-only: куда вести за общим сертификатом */
   refersTo?: string;
 };
@@ -39,6 +41,10 @@ export const certificates: Certificate[] = [
     previewW: 900,
     previewH: 611,
     status: "published",
+    short: {
+      ru: "Именной; проект реализован за счёт городского бюджета",
+      en: "Personal; the project was built with city budget funding",
+    },
     alt: {
       ru: "Сертификат «Школы активных горожан» за проект благоустройства детской площадки во дворе дома по улице Алтынсарина, 7, Костанай, 2025",
       en: "Certificate from the School of Active Citizens for a project to rebuild the playground in the courtyard at 7 Altynsarin Street, Kostanay, 2025",
@@ -61,6 +67,10 @@ export const certificates: Certificate[] = [
     previewW: 860,
     previewH: 600,
     status: "published",
+    short: {
+      ru: "Третье место в конкурсе стартап-идей",
+      en: "Third place in the startup idea contest",
+    },
     alt: {
       ru: "Диплом за третье место в конкурсе стартап-идей Pizza Pitch, Qostanai Hub, Костанай, 2025",
       en: "Diploma for third place in the Pizza Pitch startup idea competition, Qostanai Hub, Kostanay, 2025",
@@ -80,6 +90,10 @@ export const certificates: Certificate[] = [
     previewW: 900,
     previewH: 634,
     status: "published",
+    short: {
+      ru: "Именной; подписи КИнЭУ, МСЭ (ITU), Allur, Qostanai Hub",
+      en: "Personal; signed by Dulatov University, the ITU, Allur and Qostanai Hub",
+    },
     alt: {
       ru: "Сертификат участника Qostanai AI-Sana Industry Hackathon, кейс Allur, ноябрь 2025",
       en: "Certificate of participation, Qostanai AI-Sana Industry Hackathon, Allur case, November 2025",
@@ -99,6 +113,10 @@ export const certificates: Certificate[] = [
     previewW: 900,
     previewH: 636,
     status: "published",
+    short: {
+      ru: "Именной; республиканский фестиваль, Алматы",
+      en: "Personal; national festival, Almaty",
+    },
     alt: {
       ru: "Сертификат участника фестиваля IT Fest 2025, Алматы, декабрь 2025",
       en: "Certificate of participation, IT Fest 2025, Almaty, December 2025",
@@ -118,6 +136,10 @@ export const certificates: Certificate[] = [
     previewW: 900,
     previewH: 637,
     status: "published",
+    short: {
+      ru: "Выдан команде, не лично",
+      en: "Issued to the team, not to a person",
+    },
     alt: {
       ru: "Сертификат участия команды Jasyl в Qostanai Smart City Hackathon, Костанай, 2026",
       en: "Certificate of participation of team Jasyl in the Qostanai Smart City Hackathon, Kostanay, 2026",

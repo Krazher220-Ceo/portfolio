@@ -1,6 +1,7 @@
 import { dictionaries, type Locale } from "@/i18n/dict";
 import { projects } from "@/content/projects";
 import { CONTACT, stack, timeline } from "@/content/site";
+import { certificates } from "@/content/certificates";
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -40,6 +41,12 @@ export function renderCv(locale: Locale): string {
       <p class="lead">${esc(e.note[locale])}</p>
     </article>`).join("");
 
+  const certBlocks = certificates.map((c) => `
+    <li>
+      <b>${esc(c.event)}</b> <span class="mono">${esc(c.date)}</span><br>
+      <span class="meta">${esc(c.short[locale])}</span>
+    </li>`).join("");
+
   return `<!doctype html>
 <html lang="${L}">
 <head>
@@ -51,21 +58,21 @@ export function renderCv(locale: Locale): string {
   * { box-sizing: border-box; }
   html, body { background: #fff; color: #111; margin: 0; }
   body {
-    font: 9.6pt/1.5 -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font: 9.6pt/1.44 -apple-system, "Helvetica Neue", Arial, sans-serif;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
   .mono { font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
           font-variant-numeric: tabular-nums; font-size: 0.94em; }
-  header { border-bottom: 1.5pt solid #111; padding-bottom: 8pt; margin-bottom: 14pt; }
+  header { border-bottom: 1.5pt solid #111; padding-bottom: 7pt; margin-bottom: 11pt; }
   h1 { font-size: 23pt; letter-spacing: -0.5pt; margin: 0 0 3pt; }
   .tag { font-size: 10.5pt; color: #333; margin: 0 0 6pt; max-width: 120mm; }
   .contacts { display: flex; flex-wrap: wrap; gap: 4pt 12pt; color: #444; }
-  section { margin-bottom: 13pt; break-inside: auto; }
+  section { margin-bottom: 8pt; break-inside: auto; }
   h2 { font-size: 7.6pt; text-transform: uppercase; letter-spacing: 1.1pt;
        color: #666; border-bottom: 0.5pt solid #ccc; padding-bottom: 3pt;
        margin: 0 0 8pt; font-weight: 600; }
-  .entry { margin-bottom: 10pt; break-inside: avoid; }
-  .entry.tight { margin-bottom: 7pt; }
+  .entry { margin-bottom: 8pt; break-inside: avoid; }
+  .entry.tight { margin-bottom: 4.5pt; }
   .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8pt; }
   h3 { font-size: 11pt; margin: 0; }
   .lead { margin: 2pt 0; color: #222; }
@@ -77,6 +84,11 @@ export function renderCv(locale: Locale): string {
   dt { color: #666; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.7pt; }
   dd { margin: 0; color: #222; }
   ul.plain { margin: 0; padding-left: 11pt; color: #222; }
+  ul.certs { margin: 0; padding-left: 11pt; color: #222; }
+  ul.certs li { margin-bottom: 2.5pt; break-inside: avoid; }
+  ul.certs b { font-weight: 600; }
+  .duo { display: grid; grid-template-columns: 1fr 52mm; gap: 0 10mm;
+         break-inside: avoid; }
   a { color: #111; text-decoration: none; }
 </style>
 </head>
@@ -86,9 +98,9 @@ export function renderCv(locale: Locale): string {
     <p class="tag">${esc(t.hero.tagline)}</p>
     <div class="contacts mono">
       <span>${esc(CONTACT.email)}</span>
+      <span>${esc(CONTACT.domain.replace("https://", ""))}</span>
       <span>${esc(CONTACT.githubLabel)}</span>
       <span>${esc(t.footer.rights)}</span>
-      <span>${esc(CONTACT.domain.replace("https://", ""))}</span>
     </div>
   </header>
 
@@ -117,17 +129,25 @@ export function renderCv(locale: Locale): string {
   </section>
 
   <section>
-    <h2>${esc(t.resume.education)}</h2>
-    <ul class="plain">
-      <li>${esc(t.resume.school)}</li>
-      <li>${esc(t.resume.musicSchool)}</li>
-    </ul>
+    <h2>${esc(t.certificates.title)}</h2>
+    <ul class="certs">${certBlocks}</ul>
   </section>
 
-  <section>
-    <h2>${esc(t.resume.languages)}</h2>
-    <p class="lead">${esc(t.resume.langList)}</p>
-  </section>
+  <!-- Образование и языки в ряд: по отдельности последняя секция
+       уезжала на третий лист ради двух строк. -->
+  <div class="duo">
+    <section>
+      <h2>${esc(t.resume.education)}</h2>
+      <ul class="plain">
+        <li>${esc(t.resume.school)}</li>
+        <li>${esc(t.resume.musicSchool)}</li>
+      </ul>
+    </section>
+    <section>
+      <h2>${esc(t.resume.languages)}</h2>
+      <p class="lead">${esc(t.resume.langList)}</p>
+    </section>
+  </div>
 </body>
 </html>`;
 }

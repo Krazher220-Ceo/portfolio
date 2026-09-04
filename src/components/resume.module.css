@@ -1,10 +1,35 @@
-.page { padding-block: var(--s-16) var(--s-24); max-width: 900px; }
+/* 1180px, а не 900: у .container ещё по 64px по краям, и при
+   сайдбаре в 300px основной колонке оставалось всего 424px —
+   для прозы резюме мало. Строку держит .body с max-width 74ch. */
+.page { padding-block: var(--s-16) var(--s-24); max-width: 1180px; }
 .head { display: flex; justify-content: space-between; gap: var(--s-8); flex-wrap: wrap; align-items: flex-start; }
 .name { margin-block: var(--s-3) var(--s-3); }
 .tagline { max-width: 42ch; margin: 0; }
 .actions { display: flex; gap: var(--s-3); flex-wrap: wrap; }
 .btn { white-space: nowrap; }
 .hint { margin-top: var(--s-6); max-width: 62ch; }
+
+/* Контакты строкой под именем: в печати колонки схлопываются,
+   и из сайдбара они уехали бы в самый конец листа. */
+.contacts {
+  list-style: none; margin: var(--s-6) 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-6);
+}
+
+/* Слева читают подряд, справа справляются. Сайдбар не тянется:
+   300px хватает на стек и даты, а строка проекта не сужается. */
+.cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--s-6) var(--s-12);
+  align-items: start;
+  margin-top: var(--s-4);
+}
+.main, .side { min-width: 0; }
+
+.certs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-4); }
+.cert { display: grid; gap: 2px; }
+.certEvent { color: var(--ink-2); font-weight: 500; }
 
 .block { margin-top: var(--s-16); }
 .h {
@@ -25,6 +50,15 @@
 .stack { margin: 0; display: grid; grid-template-columns: 190px 1fr; gap: var(--s-3) var(--s-6); }
 .stack dd { margin: 0; color: var(--ink-2); }
 @media (max-width: 700px) { .stack { grid-template-columns: 1fr; gap: var(--s-1); } }
+@media (max-width: 900px) {
+  .cols { grid-template-columns: 1fr; gap: 0; }
+  .side .stack { grid-template-columns: 190px 1fr; }
+}
+/* В сайдбаре колонки на определения не хватает — кладём в строку. */
+@media (min-width: 901px) {
+  .side .stack { grid-template-columns: 1fr; gap: var(--s-1); }
+  .side .block { margin-top: var(--s-12); }
+}
 
 /* ── Печать: белый лист, чёрный текст, никакого стекла и конуса ── */
 @media print {
@@ -33,6 +67,13 @@
   :global(header), :global(footer), :global(.pageGrain), :global(.skipLink) { display: none !important; }
   .actions, .hint { display: none !important; }
   .page { padding: 0; max-width: none; }
+  .cols { display: block !important; }
+  .contacts { gap: 2pt 10pt; margin-top: 6pt; }
+  .contacts li { font-size: 9pt; }
+  .side .stack { grid-template-columns: 42mm 1fr !important; }
+  .certs { gap: 5pt; }
+  .cert { break-inside: avoid; }
+  .certEvent { color: #000 !important; font-size: 9.5pt; }
   .block { margin-top: 18pt; break-inside: avoid; }
   .entry { break-inside: avoid; }
   .h { color: #666 !important; border-color: #ccc !important; margin-bottom: 8pt; padding-bottom: 4pt; }
