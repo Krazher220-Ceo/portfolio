@@ -9,6 +9,7 @@ import { useSite } from "@/lib/state";
 import { projects } from "@/content/projects";
 import { CONTACT, stack, timeline } from "@/content/site";
 import { certificates } from "@/content/certificates";
+import { withSecret } from "./Secret";
 import s from "./sections.module.css";
 
 /** Сколько раз список повторяется внутри одной половины ленты. */
@@ -44,7 +45,7 @@ export function AboutShort() {
       <SectionHead n="01" kicker={t.about.kicker} title={t.about.title} id="about-h" />
       <div className={s.split}>
         <Reveal className={s.text}>
-          <p className="bodyL" data-flip>{t.about.short}</p>
+          <p className="bodyL" data-flip>{withSecret(t.about.short)}</p>
           <A href="/about" className={`label ${s.moreLink}`}>
             {t.about.more} <span aria-hidden="true">→</span>
           </A>

@@ -5,6 +5,7 @@ import { TimelineSection, StackSection } from "./Sections";
 import { useSite } from "@/lib/state";
 import { CONTACT } from "@/content/site";
 import { cvFile } from "@/lib/cv";
+import { withSecret } from "./Secret";
 import s from "./about.module.css";
 
 export default function AboutView() {
@@ -20,7 +21,7 @@ export default function AboutView() {
         <div className={s.layout}>
           <Reveal className={s.prose}>
             {t.about.body.map((par, i) => (
-              <p key={i} className={i === 0 ? "bodyL" : undefined} data-flip>{par}</p>
+              <p key={i} className={i === 0 ? "bodyL" : undefined} data-flip>{withSecret(par)}</p>
             ))}
           </Reveal>
 

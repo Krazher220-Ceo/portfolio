@@ -4,6 +4,7 @@ import { cvFile } from "@/lib/cv";
 import { CONTACT, stack, timeline } from "@/content/site";
 import { projects } from "@/content/projects";
 import { certificates } from "@/content/certificates";
+import { plainSecret } from "@/lib/secret";
 import s from "./resume.module.css";
 
 /**
@@ -55,7 +56,7 @@ export default function ResumeView({ sizes }: { sizes: { ru: string; en: string 
         <div className={s.main}>
           <section className={s.block}>
             <h2 className={s.h}>{t.about.kicker}</h2>
-            <p className={s.body}>{t.about.short}</p>
+            <p className={s.body}>{plainSecret(t.about.short, locale)}</p>
           </section>
 
           <section className={s.block}>

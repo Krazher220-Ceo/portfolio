@@ -2,6 +2,7 @@ import { dictionaries, type Locale } from "@/i18n/dict";
 import { projects } from "@/content/projects";
 import { CONTACT, stack, timeline } from "@/content/site";
 import { certificates } from "@/content/certificates";
+import { plainSecret } from "@/lib/secret";
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -106,7 +107,7 @@ export function renderCv(locale: Locale): string {
 
   <section>
     <h2>${esc(t.about.kicker)}</h2>
-    <p class="lead">${esc(t.about.short)}</p>
+    <p class="lead">${esc(plainSecret(t.about.short, L))}</p>
   </section>
 
   <section>
