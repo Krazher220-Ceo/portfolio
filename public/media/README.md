@@ -25,6 +25,13 @@
 | `jasyl/assets/photo-pitch.jpg` | `jasyl-photo-pitch-*.webp` | Галерея Jasyl — защита |
 | `jasyl/assets/photo-jury.jpg` | `jasyl-photo-jury-*.webp` | Галерея Jasyl — разбор с жюри |
 | `jasyl/assets/photo-teams.jpg` | `jasyl-photo-teams-*.webp` | Галерея Jasyl — общий кадр |
+| `Downloads/2026-09-17 IQostanay/Photos/IMG_5513.jpg` | `agro-photo-award-*.webp` | Обложка AgroVision — команда с призом |
+| `…/IMG_5287.jpg` | `agro-photo-pitch-*.webp` | Галерея AgroVision — защита |
+| `…/IMG_5294.jpg` | `agro-photo-demo-*.webp` | Галерея AgroVision — живое демо |
+| `…/IMG_5508.jpg` | `agro-photo-jury-*.webp` | Галерея AgroVision — с жюри |
+
+Кадры AgroVision — официальный фотоотчёт Qostanai AgroTech Hackathon,
+обрезаны по центру до 3:2.
 
 **Кадров с других площадок нет.** Поэтому у QA Vision, KZ UniVerse
 и NPAI обложка не фотография, а данные проекта: ставить туда кадр

@@ -149,29 +149,101 @@ export const certificates: Certificate[] = [
       en: "Issued to the team, not to a person: the certificate carries the team name, Jasyl. Signed by the ITU regional director for the CIS and the director of the Kostanay branch of the Astana Hub foundation.",
     },
   },
+  {
+    id: "06",
+    projectId: "agrovision",
+    event: "Qostanai AgroTech Hackathon 2026 · победитель",
+    date: "2026-09",
+    file: "06-agrovision-winner-2026.jpg",
+    preview: "06-agrovision-winner-2026-preview.webp",
+    previewW: 900,
+    previewH: 616,
+    status: "published",
+    short: {
+      ru: "Первое место по кейсу «Олжа Агро»; выдан команде MusorDropp",
+      en: "First place on the Olzha Agro case; issued to team MusorDropp",
+    },
+    alt: {
+      ru: "Certificate of Achievement победителю AgroTech Hackathon 2026, команда Musor Dropp, Костанай, сентябрь 2026",
+      en: "Certificate of Achievement for the winner of the AgroTech Hackathon 2026, team Musor Dropp, Kostanay, September 2026",
+    },
+    note: {
+      ru: "Диплом победителя: первое место по кейсу №1 — распознавание сорняков по снимкам дрона. Выдан команде: на бланке название, под которым мы выступали, — Musor Dropp. Подписи: Е. Баярчук, CEO ТОО «Метод 2023», и Д. Мнайдаров, директор костанайского филиала Astana Hub.",
+      en: "The winner's certificate: first place on case No. 1 — weed recognition from drone imagery. Issued to the team: it carries the name we competed under, Musor Dropp. Signed by Ye. Bayarchuk, CEO of Method 2023 LLP, and D. Mnaidarov, director of the Kostanay branch of Astana Hub.",
+    },
+  },
+  {
+    id: "07",
+    projectId: "agrovision",
+    event: "Qostanai AgroTech Hackathon 2026 · приз",
+    date: "2026-09",
+    file: "07-agrovision-prize-2026.jpg",
+    preview: "07-agrovision-prize-2026-preview.webp",
+    previewW: 900,
+    previewH: 599,
+    status: "published",
+    short: {
+      ru: "Денежный приз победителю — 500 000 ₸",
+      en: "Cash prize for the winner — 500,000 ₸",
+    },
+    alt: {
+      ru: "Сертификат на приз 500 000 тенге победителю Qostanai AgroTech Hackathon 2026",
+      en: "Prize certificate for 500,000 tenge awarded to the winner of the Qostanai AgroTech Hackathon 2026",
+    },
+    note: {
+      ru: "Приз победителю кейса — 500 000 ₸: общий фонд хакатона 1 000 000 ₸ делился поровну между двумя кейсами «Олжа Агро». Это табличка, которую вручают на сцене, — она же на фото команды.",
+      en: "The case winner's prize — 500,000 ₸: the hackathon's 1,000,000 ₸ fund was split evenly between the two Olzha Agro cases. This is the board handed over on stage — the same one in the team photo.",
+    },
+  },
+  {
+    id: "08",
+    projectId: "agrovision",
+    event: "Qostanai AgroTech Hackathon 2026 · участие",
+    date: "2026-09",
+    file: "08-agrovision-appreciation-2026.jpg",
+    preview: "08-agrovision-appreciation-2026-preview.webp",
+    previewW: 900,
+    previewH: 617,
+    status: "published",
+    short: {
+      ru: "Сертификат участника; выдан команде",
+      en: "Certificate of participation; issued to the team",
+    },
+    alt: {
+      ru: "Certificate of Appreciation за участие в AgroTech Hackathon 2026, команда Musor Dropp, Костанай, сентябрь 2026",
+      en: "Certificate of Appreciation for taking part in the AgroTech Hackathon 2026, team Musor Dropp, Kostanay, September 2026",
+    },
+    note: {
+      ru: "Сертификат участника хакатона. Тоже командный, с теми же подписями, что и на дипломе победителя.",
+      en: "The hackathon participation certificate. Also issued to the team, with the same signatures as the winner's certificate.",
+    },
+  },
 ];
 
 /**
  * Треки фестиваля своего сертификата не имеют — они ссылаются на слот 02.
- * NPAI здесь больше нет: у него появился собственный диплом (слот 05),
- * а certForProject отдаёт приоритет своему сертификату.
+ * NPAI выступал на двух площадках: у Pizza Pitch свой диплом (слот 05),
+ * у Startup Battle на IT Fest — общий фестивальный, поэтому он здесь тоже.
  */
 export const festivalOnly: { projectId: string; certId: string }[] = [
   { projectId: "kz-universe", certId: "02" },
+  { projectId: "npai", certId: "02" },
 ];
 
 export const certById = (id: string) => certificates.find((c) => c.id === id);
-export const certForProject = (projectId: string) => {
-  const own = certificates.find(
-    (c) => c.projectId === projectId && c.status !== "pending"
-  );
-  if (own) return { cert: own, festivalOnly: false as const };
-  const pending = certificates.find((c) => c.projectId === projectId);
-  if (pending) return { cert: pending, festivalOnly: false as const };
-  const fo = festivalOnly.find((f) => f.projectId === projectId);
-  if (fo) {
-    const cert = certById(fo.certId);
-    if (cert) return { cert, festivalOnly: true as const };
-  }
-  return null;
+
+export type ProjectCert = { cert: Certificate; festivalOnly: boolean };
+
+/** Все документы проекта: сначала свои (в порядке реестра),
+ *  затем общий фестивальный, если проект выступал на фестивале. */
+export const certsForProject = (projectId: string): ProjectCert[] => {
+  const own: ProjectCert[] = certificates
+    .filter((c) => c.projectId === projectId)
+    .map((cert) => ({ cert, festivalOnly: false }));
+  const shared: ProjectCert[] = festivalOnly
+    .filter((f) => f.projectId === projectId)
+    .map((f) => certById(f.certId))
+    .filter((c): c is Certificate => !!c)
+    .map((cert) => ({ cert, festivalOnly: true }));
+  return [...own, ...shared];
 };

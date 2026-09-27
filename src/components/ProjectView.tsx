@@ -9,7 +9,7 @@ import CertCard from "./CertCard";
 import { useSite } from "@/lib/state";
 import { claim, remember } from "@/lib/shared-element";
 import { projects, type Project } from "@/content/projects";
-import { certForProject } from "@/content/certificates";
+import { certsForProject } from "@/content/certificates";
 import s from "./project.module.css";
 
 export default function ProjectView({ slug }: { slug: string }) {
@@ -52,7 +52,8 @@ export default function ProjectView({ slug }: { slug: string }) {
 
   const idx = projects.findIndex((x) => x.slug === slug);
   const next = projects[(idx + 1) % projects.length];
-  const certInfo = certForProject(slug);
+  const certs = certsForProject(slug);
+  const certTitle = certs.length > 1 ? t.projects.certificates : t.projects.certificate;
 
   return (
     <article>
@@ -200,17 +201,19 @@ export default function ProjectView({ slug }: { slug: string }) {
           </Reveal>
         )}
 
-        {/* ── Сертификат ───────────────────────────────────── */}
-        {certInfo && (
-          <Reveal className={s.block} data-sub={t.projects.certificate}>
+        {/* ── Сертификаты ──────────────────────────────────── */}
+        {certs.length > 0 && (
+          <Reveal className={s.block} data-sub={certTitle}>
             <div className={s.blockHead}>
               <span className={`mono ${s.blockNum}`}>✓</span>
-              <h2 data-flip>{t.projects.certificate}</h2>
+              <h2 data-flip>{certTitle}</h2>
             </div>
-            <div className={s.certHolder}>
-              {certInfo.festivalOnly
-                ? <FestivalOnlyCard cert={certInfo.cert} />
-                : <CertCard cert={certInfo.cert} />}
+            <div className={certs.length > 1 ? s.certList : s.certHolder}>
+              {certs.map(({ cert, festivalOnly }) =>
+                festivalOnly
+                  ? <FestivalOnlyCard key={cert.id} cert={cert} />
+                  : <CertCard key={cert.id} cert={cert} />
+              )}
             </div>
           </Reveal>
         )}

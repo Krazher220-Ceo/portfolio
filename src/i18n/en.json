@@ -46,7 +46,7 @@
   },
   "about": {
     "kicker": "About",
-    "short": "I'm Alikhan, a 16-year-old developer from Kostanay, Kazakhstan. I build AI-powered products — computer vision models, progressive web apps and Telegram bots — taking them from concept to deployment. I've competed in hackathons and pitch sessions across the Astana Hub ecosystem in Kostanay, Petropavlovsk and Almaty. My current project is Smart Green Qostanai, a service for monitoring urban tree health.",
+    "short": "I'm Alikhan, a 16-year-old developer from Kostanay, Kazakhstan. I build AI-powered products — computer vision models, progressive web apps and Telegram bots — taking them from concept to deployment. I've competed in hackathons and pitch sessions across the Astana Hub ecosystem in Kostanay, Petropavlovsk and Almaty. In September 2026 our team took first place at the Qostanai AgroTech Hackathon with AgroVision AI, a weed map built from drone imagery.",
     "more": "Read the long version",
     "title": "About me",
     "body": [
@@ -83,7 +83,8 @@
     "wrong": "What went wrong",
     "result": "Result",
     "otherwise": "What I'd do differently",
-    "certificate": "Certificate"
+    "certificate": "Certificate",
+    "certificates": "Certificates"
   },
   "timeline": {
     "kicker": "Timeline",
@@ -101,7 +102,7 @@
   "certificates": {
     "kicker": "Certificates",
     "title": "Certificates",
-    "lead": "Five certificates from venues in Kostanay and Almaty: hackathons, a startup idea contest and a city project. One of them is a team certificate rather than a personal one, and it says so here.",
+    "lead": "Eight documents from venues in Kostanay and Almaty: hackathons — including the win at the Qostanai AgroTech Hackathon 2026 — a startup idea contest and a city project. Some were issued to the team rather than to me personally, and each one says so plainly.",
     "all": "All certificates",
     "open": "Open",
     "openOriginal": "Open the original",
@@ -144,7 +145,7 @@
   },
   "footer": {
     "rights": "Kostanay, Kazakhstan",
-    "built": "Hand-built with Next.js. No page builders.",
+    "built": "Built with AI: Next.js, written in tandem with a language model.",
     "top": "Back to top",
     "license": "All rights reserved",
     "licenseNote": "Source and content are licensed: reading is fine, reuse is not.",

@@ -74,6 +74,18 @@ export const timeline: TimelineEvent[] = [
       en: "13–14 August. Jasyl: our own dataset, a fine-tuned model and a working offline app in two days.",
     },
   },
+  {
+    year: "2026",
+    city: { ru: "Костанай", en: "Kostanay" },
+    title: {
+      ru: "Qostanai AgroTech Hackathon · 1 место",
+      en: "Qostanai AgroTech Hackathon · 1st place",
+    },
+    note: {
+      ru: "17–18 сентября. AgroVision AI: карта сорняков по снимкам дрона для «Олжа Агро» — первое место по кейсу и приз 500 000 ₸.",
+      en: "17–18 September. AgroVision AI: a weed map from drone imagery for Olzha Agro — first place on the case and a 500,000 ₸ prize.",
+    },
+  },
 ];
 
 /** Стек по трём уровням владения — блок D из docx, дословно. */

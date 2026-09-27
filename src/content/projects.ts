@@ -22,8 +22,8 @@ export type Metric = {
 export type Project = {
   slug: string;
   name: string;
-  /** Фотография есть только у Jasyl. У остальных её нет — и вместо
-   *  выдуманной картинки карточка честно показывает данные. */
+  /** Фотографии есть только у Jasyl и AgroVision. У остальных их нет —
+   *  и вместо выдуманной картинки карточка честно показывает данные. */
   cover: string | null;
   coverAlt: Bi | null;
   /** Кадры с площадки. Только у того проекта, где они реально сняты. */
@@ -45,10 +45,114 @@ export type Project = {
   result: Bi;
   otherwise: Bi;
   links: { demo?: string; repo?: string };
-  certificateId: string | null;
 };
 
 export const projects: Project[] = [
+  {
+    slug: "agrovision",
+    name: "AgroVision AI",
+    cover: "agro-photo-award",
+    coverAlt: {
+      ru: "Команда MusorDropp на сцене Qostanai AgroTech Hackathon с сертификатом на приз 500 000 ₸ и дипломом победителя",
+      en: "Team MusorDropp on stage at the Qostanai AgroTech Hackathon holding the 500,000 ₸ prize board and the winner's certificate",
+    },
+    gallery: [
+      {
+        src: "agro-photo-pitch",
+        alt: {
+          ru: "Защита: на экране весь конвейер одной строкой — дрон снимает, две модели находят сорняки и определяют вид и фазу, агроном подтверждает сомнительные, готовая карта обработки",
+          en: "The pitch: the whole pipeline in one line on screen — the drone shoots, two models find weeds and identify species and stage, the agronomist confirms the doubtful ones, the treatment map is ready",
+        },
+      },
+      {
+        src: "agro-photo-demo",
+        alt: {
+          ru: "Живое демо на сцене: дашборд AgroVision AI с найденными на снимках поля сорняками",
+          en: "Live demo on stage: the AgroVision AI dashboard with weeds found in the field imagery",
+        },
+      },
+      {
+        src: "agro-photo-jury",
+        alt: {
+          ru: "Команда-победитель вместе с жюри и организаторами после награждения",
+          en: "The winning team with the jury and organisers after the award",
+        },
+      },
+    ],
+    tagline: {
+      ru: "Карта сорняков и точечного опрыскивания по снимкам дрона",
+      en: "A weed map and spot-spraying plan from drone imagery",
+    },
+    role: {
+      ru: "Разработка и ML — детектор и классификатор, агрономические правила, геопривязка и экспорт заданий для техники, сервер, офлайн-приложение агронома и дашборд",
+      en: "Development and ML — the detector and classifier, the agronomy rules, georeferencing and task export for machinery, the server, the agronomist's offline app and the dashboard",
+    },
+    stack: [
+      "Python", "PyTorch", "YOLOv8s", "EfficientNet-B0", "FastAPI",
+      "Streamlit", "PWA", "GeoJSON", "ISO 11783-10", "Docker",
+    ],
+    term: { ru: "2 дня + доработка после", en: "2 days + post-event work" },
+    status: {
+      ru: "MVP: анализ после облёта, не опрыскивание в реальном времени",
+      en: "MVP: post-flight decision support, not real-time spraying",
+    },
+    event: {
+      ru: "Qostanai AgroTech Hackathon 2026 · кейс №1 · 1 место",
+      en: "Qostanai AgroTech Hackathon 2026 · case No. 1 · 1st place",
+    },
+    date: "2026-09",
+    venue: {
+      ru: "Qostanai AgroTech Hackathon, 17–18 сентября 2026 года, Костанай. Организаторы — костанайский филиал Astana Hub, ТОО «Метод 2023», агрохолдинг «Олжа Агро» и Digital & AI Qazaqstan 2026; оба кейса дала «Олжа Агро», призовой фонд 1 000 000 ₸ — по 500 000 ₸ на кейс. Кейс разбирал директор по цифровой трансформации холдинга, днём работали с менторами, на второй день — Demo Day: три минуты на защиту и две на вопросы жюри. Мы выступали как MusorDropp, три человека.",
+      en: "Qostanai AgroTech Hackathon, 17–18 September 2026, Kostanay. Organised by the Kostanay branch of Astana Hub, Method 2023 LLP, the agricultural holding Olzha Agro and Digital & AI Qazaqstan 2026; both cases came from Olzha Agro, with a 1,000,000 ₸ prize fund — 500,000 ₸ per case. The holding's director of digital transformation briefed the case, the day went to work with mentors, and day two was Demo Day: three minutes to pitch and two for the jury's questions. We competed as MusorDropp, a team of three.",
+    },
+    task: {
+      ru: "Среднее поле в регионе — 400 гектаров, сорняки распределены по нему неравномерно, а гербицид льют сплошь, по максимальной засорённости. Средства защиты растений — самая дорогая статья расходов, а пешком обойти 400 га агроном не может. У «Олжа Агро» был свой лёгкий дрон, неразмеченные снимки полей за сезон и фото сорняков, размеченные агрономом по виду и фазе.",
+      en: "An average field in the region is 400 hectares, weeds are spread unevenly across it, and herbicide goes on everywhere at the dose for the worst patch. Crop protection is the single biggest cost line, and no agronomist can walk 400 hectares. Olzha Agro had its own light drone, a season of unlabelled field imagery, and weed photos labelled by an agronomist by species and growth stage.",
+    },
+    solution: {
+      ru: "Снимок с дрона режется на тайлы, детектор отделяет культуру от сорняка, классификатор определяет вид и фазу, дальше работают правила агронома-ментора: пороги вредоносности и доза по фазе. Каждая находка получает свою координату, вокруг очагов строятся зоны обработки, итог — файл задания для терминала опрыскивателя. Там, где модель не уверена, объект уходит агроному в офлайн-приложение, а не под форсунку.",
+      en: "A drone image is cut into tiles, a detector separates crop from weed, a classifier identifies species and stage, and then the mentor agronomist's rules apply: damage thresholds and a dose adjusted for stage. Every finding gets its own coordinate, treatment zones are built around the patches, and the output is a task file for the sprayer's terminal. Where the model isn't sure, the object goes to the agronomist's offline app, not under a nozzle.",
+    },
+    tech: {
+      ru: [
+        "Два этапа вместо одной сети: YOLOv8s ищет «культура / сорняк», EfficientNet-B0 с двумя головами определяет вид (26 классов из справочника кейса) и фазу. Слияние рамок по IoM убирает «эффект матрёшки», когда на один куст вешается полсотни вложенных боксов.",
+        "Порог ручной проверки — один на весь проект (0,75), в одном конфиге. Ниже порога объект не может получить действие «опрыскать»: только «проверить». Решения агронома сохраняются и идут в дообучение, но новая модель никогда не подменяет рабочую автоматически.",
+        "Геопривязка отдельного сорняка по EXIF, а не координата всего кадра; экспорт в GeoJSON, Shapefile и ISO 11783-10 TASKDATA — формат, который читают терминалы опрыскивателей.",
+      ],
+      en: [
+        "Two stages instead of one network: YOLOv8s finds crop vs weed, and an EfficientNet-B0 with two heads identifies the species (26 classes from the case's reference list) and the stage. IoM box merging removes the \"nesting doll\" effect, where fifty nested boxes land on one plant.",
+        "One manual-review threshold for the whole project (0.75), in one config. Below it an object cannot be assigned \"spray\" — only \"check\". The agronomist's decisions are stored and feed fine-tuning, but a new model never replaces the working one automatically.",
+        "Each weed is georeferenced from EXIF, not the frame as a whole; export goes to GeoJSON, Shapefile and ISO 11783-10 TASKDATA — the format sprayer terminals read.",
+      ],
+    },
+    wrong: {
+      ru: [
+        "98% на эталонных фото агронома и реальные кадры дрона — разные вещи. На мелких вырезках с дрона медианная уверенность вида — 0,49, и 454 объекта из 711 ушли на ручную проверку. Поэтому в конвейере и есть шаг с человеком.",
+        "Экспорт в ISO 11783-10 структурно валиден, но ни на одном реальном терминале не проверен. «Напрямую в John Deere» — это было бы обещание, которого мы не проверяли.",
+        "В первой версии README стояли две экономические цифры, которые друг другу противоречили. Разбор метрик после хакатона это поймал: теперь экономика дана формулой и сценарием, а не как измеренный факт.",
+      ],
+      en: [
+        "98% on the agronomist's reference photos and real drone frames are different things. On small drone crops the median species confidence is 0.49, and 454 of 711 objects went to manual review. That's exactly why the pipeline has a human step.",
+        "The ISO 11783-10 export is structurally valid but hasn't been tested on a single real terminal. \"Straight into John Deere\" would have been a promise we never checked.",
+        "The first version of the README carried two economic figures that contradicted each other. A post-event metrics audit caught it: the economics are now given as a formula and a scenario, not as a measured fact.",
+      ],
+    },
+    metrics: [
+      { value: 0.77, decimals: 2, label: { ru: "mAP@50 детектора на независимом тесте, 381 снимок", en: "detector mAP@50 on an independent test, 381 images" } },
+      { value: 26, label: { ru: "видов сорняков и 3 фазы в классификаторе", en: "weed species and 3 stages in the classifier" } },
+      { value: 98.4, suffix: "%", decimals: 1, label: { ru: "точность вида на 1 591 эталонном фото", en: "species accuracy on 1,591 reference photos" } },
+      { value: 500000, suffix: " ₸", label: { ru: "приз за первое место", en: "prize for first place" } },
+    ],
+    result: {
+      ru: "Первое место по кейсу №1 и приз 500 000 ₸. После хакатона жюри попросило привести проект в порядок и опубликовать — мы переписали README на проверенных цифрах, с таблицей «что заявляли / что показала проверка», и довели набор тестов до зелёного: 125 пройдено.",
+      en: "First place on case No. 1 and a 500,000 ₸ prize. After the event the jury asked us to tidy the project up and publish it — we rewrote the README on verified figures, with a \"what we claimed / what the audit showed\" table, and got the test suite green: 125 passing.",
+    },
+    otherwise: {
+      ru: "Сначала — размеченный набор настоящих вырезок с дрона, а уже потом красивые проценты на студийных фото. И каждую цифру в питче — со ссылкой на файл, из которого она взята, ещё до сцены, а не после неё.",
+      en: "First, a labelled set of real drone crops — the flattering percentages on studio photos come after. And every figure in the pitch tied to the file it came from before going on stage, not after.",
+    },
+    links: { repo: "https://github.com/Krazher220-Ceo/MusorDropp-Qostanai_AgroTech_Hackathon_2026" },
+  },
   {
     slug: "jasyl",
     name: "Jasyl",
@@ -153,7 +257,6 @@ export const projects: Project[] = [
       en: "The questions from the jury and mentors weren't about architecture but about who exactly presses which button and when — and half our answers only surfaced on stage. Next time the user's path gets worked out before the pitch, not during it.",
     },
     links: { demo: "https://qostanai-smart-green-rho.vercel.app/" },
-    certificateId: "03",
   },
   {
     slug: "qa-vision",
@@ -233,7 +336,6 @@ export const projects: Project[] = [
       en: "First thing to redo: a model failure must raise an error, not return a \"clean\" verdict. Second, a file-based registry won't survive several lines writing at once; the path to PostgreSQL is written up in the project but wasn't walked in three days.",
     },
     links: { repo: "https://github.com/Krazher220-Ceo/qa-dashboard" },
-    certificateId: "01",
   },
   {
     slug: "kz-universe",
@@ -313,7 +415,6 @@ export const projects: Project[] = [
       en: "University data sits in JSON next to the code — over a 24-hour hackathon that was the difference between a working catalogue and configuring a database until morning. The price is honest: edits need a deploy and there is no admin panel. That's the first thing to replace if the project is to go on.",
     },
     links: { repo: "https://github.com/Krazher220-Ceo/KZ-UniVerse" },
-    certificateId: "02",
   },
   {
     slug: "npai",
@@ -393,7 +494,6 @@ export const projects: Project[] = [
       demo: "https://krazher220-ceo.github.io/npai-landing/",
       repo: "https://github.com/Krazher220-Ceo/npai-landing",
     },
-    certificateId: "05",
   },
 ];
 
