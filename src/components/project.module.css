@@ -177,6 +177,28 @@
   padding-top: var(--s-3);
 }
 
+/* Экраны телефона: четыре в ряд на ПК, по два на телефоне.
+   Кадр не обрезается — на скриншоте важен весь экран. */
+.screens {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-6);
+}
+@media (max-width: 860px) {
+  .screens { grid-template-columns: repeat(2, 1fr); gap: var(--s-4); }
+}
+.screen { margin: 0; }
+.screen img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-card);
+  box-shadow: var(--glow);
+}
+.screen figcaption {
+  color: var(--ink-3);
+  padding-top: var(--s-3);
+}
+
 .next {
   display: flex;
   align-items: baseline;
