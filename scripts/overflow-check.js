@@ -1,5 +1,5 @@
-const pages = ['/ru','/ru/projects','/ru/projects/jasyl','/ru/about','/ru/certificates','/ru/resume','/ru/events/it-fest-2025','/en'];
-const widths = [375, 768, 1024, 1440];
+const pages = ['/ru','/ru/projects','/ru/projects/jasyl','/ru/projects/naryad-ai','/en/projects/naryad-ai','/ru/about','/ru/certificates','/ru/resume','/ru/events/it-fest-2025','/en'];
+const widths = [360, 375, 768, 1024, 1440];
 (async () => {
   const puppeteer = require('puppeteer-core');
   const browser = await puppeteer.launch({

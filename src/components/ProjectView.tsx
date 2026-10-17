@@ -116,6 +116,11 @@ export default function ProjectView({ slug }: { slug: string }) {
                 {t.projects.demo} <span aria-hidden="true">↗</span>
               </a>
             )}
+            {p.links.apk && (
+              <a className={`btnGhost label ${s.link}`} href={p.links.apk} download>
+                {t.projects.apk} <span aria-hidden="true">↓</span>
+              </a>
+            )}
             {p.links.repo && (
               <a className={`btnGhost label ${s.link}`} href={p.links.repo} target="_blank" rel="noreferrer">
                 {t.projects.repo} <span aria-hidden="true">↗</span>
@@ -191,6 +196,33 @@ export default function ProjectView({ slug }: { slug: string }) {
                     alt={g.alt[locale]}
                     width={1400}
                     height={933}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <figcaption className="small">{g.alt[locale]}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </Reveal>
+        )}
+
+        {p.screens && (
+          <Reveal className={s.block} data-sub={t.projects.screens}>
+            <div className={s.blockHead}>
+              <span className={`mono ${s.blockNum}`}>▢</span>
+              <h2 data-flip>{t.projects.screens}</h2>
+            </div>
+            <div className={s.screens}>
+              {p.screens.map((g) => (
+                <figure key={g.src} className={s.screen}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/media/${g.src}-600.webp`}
+                    srcSet={`/media/${g.src}-300.webp 300w, /media/${g.src}-450.webp 450w, /media/${g.src}-600.webp 600w`}
+                    sizes="(max-width: 860px) 45vw, 280px"
+                    alt={g.alt[locale]}
+                    width={600}
+                    height={1298}
                     loading="lazy"
                     decoding="async"
                   />

@@ -22,12 +22,15 @@ export type Metric = {
 export type Project = {
   slug: string;
   name: string;
-  /** Фотографии есть только у Jasyl и AgroVision. У остальных их нет —
+  /** Фотографии есть только у НарядAI, Jasyl и AgroVision. У остальных их нет —
    *  и вместо выдуманной картинки карточка честно показывает данные. */
   cover: string | null;
   coverAlt: Bi | null;
   /** Кадры с площадки. Только у того проекта, где они реально сняты. */
   gallery?: { src: string; alt: Bi }[];
+  /** Скриншоты приложения с телефона: вертикальные, поэтому идут
+   *  отдельной лентой, а не в галерею кадров 3:2. */
+  screens?: { src: string; alt: Bi }[];
   tagline: Bi;
   role: Bi;
   stack: string[];
@@ -44,10 +47,149 @@ export type Project = {
   metrics: Metric[];
   result: Bi;
   otherwise: Bi;
-  links: { demo?: string; repo?: string };
+  links: { demo?: string; repo?: string; apk?: string };
 };
 
 export const projects: Project[] = [
+  {
+    slug: "naryad-ai",
+    name: "НарядAI",
+    cover: "naryad-photo-pitch",
+    coverAlt: {
+      ru: "Защита НарядAI на Demo Day в Qostanai Hub: на экране слайд «Два слоя ИИ и вердикт»",
+      en: "Pitching НарядAI at Demo Day in Qostanai Hub: the slide on screen reads \"Two layers of AI and a verdict\"",
+    },
+    gallery: [
+      {
+        src: "naryad-photo-team",
+        alt: {
+          ru: "Команда LooksMaXing с сертификатом финалиста на фоне баннера Qostanai AI Industry Hackathon",
+          en: "Team LooksMaXing with the finalist's certificate in front of the Qostanai AI Industry Hackathon banner",
+        },
+      },
+      {
+        src: "naryad-photo-speaker",
+        alt: {
+          ru: "Ответы на вопросы жюри после питча",
+          en: "Answering the jury's questions after the pitch",
+        },
+      },
+      {
+        src: "naryad-photo-finalists",
+        alt: {
+          ru: "Все финалисты, жюри и организаторы после Demo Day",
+          en: "All the finalists, the jury and the organisers after Demo Day",
+        },
+      },
+    ],
+    screens: [
+      {
+        src: "naryad-ui-master",
+        alt: {
+          ru: "Мастер выдаёт наряд: шаг 2 из 3, неисправность выбирается кнопками или голосом",
+          en: "The foreman issues a work order: step 2 of 3, the fault is picked with buttons or by voice",
+        },
+      },
+      {
+        src: "naryad-ui-exec",
+        alt: {
+          ru: "Исполнитель: наряд с фото «до», кнопки «Нужна помощь» и «Начать исполнение»",
+          en: "The worker: an order with the \"before\" photo, \"Need help\" and \"Start work\" buttons",
+        },
+      },
+      {
+        src: "naryad-ui-ai",
+        alt: {
+          ru: "Проверка ИИ: «Требует доработки», 2 из 5, с объяснением, но закрывает наряд мастер",
+          en: "The AI check: \"Needs rework\", 2 of 5, with an explanation, but the foreman closes the order",
+        },
+      },
+      {
+        src: "naryad-ui-lead",
+        alt: {
+          ru: "Дашборд руководителя: просрочки, аварийные, простой за период и эскалации",
+          en: "The manager's dashboard: overdue, emergency, downtime for the period and escalations",
+        },
+      },
+    ],
+    tagline: {
+      ru: "Наряды на ремонт с ИИ-контролёром для горно-обогатительного предприятия",
+      en: "Repair work orders with an AI inspector for a mining and processing plant",
+    },
+    role: {
+      ru: "Капитан и ведущий разработчик — архитектура, база и правила доступа, ИИ-модули и дообучение Laya, нативное Android-приложение исполнителя",
+      en: "Captain and lead developer — the architecture, the database and its access rules, the AI modules and the Laya fine-tune, the worker's native Android app",
+    },
+    stack: [
+      "Next.js 16", "React 19", "TypeScript", "Supabase", "PostgreSQL RLS",
+      "PWA", "Kotlin", "Laya", "Whisper", "Qwen3", "DeepSeek", "Telegram Bot API",
+    ],
+    term: { ru: "6 дней разработки + доработка к финалу", en: "6 days of building + work before the final" },
+    status: {
+      ru: "Рабочий прототип на демо-данных: веб-приложение и APK",
+      en: "Working prototype on demo data: a web app and an APK",
+    },
+    event: {
+      ru: "Qostanai AI Industry Hackathon 2026 · кейс №1 · финалист",
+      en: "Qostanai AI Industry Hackathon 2026 · case No. 1 · finalist",
+    },
+    date: "2026-10",
+    venue: {
+      ru: "Qostanai AI Industry Hackathon 2026: заявки подали больше 150 команд со всего Казахстана, три кейса от промышленных компаний. Наш кейс №1 дало АО «Костанайские минералы». Отбор шёл онлайн: проект сдали 8 октября, жюри смотрело приложение по ссылке без нас. В финал вышли 12 команд, финал — Demo Day 16 октября в Qostanai Hub: три минуты на питч, потом телефоны с приложением ушли жюри в руки. Мы выступали как LooksMaXing, четыре десятиклассника школы-лицея №1 Костаная.",
+      en: "Qostanai AI Industry Hackathon 2026: more than 150 teams from across Kazakhstan applied, with three cases from industrial companies. Our case No. 1 came from Kostanay Minerals JSC. Selection was online: we submitted on 8 October and the jury tried the app from a link without us. Twelve teams reached the final — Demo Day on 16 October at Qostanai Hub: three minutes to pitch, then phones with the app went into the jury's hands. We competed as LooksMaXing, four tenth-graders from School-Lyceum No. 1, Kostanay.",
+    },
+    task: {
+      ru: "На фабрике наряды на ремонт выдают на бумаге и по рации. Мастер не видит, кто свободен и что просрочено, исполнитель узнаёт о работе с опозданием, качество ремонта проверяют на глаз, а историю отказов никто не анализирует.",
+      en: "At the plant, repair orders are issued on paper and over the radio. The foreman can't see who is free or what is overdue, the worker hears about a job late, repair quality is judged by eye, and nobody analyses the failure history.",
+    },
+    solution: {
+      ru: "Одно приложение для четырёх ролей. Оператор сообщает о поломке по QR-коду на машине, без входа. Мастер выдаёт наряд за 6 нажатий или одной фразой голосом. Исполнитель принимает его, проходит проверку безопасности и закрывает с фото «после». ИИ сверяет фото и текст работ с проблемой и ставит оценку с объяснением, руководитель видит рейтинг, простои и аномалии. Решение всегда за мастером.",
+      en: "One app for four roles. An operator reports a breakdown via the QR code on the machine, with no login. The foreman issues an order in 6 taps or one spoken sentence. The worker accepts it, passes the safety check and closes it with an \"after\" photo. The AI compares the photo and the work notes with the problem and gives a score with an explanation; the manager sees rankings, downtime and anomalies. The foreman always has the final say.",
+    },
+    tech: {
+      ru: [
+        "Два слоя ИИ. Быстрый — дообученная Laya на своём сервере: до 1,5 с, по описанию поломки называет категорию, приоритет и специальность. Медленный — мультимодальная и языковая модель: сравнивает фото «до» и «после» и отдельно пишет, что видно, что сошлось и что проверить нельзя.",
+        "Права и статусы — в базе, а не в кнопках: правила доступа PostgreSQL, переходы через функции базы, каждый переход пишет запись в журнал, который нельзя изменить даже служебным ключом. Тест на 55 шагов проверяет, что запрещённое отклоняется.",
+        "Каскад без отказа: наш Mac → облако только с обезличенными данными (ФИО заменяются номерами) → правила кода и вердикт «решает мастер». Статистику, рейтинг и аномалии считает код, модель только формулирует вывод.",
+      ],
+      en: [
+        "Two layers of AI. The fast one is a fine-tuned Laya on our own server: under 1.5 s, it names the category, priority and trade from the fault description. The slow one is a multimodal and language model: it compares the \"before\" and \"after\" photos and says separately what is visible, what matches and what cannot be verified.",
+        "Permissions and statuses live in the database, not in buttons: PostgreSQL access rules, transitions through database functions, and every transition writes to a log that can't be changed even with the service key. A 55-step test checks that forbidden actions are rejected.",
+        "A cascade that never stops: our Mac → the cloud with anonymised data only (names are replaced with numbers) → code rules and a \"foreman decides\" verdict. Statistics, rankings and anomalies are computed by code; the model only words the conclusion.",
+      ],
+    },
+    wrong: {
+      ru: [
+        "Все данные синтетические: 592 наряда за 3 месяца с четырьмя заложенными закономерностями. Аналитика их находит, но это проверка метода, а не доказательство точности на реальном заводе.",
+        "Laya даёт 93% по категории и 95% по специальности, но на тесте, который мы написали сами, а обучающие описания сгенерированы моделью. Настоящих заявок завода не было.",
+        "В нативном Android-приложении только роль исполнителя. Мастер, руководитель и оператор работают в веб-версии, которая на телефоне ставится как PWA.",
+      ],
+      en: [
+        "All the data is synthetic: 592 orders over 3 months with four planted patterns. The analytics find them, but that tests the method, not accuracy on a real plant.",
+        "Laya scores 93% on category and 95% on trade, but on a test we wrote ourselves, and the training descriptions were generated by a model. We had no real requests from the plant.",
+        "The native Android app covers only the worker role. The foreman, manager and operator use the web version, which installs on a phone as a PWA.",
+      ],
+    },
+    metrics: [
+      { value: 85, suffix: " / 100", label: { ru: "баллов на отборе, 4-е место в кейсе", en: "points in selection, 4th place on the case" } },
+      { value: 12, label: { ru: "команд в финале из 150+ заявок", en: "teams in the final out of 150+ applications" } },
+      { value: 93, suffix: "%", label: { ru: "точность Laya по категории на 192 описаниях", en: "Laya category accuracy on 192 descriptions" } },
+      { value: 6, label: { ru: "нажатий на выдачу наряда", en: "taps to issue an order" } },
+    ],
+    result: {
+      ru: "Топ-4 онлайн-отбора с 85 баллами из 100 и выход в финал — единственные школьники в топ-4 своего кейса. На Demo Day вместо слайдов жюри получило в руки телефоны с живым приложением. Финал мы не выиграли, но приложение и APK работают по ссылкам ниже, а у мастера статус меняется меньше чем за 4 секунды.",
+      en: "Top 4 in the online selection with 85 points out of 100 and a place in the final — the only school team in our case's top 4. At Demo Day, instead of slides, the jury got phones with the live app in their hands. We didn't win the final, but the app and the APK work from the links below, and a status change reaches the foreman in under 4 seconds.",
+    },
+    otherwise: {
+      ru: "До 1-го места на отборе не хватило 2 баллов, и ниже всего нас оценили за техническую реализацию, потенциал и прототип. В следующий раз — меньше функций и раньше живые пользователи: хотя бы один настоящий мастер, который прошёл бы весь цикл до сдачи.",
+      en: "We were 2 points short of first place in selection, and our lowest scores were for technical implementation, potential and the prototype. Next time — fewer features and real users earlier: at least one actual foreman going through the whole cycle before submission.",
+    },
+    links: {
+      demo: "https://naryad-ai.vercel.app/demo",
+      apk: "https://naryad-ai.vercel.app/downloads/naryad-worker.apk",
+      repo: "https://github.com/Krazher220-Ceo/naryad-ai",
+    },
+  },
   {
     slug: "agrovision",
     name: "AgroVision AI",

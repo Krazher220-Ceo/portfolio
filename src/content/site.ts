@@ -86,6 +86,18 @@ export const timeline: TimelineEvent[] = [
       en: "17–18 September. AgroVision AI: a weed map from drone imagery for Olzha Agro — first place on the case and a 500,000 ₸ prize.",
     },
   },
+  {
+    year: "2026",
+    city: { ru: "Костанай", en: "Kostanay" },
+    title: {
+      ru: "Qostanai AI Industry Hackathon · финал",
+      en: "Qostanai AI Industry Hackathon · final",
+    },
+    note: {
+      ru: "Октябрь. НарядAI для «Костанайских минералов»: топ-4 отбора с 85 баллами из 100, финал среди 12 команд из 150+ заявок.",
+      en: "October. НарядAI for Kostanay Minerals: top 4 in selection with 85 of 100 points, a final among 12 teams out of 150+ applications.",
+    },
+  },
 ];
 
 /** Стек по трём уровням владения — блок D из docx, дословно. */

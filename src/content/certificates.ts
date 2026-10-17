@@ -218,6 +218,29 @@ export const certificates: Certificate[] = [
       en: "The hackathon participation certificate. Also issued to the team, with the same signatures as the winner's certificate.",
     },
   },
+  {
+    id: "09",
+    projectId: "naryad-ai",
+    event: "Qostanai AI Industry Hackathon 2026 · участие",
+    date: "2026-10",
+    file: "09-naryad-industry-2026.jpg",
+    preview: "09-naryad-industry-2026-preview.webp",
+    previewW: 900,
+    previewH: 647,
+    status: "published",
+    short: {
+      ru: "Сертификат участника финала; выдан команде",
+      en: "Certificate of participation in the final; issued to the team",
+    },
+    alt: {
+      ru: "Certificate of Participation республиканского хакатона Qostanai Industry Hackathon, команда LooksMaXing, Костанай, 2026",
+      en: "Certificate of Participation in the republican Qostanai Industry Hackathon, team LooksMaXing, Kostanay, 2026",
+    },
+    note: {
+      ru: "Сертификат команды LooksMaXing за участие в республиканском хакатоне Qostanai Industry Hackathon. На бланке логотипы КРУ им. А. Байтурсынулы, «Костанайских минералов», Allur, Qostanai Hub и Digital & AI Qazaqstan 2026. Подпись — Ж. Жарлыгасов, исполняющий обязанности ректора университета.",
+      en: "Team LooksMaXing's certificate for taking part in the republican Qostanai Industry Hackathon. The form carries the logos of Baitursynuly Kostanay Regional University, Kostanay Minerals, Allur, Qostanai Hub and Digital & AI Qazaqstan 2026. Signed by Zh. Zharlygassov, acting rector of the university.",
+    },
+  },
 ];
 
 /**
