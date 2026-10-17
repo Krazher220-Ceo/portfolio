@@ -57,7 +57,7 @@ export const projects: Project[] = [
     cover: "naryad-photo-pitch",
     coverAlt: {
       ru: "Защита НарядAI на Demo Day в Qostanai Hub: на экране слайд «Два слоя ИИ и вердикт»",
-      en: "Pitching NaryadAI at Demo Day in Qostanai Hub: the slide on screen reads \"Two layers of AI and a verdict\"",
+      en: "Pitching НарядAI at Demo Day in Qostanai Hub: the slide on screen reads \"Two layers of AI and a verdict\"",
     },
     gallery: [
       {

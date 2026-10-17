@@ -95,7 +95,7 @@ export const timeline: TimelineEvent[] = [
     },
     note: {
       ru: "Октябрь. НарядAI для «Костанайских минералов»: топ-4 отбора с 85 баллами из 100, финал среди 12 команд из 150+ заявок.",
-      en: "October. NaryadAI for Kostanay Minerals: top 4 in selection with 85 of 100 points, a final among 12 teams out of 150+ applications.",
+      en: "October. НарядAI for Kostanay Minerals: top 4 in selection with 85 of 100 points, a final among 12 teams out of 150+ applications.",
     },
   },
 ];
