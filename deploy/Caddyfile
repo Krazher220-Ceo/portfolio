@@ -15,3 +15,11 @@ alikhandev.com {
 www.alikhandev.com {
 	redir https://alikhandev.com{uri} permanent
 }
+
+notes.alikhandev.com {
+	encode zstd gzip
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy 127.0.0.1:3001
+}
