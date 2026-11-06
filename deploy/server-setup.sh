@@ -73,6 +73,8 @@ fi
 if [[ -f /root/Caddyfile ]]; then
   install -m 644 /root/Caddyfile /etc/caddy/Caddyfile
   caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+  # validate от root создаёт лог-файлы root'ом — сервис (пользователь caddy) потом не стартует.
+  chown -R caddy:caddy /var/log/caddy
   systemctl reload caddy || systemctl restart caddy
 fi
 
@@ -99,6 +101,7 @@ enabled = true
 JAIL
 systemctl enable --now fail2ban
 systemctl restart fail2ban
+for _ in $(seq 1 10); do fail2ban-client ping &>/dev/null && break; sleep 1; done
 fail2ban-client status sshd
 
 say "Готово. Не закрывай эту сессию root. В НОВОМ окне терминала проверь:"
