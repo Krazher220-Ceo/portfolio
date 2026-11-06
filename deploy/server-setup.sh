@@ -18,6 +18,10 @@ say() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 
 say "Обновление системы"
 export DEBIAN_FRONTEND=noninteractive
+# На VPS без маршрута IPv6 apt иначе цепляется к AAAA-адресам зеркал и падает.
+if ! ip -6 route show default | grep -q .; then
+  echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+fi
 apt-get update
 apt-get -y -o Dpkg::Options::=--force-confold upgrade
 apt-get install -y curl ca-certificates gnupg rsync ufw fail2ban debian-keyring debian-archive-keyring apt-transport-https unattended-upgrades
@@ -50,9 +54,12 @@ install -m 600 -o "$DEPLOY_USER" -g "$DEPLOY_USER" /root/.ssh/authorized_keys /h
 
 say "Node.js $NODE_MAJOR + pm2"
 if ! command -v node &>/dev/null || [[ "$(node -v)" != v$NODE_MAJOR.* ]]; then
-  curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+  apt-get purge -y nodejs libnode109 2>/dev/null || true   # Node из Ubuntu (18) без npm
+  curl -fsSL https://deb.nodesource.com/setup_$NODE_MAJOR.x -o /tmp/nodesource_setup.sh
+  bash /tmp/nodesource_setup.sh
   apt-get install -y nodejs
 fi
+[[ "$(node -v)" == v$NODE_MAJOR.* ]] || { echo "ОШИБКА: установился Node $(node -v), нужен $NODE_MAJOR"; exit 1; }
 npm install -g pm2@latest
 env PATH="$PATH:/usr/bin" pm2 startup systemd -u "$DEPLOY_USER" --hp /home/$DEPLOY_USER
 install -d -o "$DEPLOY_USER" -g "$DEPLOY_USER" "$APP_DIR" "$APP_DIR/releases"
