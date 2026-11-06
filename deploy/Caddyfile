@@ -1,9 +1,5 @@
 # /etc/caddy/Caddyfile — HTTPS-сертификаты Let's Encrypt Caddy получает и
 # продлевает сам, как только A-записи домена указывают на сервер.
-{
-	email krazher220@icloud.com
-}
-
 alikhandev.com {
 	encode zstd gzip
 	reverse_proxy 127.0.0.1:3000
