@@ -32,8 +32,12 @@ fi
 say "Пользователь $DEPLOY_USER"
 if ! id "$DEPLOY_USER" &>/dev/null; then
   adduser --disabled-password --gecos "" "$DEPLOY_USER"
+fi
+# Пароль спрашиваем, пока он не задан (в т.ч. при повторном запуске после
+# опечатки): без него sudo у deploy не работает, а harden-ssh отрежет root.
+if [[ "$(passwd -S "$DEPLOY_USER" | awk '{print $2}')" != P ]]; then
   echo "Задай пароль для $DEPLOY_USER (он нужен для sudo, НЕ для входа по SSH):"
-  passwd "$DEPLOY_USER"
+  until passwd "$DEPLOY_USER"; do echo "Пароли не совпали, ещё раз."; done
 fi
 usermod -aG sudo "$DEPLOY_USER"
 
@@ -68,7 +72,7 @@ fi
 say "Файрвол ufw: СНАЧАЛА разрешаю SSH (22), потом 80/443, и только потом включаю"
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow OpenSSH
+ufw allow 22/tcp    # SSH: порт явно, не зависим от профиля OpenSSH
 ufw allow 80/tcp
 ufw allow 443/tcp
 ufw allow 443/udp   # HTTP/3

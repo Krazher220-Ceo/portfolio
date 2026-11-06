@@ -9,6 +9,7 @@ DEPLOY_USER=deploy
 # Защита от потери доступа: без ключа у deploy и sudo — ничего не трогаем.
 [[ -s /home/$DEPLOY_USER/.ssh/authorized_keys ]] || { echo "СТОП: у $DEPLOY_USER нет SSH-ключа"; exit 1; }
 id -nG "$DEPLOY_USER" | grep -qw sudo || { echo "СТОП: $DEPLOY_USER не в группе sudo"; exit 1; }
+[[ "$(passwd -S "$DEPLOY_USER" | awk '{print $2}')" == P ]] || { echo "СТОП: у $DEPLOY_USER нет пароля — sudo не сработает"; exit 1; }
 
 # 00- чтобы перебить 50-cloud-init.conf (в sshd побеждает первое значение).
 cat > /etc/ssh/sshd_config.d/00-hardening.conf <<'CONF'

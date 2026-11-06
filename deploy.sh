@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Деплой одной командой с Мака:  ./deploy.sh
 # Заливает исходники в новый релиз на сервере, ставит зависимости, собирает,
-# атомарно переключает symlink current и перезапускает pm2 без простоя
-# (старый релиз работает, пока собирается новый). Хранит 3 последних релиза.
+# атомарно переключает symlink current и перезапускает pm2 (старый релиз
+# работает, пока собирается новый; сам рестарт — пара секунд). Хранит 3 последних релиза.
 # Откат:  ./deploy.sh rollback
 set -euo pipefail
 
@@ -15,9 +15,12 @@ SSH="ssh -o ConnectTimeout=10 $USER_@$HOST"
 cd "$(dirname "$0")"
 
 if [[ "${1:-}" == "rollback" ]]; then
-  $SSH "set -e; cd $APP_DIR/releases; prev=\$(ls -1 | sort | tail -n 2 | head -n 1);
+  # Предыдущий = релиз, стоящий в списке прямо перед текущим (а не «предпоследний»:
+  # после неудачной сборки в releases может лежать более новый, но нерабочий каталог).
+  $SSH "set -e; cd $APP_DIR/releases;
         cur=\$(basename \$(readlink -f $APP_DIR/current));
-        [ \"\$prev\" != \"\$cur\" ] || { echo 'Нет предыдущего релиза'; exit 1; }
+        prev=\$(ls -1 | sort | grep -B1 -x \"\$cur\" | grep -vx \"\$cur\" || true);
+        [ -n \"\$prev\" ] || { echo 'Нет предыдущего релиза'; exit 1; }
         ln -sfn $APP_DIR/releases/\$prev $APP_DIR/current.tmp && mv -Tf $APP_DIR/current.tmp $APP_DIR/current;
         rm -rf $APP_DIR/releases/\$cur;
         pm2 startOrReload $APP_DIR/ecosystem.config.cjs --update-env && pm2 save; echo \"Откат на \$prev\""
@@ -37,6 +40,8 @@ rsync -az --delete \
 
 echo "==> Установка зависимостей и сборка на сервере"
 $SSH "set -e
+  # Сборка упала до переключения — убираем недособранный каталог, current не тронут.
+  trap '[ \"\$(readlink -f $APP_DIR/current)\" = $APP_DIR/releases/$REL ] || rm -rf $APP_DIR/releases/$REL' ERR
   cd $APP_DIR/releases/$REL
   cp deploy/ecosystem.config.cjs $APP_DIR/ecosystem.config.cjs
   # Если package-lock не менялся — берём node_modules прошлого релиза (быстро).
@@ -60,7 +65,7 @@ $SSH "set -e
   [ \"\$code\" = 200 ] || { echo \"Приложение не отвечает (HTTP \$code). Откат: ./deploy.sh rollback\"; pm2 logs portfolio --lines 30 --nostream; exit 1; }
   echo \"Локально на сервере: HTTP \$code\"
 
-  cd $APP_DIR/releases && ls -1 | sort | head -n -$KEEP | xargs -r rm -rf
+  cd $APP_DIR/releases && ls -1 | sort | head -n -$KEEP | grep -vx $REL | xargs -r rm -rf
 "
 echo "==> Проверка снаружи"
 curl -sS -o /dev/null -w "https://alikhandev.com/ru → HTTP %{http_code}\n" https://alikhandev.com/ru || echo "HTTPS пока недоступен (DNS/сертификат?)"
