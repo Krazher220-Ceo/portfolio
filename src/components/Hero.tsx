@@ -146,15 +146,9 @@ export default function Hero() {
             </div>
 
             <div className={s.panel}>
-              <span className="label">{t.stack.confident}</span>
+              <span className="label">{t.stack.basics}</span>
               <div className={s.panelRow}>
-                {stack.confident.map((x) => (
-                  <span key={x} className={`mono ${s.chip}`}>{x}</span>
-                ))}
-              </div>
-              <span className="label" style={{ marginTop: "var(--s-2)" }}>{t.stack.worked}</span>
-              <div className={s.panelRow}>
-                {stack.worked.slice(0, 6).map((x) => (
+                {stack.basics.map((x) => (
                   <span key={x} className={`mono ${s.chip}`}>{x}</span>
                 ))}
               </div>

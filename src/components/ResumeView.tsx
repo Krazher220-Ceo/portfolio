@@ -120,12 +120,8 @@ export default function ResumeView({ sizes }: { sizes: { ru: string; en: string 
           <section className={s.block}>
             <h2 className={s.h}>{t.resume.skills}</h2>
             <dl className={s.stack}>
-              <dt className="label">{t.stack.confident}</dt>
-              <dd className="mono">{stack.confident.join(" · ")}</dd>
-              <dt className="label">{t.stack.worked}</dt>
-              <dd className="mono">{stack.worked.join(" · ")}</dd>
-              <dt className="label">{t.stack.learning}</dt>
-              <dd className="mono">{stack.learning.join(" · ")}</dd>
+              <dt className="label">{t.stack.basics}</dt>
+              <dd className="mono">{stack.basics.join(" · ")}</dd>
             </dl>
           </section>
 

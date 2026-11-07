@@ -100,14 +100,13 @@ export const timeline: TimelineEvent[] = [
   },
 ];
 
-/** Стек по трём уровням владения — блок D из docx, дословно. */
+/** Стек одним блоком, без деления по уровням: всё — на уровне базы
+ *  (понимаю основы, читаю код). Состав — блок D из docx, дословно. */
 export const stack = {
-  confident: [
+  basics: [
     "Python", "JavaScript", "HTML/CSS", "FastAPI", "aiogram", "Git",
-  ],
-  worked: [
     "PyTorch", "TensorFlow", "MobileNetV2", "EfficientNet", "YOLOv8",
     "Supabase", "Leaflet.js", "PWA", "Render", "Docker",
+    "React", "n8n", "Ollama", "LM Studio",
   ],
-  learning: ["React", "n8n", "Ollama", "LM Studio"],
 };

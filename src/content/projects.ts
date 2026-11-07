@@ -117,8 +117,8 @@ export const projects: Project[] = [
       en: "Repair work orders with an AI inspector for a mining and processing plant",
     },
     role: {
-      ru: "Капитан и ведущий разработчик — архитектура, база и правила доступа, ИИ-модули и дообучение Laya, нативное Android-приложение исполнителя",
-      en: "Captain and lead developer — the architecture, the database and its access rules, the AI modules and the Laya fine-tune, the worker's native Android app",
+      ru: "Капитан, отвечал за техническую часть — архитектура, база и правила доступа, ИИ-модули и дообучение Laya, нативное Android-приложение исполнителя",
+      en: "Captain, responsible for the technical side — the architecture, the database and its access rules, the AI modules and the Laya fine-tune, the worker's native Android app",
     },
     stack: [
       "Next.js 16", "React 19", "TypeScript", "Supabase", "PostgreSQL RLS",

@@ -1,8 +1,8 @@
 {
   "meta": {
-    "title": "Alikhan Kabdualy — AI & Web developer",
-    "description": "Building AI products at 16. From Kostanay, Kazakhstan. Computer vision, progressive web apps and Telegram bots, from concept to deployment.",
-    "ogAlt": "Alikhan Kabdualy, AI & Web developer"
+    "title": "Alikhan Kabdualy — AI & web projects",
+    "description": "A school student from Kostanay, maths stream of a lyceum. AI and web projects from hackathons: computer vision, PWAs and Telegram bots — from idea to deployment, built together with AI coding tools.",
+    "ogAlt": "Alikhan Kabdualy, AI & web projects"
   },
   "nav": {
     "home": "Home",
@@ -28,9 +28,9 @@
   "hero": {
     "first": "ALIKHAN",
     "last": "KABDUALY",
-    "tagline": "Building AI products at 16. From Kostanay, Kazakhstan.",
+    "tagline": "A school student from Kostanay. I come up with AI and web projects and see them through, working with AI coding tools.",
     "roles": [
-      "AI developer",
+      "AI projects",
       "Computer vision",
       "PWA and frontend",
       "Telegram bots",
@@ -46,14 +46,14 @@
   },
   "about": {
     "kicker": "About",
-    "short": "I'm Alikhan, a 16-year-old developer from Kostanay, Kazakhstan. I build AI-powered products — computer vision models, progressive web apps and Telegram bots — taking them from concept to deployment. I've competed in hackathons and pitch sessions across the Astana Hub ecosystem in Kostanay, Petropavlovsk and Almaty. In September 2026 our team took first place at the Qostanai AgroTech Hackathon with AgroVision AI, a weed map built from drone imagery, and in October we reached the final of the Qostanai AI Industry Hackathon with НарядAI, a repair work-order system for Kostanay Minerals. Right now I’m building {secret} — no details yet.",
+    "short": "I'm Alikhan, a 16-year-old school student from Kostanay, Kazakhstan. I make AI projects together with AI coding tools: I come up with the idea, design it, set the tasks, review, test and deploy. My areas are computer vision, progressive web apps and Telegram bots. I've competed in hackathons and pitch sessions across the Astana Hub ecosystem in Kostanay, Petropavlovsk and Almaty. In September 2026 our team took first place at the Qostanai AgroTech Hackathon with AgroVision AI, a weed map built from drone imagery, and in October we reached the final of the Qostanai AI Industry Hackathon with НарядAI, a repair work-order system for Kostanay Minerals. Right now I’m working on {secret} — no details yet.",
     "more": "Read the long version",
     "title": "About me",
     "body": [
       "I'm Alikhan. I'm 16, I live in Kostanay and I study in the maths stream of my lyceum.",
       "My first technical project was in fifth grade — robotics, second place at the school showcase. Then came three years of doing nothing at all. My grades slid, and I dropped everything I had been working on. I'm not going to pretend otherwise: it is part of the story, and everything else grew out of it.",
       "At the end of eighth grade I decided to start over. Over the following year I pulled my grades back up to nearly straight A's, finished music school alongside it — the final exams at both places ran at the same time — and landed in the environment that turned me around: hackathons, idea battles and pitch sessions across the Astana Hub ecosystem. Kostanay, Petropavlovsk, Almaty.",
-      "Now I build AI products. Computer vision, progressive web apps, Telegram bots, and work with LLMs — both local and cloud. What interests me is not the technology itself but the moment it turns into a working service somebody actually uses.",
+      "Now I make AI projects. I write code together with AI tools — vibe coding: the idea, the design, setting the tasks, reviewing, testing and deploying are on me. The languages and tools themselves I know at a basic level: I understand the fundamentals, read the code and keep learning. My areas are computer vision, progressive web apps, Telegram bots and LLMs — both local and cloud. What interests me is not the technology itself but the moment it turns into a working service somebody actually uses.",
       "My current project is {secret}: an AI system for teachers and students. It's still in development, so the name stays under wraps for now. Before it came Smart Green Qostanai, a PWA that assesses city trees from a photograph, built at the Qostanai Smart City hackathon. The most recent finished one is НарядAI, repair work orders with an AI inspector, which took us to the final of the Qostanai AI Industry Hackathon.",
       "Next comes an undergraduate degree abroad. First priority is Japan, through the MEXT programme."
     ],
@@ -95,11 +95,9 @@
   },
   "stack": {
     "kicker": "Stack",
-    "title": "Split by how well I actually know it",
-    "lead": "The \"Learning\" tier isn't filler: without it a stack is just a list.",
-    "confident": "Confident",
-    "worked": "Used in projects",
-    "learning": "Learning"
+    "title": "Languages and tools",
+    "lead": "I know them at a basic level: I understand the fundamentals and read the code, my own coding is beginner-level and I keep learning. I build projects together with AI coding tools.",
+    "basics": "Know the basics, can read the code"
   },
   "certificates": {
     "kicker": "Certificates",

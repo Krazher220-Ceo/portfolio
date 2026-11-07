@@ -1,7 +1,7 @@
 {
-  "name": "Алихан Кабдуалы — AI & Web разработчик",
+  "name": "Алихан Кабдуалы — AI- и веб-проекты",
   "short_name": "alikhandev",
-  "description": "Портфолио: компьютерное зрение, PWA и Telegram-боты — от идеи до деплоя.",
+  "description": "Портфолио: компьютерное зрение, PWA и Telegram-боты — от идеи до деплоя, в связке с ИИ-инструментами.",
   "start_url": "/ru",
   "scope": "/",
   "display": "standalone",

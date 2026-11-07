@@ -123,9 +123,7 @@ export function renderCv(locale: Locale): string {
   <section>
     <h2>${esc(t.resume.skills)}</h2>
     <dl class="stack">
-      <dt>${esc(t.stack.confident)}</dt><dd class="mono">${esc(stack.confident.join(" · "))}</dd>
-      <dt>${esc(t.stack.worked)}</dt><dd class="mono">${esc(stack.worked.join(" · "))}</dd>
-      <dt>${esc(t.stack.learning)}</dt><dd class="mono">${esc(stack.learning.join(" · "))}</dd>
+      <dt>${esc(t.stack.basics)}</dt><dd class="mono">${esc(stack.basics.join(" · "))}</dd>
     </dl>
   </section>
 

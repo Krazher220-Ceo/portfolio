@@ -144,13 +144,11 @@ export function TimelineSection() {
   );
 }
 
-/* ── Стек: три ленты с разной прозрачностью ───────────────── */
+/* ── Стек: одна лента, без деления по уровням ─────────────── */
 export function StackSection() {
   const { t } = useSite();
   const tiers = [
-    { title: t.stack.confident, items: stack.confident, cls: "" },
-    { title: t.stack.worked, items: stack.worked, cls: s.tier2 },
-    { title: t.stack.learning, items: stack.learning, cls: s.tier3 },
+    { title: t.stack.basics, items: stack.basics, cls: "" },
   ];
   return (
     <section className="section" data-lit-section aria-labelledby="stack-h">
